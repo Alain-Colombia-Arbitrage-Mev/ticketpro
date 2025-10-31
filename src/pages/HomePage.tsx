@@ -99,10 +99,10 @@ export function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 dark:border-white/10 bg-white/10 dark:bg-white/5 px-4 py-2 text-sm backdrop-blur-sm sm:mb-8"
+              className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/20 dark:bg-white/10 backdrop-blur-xl px-4 py-2 text-sm shadow-lg shadow-white/20 sm:mb-8 transition-all duration-300 hover:bg-white/30 hover:scale-105"
             >
-              <Sparkles className="h-4 w-4 flex-shrink-0 text-yellow-300 dark:text-yellow-400" />
-              <span className="font-medium text-white">{t('home.events.badge')}</span>
+              <Sparkles className="h-4 w-4 flex-shrink-0 text-yellow-300 dark:text-yellow-400 animate-pulse" />
+              <span className="font-medium text-white drop-shadow-lg">{t('home.events.badge')}</span>
             </motion.div>
             
             {/* Título principal */}
@@ -110,7 +110,7 @@ export function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="mb-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+                className="mb-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl drop-shadow-2xl"
               >
                 {t('hero.title')}
               </motion.h1>
@@ -120,7 +120,7 @@ export function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="mb-8 px-4 text-lg text-white/90 dark:text-white/80 sm:mb-10 sm:text-xl"
+                className="mb-8 px-4 text-lg text-white/95 dark:text-white/90 sm:mb-10 sm:text-xl drop-shadow-lg"
               >
                 {t('hero.subtitle')}
               </motion.p>
@@ -256,7 +256,7 @@ export function HomePage() {
       {/* Categories Section - Sección de categorías */}
       <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="mb-10 text-center sm:mb-12">
-          <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          <h2 className="mb-3 text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-600 to-indigo-600 dark:from-white dark:via-blue-400 dark:to-indigo-400 bg-clip-text text-transparent sm:text-4xl">
             {t('home.categories.title')}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.categories.subtitle')}</p>
@@ -277,11 +277,11 @@ export function HomePage() {
       <section className="bg-gradient-to-b from-gray-50 dark:from-gray-800 to-white dark:to-gray-900 py-16 sm:py-20 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10 flex items-center gap-4 sm:mb-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg shadow-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/60 hover:scale-110">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-600 to-indigo-600 dark:from-white dark:via-blue-400 dark:to-indigo-400 bg-clip-text text-transparent sm:text-4xl">
                 {t('page.events.featured')}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.featured.subtitle')}</p>
@@ -304,7 +304,7 @@ export function HomePage() {
       <section className="py-16 sm:py-20 lg:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center sm:mb-12">
-            <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+            <h2 className="mb-3 text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 via-blue-600 to-indigo-600 dark:from-white dark:via-blue-400 dark:to-indigo-400 bg-clip-text text-transparent sm:text-4xl">
               {t('page.events.upcoming')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.upcoming.subtitle')}</p>
