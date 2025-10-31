@@ -337,23 +337,20 @@ export function HomePage() {
       </section>
 
       {/* CTA Section - Para Organizadores */}
-      {/* Diseño elegante y minimalista */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 sm:py-28">
-        {/* Fondo sutil con gradiente */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-        
+      {/* Regla 60-30-10: 60% fondo azul (dominante), 30% cards blancas (secundario), 10% botones primarios (acento) */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 py-20 sm:py-28">
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl">
-            {/* Header - Diseño limpio */}
+            {/* Header - 60% fondo azul */}
             <div className="mb-12 text-center sm:mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-4 py-1.5 text-xs font-medium text-blue-300 ring-1 ring-blue-500/20"
+                className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
                 Para Organizadores
               </motion.div>
               
@@ -372,13 +369,13 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="mx-auto max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg"
+                className="mx-auto max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg"
               >
                 Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.
               </motion.p>
             </div>
 
-            {/* Features Grid - Diseño limpio */}
+            {/* Features Grid - 30% cards blancas (secundario) */}
             <div className="mb-12 grid gap-4 sm:grid-cols-3 sm:gap-6">
               {[
                 { icon: Users, title: "Alcance Masivo", description: "Llega a miles de personas con nuestras herramientas de marketing" },
@@ -391,20 +388,20 @@ export function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                  className="group rounded-xl border border-slate-700/50 bg-slate-800/30 p-6 backdrop-blur-sm transition-all hover:border-slate-600 hover:bg-slate-800/50"
+                  className="group rounded-xl border border-gray-200 bg-white p-6 shadow-lg transition-all hover:shadow-xl"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 transition-colors group-hover:bg-blue-500/20">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100">
                     <feature.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
-                  <p className="text-sm leading-relaxed text-slate-400">
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">{feature.title}</h3>
+                  <p className="text-sm leading-relaxed text-gray-600">
                     {feature.description}
                   </p>
                 </motion.div>
               ))}
             </div>
 
-            {/* CTAs - Diseño limpio */}
+            {/* CTAs - 10% botones primarios (acento) */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -422,39 +419,39 @@ export function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full gap-2 border-slate-600 bg-transparent font-semibold text-slate-300 transition-all hover:border-slate-500 hover:bg-slate-800/50 hover:text-white sm:w-auto sm:px-8"
+                className="w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white hover:text-blue-600 sm:w-auto sm:px-8"
               >
                 <Info className="h-5 w-5" />
                 Ver Cómo Funciona
               </Button>
             </motion.div>
 
-            {/* Stats - Diseño minimalista */}
+            {/* Stats - 30% card blanca (secundario) */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-8 backdrop-blur-sm"
+              className="rounded-xl border border-gray-200 bg-white p-8 shadow-lg"
             >
-              <div className="grid grid-cols-3 gap-4 divide-x divide-slate-700/50">
+              <div className="grid grid-cols-3 gap-4 divide-x divide-gray-200">
                 <div className="text-center">
-                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
+                  <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={500} suffix="K+" />
                   </div>
-                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Tickets Vendidos</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Tickets Vendidos</div>
                 </div>
                 <div className="text-center">
-                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
+                  <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={15} suffix="K+" />
                   </div>
-                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Eventos Exitosos</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Eventos Exitosos</div>
                 </div>
                 <div className="text-center">
-                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
+                  <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={98} suffix="%" />
                   </div>
-                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Satisfacción</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Satisfacción</div>
                 </div>
               </div>
             </motion.div>
