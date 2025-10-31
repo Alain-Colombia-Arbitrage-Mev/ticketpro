@@ -11,8 +11,7 @@ import { Alert, AlertDescription } from "../components/ui/alert";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../utils/api";
-import { CurrencySelector } from "../components/CurrencySelector";
-import { MultiCurrencyBalance } from "../components/MultiCurrencyBalance";
+import { CurrencySelector, MultiCurrencyBalance } from "../components/payment";
 import { Currency, formatCurrency, CURRENCIES } from "../utils/currency";
 import { toast } from "sonner";
 
