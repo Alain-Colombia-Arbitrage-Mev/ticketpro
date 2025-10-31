@@ -20,7 +20,7 @@ Cloudflare Pages es **100% compatible con Bun**. Bun está incluido por defecto 
 
 ### 1. Instalación de Wrangler CLI (Opcional)
 
-**Nota**: No necesitas instalar Wrangler globalmente. Los scripts usan `bunx` que lo instala automáticamente.
+**Nota**: No necesitas instalar Wrangler globalmente. Los scripts usan `npx` que lo instala automáticamente.
 
 ```bash
 # Opción A: Usar npx (recomendado - se instala automáticamente)
@@ -78,8 +78,10 @@ set CLOUDFLARE_API_TOKEN=tu_token_aqui
 export CLOUDFLARE_ACCOUNT_ID=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
 ```
 
+O agréguelo al comando:
+
 ```bash
-bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
+npx wrangler@latest pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
 ```
 
 ### 3. Build Local (Verificar antes de deployar)
