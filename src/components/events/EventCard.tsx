@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { ImageWithFallback } from "../media";
+import { useLanguage } from "../../hooks/useLanguage";
 
 interface EventCardProps {
   title: string;
@@ -33,6 +34,7 @@ export function EventCard({
   soldOut = false,
   lastTickets = false,
 }: EventCardProps) {
+  const { t } = useLanguage();
   return (
     <>
       {/* EventCard - Regla 60-30-10: 60% fondo card (bg-white), 30% bordes (border-gray-200), 10% botón CTA (bg-blue-600) */}
@@ -51,17 +53,16 @@ export function EventCard({
             {category}
           </Badge>
           
-          {trending && (
             <Badge className="border-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-xs font-medium text-white shadow-sm sm:text-sm">
               <TrendingUp className="mr-1 h-3 w-3" />
-              Tendencia
+              {t('ui.trending')}
             </Badge>
           )}
           
           {lastTickets && !soldOut && (
             <Badge className="border-0 bg-gradient-to-r from-orange-500 to-red-500 text-xs font-medium text-white shadow-sm sm:text-sm animate-pulse">
               <Clock className="mr-1 h-3 w-3" />
-              Últimos
+              {t('ui.last_tickets')}
             </Badge>
           )}
         </div>
@@ -69,7 +70,7 @@ export function EventCard({
         {featured && (
           <div className="absolute right-3 top-3">
             <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-medium text-white shadow-sm sm:text-sm">
-              ⭐ Destacado
+              ⭐ {t('ui.featured')}
             </Badge>
           </div>
         )}
@@ -77,7 +78,7 @@ export function EventCard({
         {soldOut && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <Badge className="border-0 bg-gray-900/90 px-6 py-2 text-base font-bold text-white shadow-xl">
-              AGOTADO
+              {t('ui.sold_out')}
             </Badge>
           </div>
         )}
@@ -86,7 +87,7 @@ export function EventCard({
         {!soldOut && (
           <div className="absolute bottom-3 left-3">
             <div className="rounded-xl bg-white/95 dark:bg-gray-900/95 px-3 py-1.5 shadow-lg backdrop-blur-sm">
-              <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Desde</p>
+              <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{t('ui.from')}</p>
               <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">{price}</p>
             </div>
           </div>
@@ -110,7 +111,7 @@ export function EventCard({
         {/* Botón CTA - Regla 60-30-10: 10% color de acento para elemento destacado */}
         <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 font-medium shadow-sm transition-shadow hover:shadow-md">
           <Ticket className="mr-2 h-4 w-4" />
-          Comprar Tickets
+          {t('event.buy')}
         </Button>
       </div>
       </Card>

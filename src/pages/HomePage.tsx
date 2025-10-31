@@ -38,37 +38,37 @@ export function HomePage() {
 
   const categories = [
     {
-      title: "Conciertos",
+      title: t('category.concerts'),
       icon: Music,
       count: mockEvents.filter(e => e.category === "Concierto").length.toString(),
       gradient: "bg-gradient-to-br from-purple-500 to-pink-500",
     },
     {
-      title: "Deportes",
+      title: t('category.sports'),
       icon: Trophy,
       count: mockEvents.filter(e => e.category === "Deportes").length.toString(),
       gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
     },
     {
-      title: "Teatro",
+      title: t('category.theater'),
       icon: Theater,
       count: mockEvents.filter(e => e.category === "Teatro").length.toString(),
       gradient: "bg-gradient-to-br from-red-500 to-orange-500",
     },
     {
-      title: "Familia",
+      title: t('category.family'),
       icon: Heart,
       count: mockEvents.filter(e => e.category === "Familia").length.toString(),
       gradient: "bg-gradient-to-br from-green-500 to-emerald-500",
     },
     {
-      title: "Arte",
+      title: t('category.art'),
       icon: Palette,
       count: mockEvents.filter(e => e.category === "Arte").length.toString(),
       gradient: "bg-gradient-to-br from-amber-500 to-yellow-500",
     },
     {
-      title: "Comedia",
+      title: t('category.comedy'),
       icon: Laugh,
       count: mockEvents.filter(e => e.category === "Comedia").length.toString(),
       gradient: "bg-gradient-to-br from-indigo-500 to-purple-500",
@@ -102,7 +102,7 @@ export function HomePage() {
               className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 dark:border-white/10 bg-white/10 dark:bg-white/5 px-4 py-2 text-sm backdrop-blur-sm sm:mb-8"
             >
               <Sparkles className="h-4 w-4 flex-shrink-0 text-yellow-300 dark:text-yellow-400" />
-              <span className="font-medium text-white">Más de 10,000 eventos disponibles</span>
+              <span className="font-medium text-white">{t('home.events.badge')}</span>
             </motion.div>
             
             {/* Título principal */}
@@ -221,7 +221,7 @@ export function HomePage() {
                 <div className="mb-2 text-4xl font-bold text-gray-900 dark:text-white">
                   <CountUp end={500000} suffix="+" />
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">Tickets Vendidos</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('home.stats.tickets')}</p>
               </div>
             </FadeIn>
 
@@ -257,9 +257,9 @@ export function HomePage() {
       <section className="container mx-auto px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="mb-10 text-center sm:mb-12">
           <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-            Explora por Categoría
+            {t('home.categories.title')}
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400">Encuentra eventos que te apasionan</p>
+          <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.categories.subtitle')}</p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -284,7 +284,7 @@ export function HomePage() {
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                 {t('page.events.featured')}
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">Los eventos más populares del momento</p>
+              <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.featured.subtitle')}</p>
             </div>
           </div>
 
@@ -307,7 +307,7 @@ export function HomePage() {
             <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
               {t('page.events.upcoming')}
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">No te pierdas estos increíbles eventos</p>
+            <p className="text-lg text-gray-600 dark:text-gray-400">{t('home.upcoming.subtitle')}</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
