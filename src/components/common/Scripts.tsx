@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useTheme } from "next-themes";
 
-export function ThemeScript() {
+export function Scripts() {
   const { theme } = useTheme();
 
   useEffect(() => {
