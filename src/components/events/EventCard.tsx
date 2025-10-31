@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Ticket, TrendingUp, Clock, AlertCircle } from "lucide-react";
+import { Calendar, MapPin, Ticket, TrendingUp, Clock } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";

@@ -245,7 +245,7 @@ export function UnifiedSearchBar({
           <div className="flex items-center gap-2 lg:w-64">
             <div className="relative flex-1">
               <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400 z-10 pointer-events-none" />
-              <Select value={selectedCity || "all"} onValueChange={(value) => setSelectedCity(value === "all" ? "" : value)}>
+              <Select value={selectedCity || "all"} onValueChange={(value: string) => setSelectedCity(value === "all" ? "" : value)}>
                 <SelectTrigger className="h-12 sm:h-14 pl-10 pr-10 bg-white dark:bg-gray-800 dark:text-white border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
                   <SelectValue placeholder="Todas las ciudades" />
                 </SelectTrigger>
