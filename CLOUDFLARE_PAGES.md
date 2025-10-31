@@ -37,9 +37,51 @@ wrangler pages deploy ./dist
 
 ### 2. Autenticación en Cloudflare
 
+Tienes dos opciones para autenticarte:
+
+#### Opción A: Login Interactivo (Recomendado para desarrollo local)
+
 ```bash
-# Iniciar sesión en Cloudflare
+# Iniciar sesión interactivamente (abre navegador)
+bunx wrangler login
+
+# O si wrangler está instalado globalmente
 wrangler login
+```
+
+#### Opción B: Usar Token de API (Para CI/CD)
+
+Si necesitas usar un token de API, debes crear uno con los permisos correctos:
+
+1. Ve a https://dash.cloudflare.com/profile/api-tokens
+2. Click en "Create Token"
+3. Usa el template "Edit Cloudflare Workers" o crea uno personalizado con estos permisos:
+   - **Account**: `Cloudflare Pages:Edit`
+   - **Zone**: (opcional, solo si necesitas acceso a DNS)
+4. Copia el token y guárdalo de forma segura
+5. Configúralo como variable de entorno:
+
+```bash
+# En tu terminal (Linux/Mac)
+export CLOUDFLARE_API_TOKEN=tu_token_aqui
+
+# En PowerShell (Windows)
+$env:CLOUDFLARE_API_TOKEN="tu_token_aqui"
+
+# En CMD (Windows)
+set CLOUDFLARE_API_TOKEN=tu_token_aqui
+```
+
+**⚠️ Importante**: Si usas un token de API, también necesitas configurar el Account ID:
+
+```bash
+export CLOUDFLARE_ACCOUNT_ID=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
+```
+
+O agréguelo al comando:
+
+```bash
+bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
 ```
 
 ### 3. Build Local (Verificar antes de deployar)
@@ -59,18 +101,19 @@ bun run preview
 
 ```bash
 # Deploy a producción (con bunx - se instala automáticamente)
-bunx wrangler pages deploy ./dist
+# IMPORTANTE: Especifica el nombre del proyecto
+bunx wrangler pages deploy ./dist --project-name=ticketpro
 
-# O usando el script npm (más fácil)
+# O usando el script npm (más fácil - ya incluye el nombre del proyecto)
 bun run deploy
 
-# Deploy con mensaje personalizado
-bunx wrangler pages deploy ./dist --project-name=ticketpro
+# Si usas token de API, también especifica el account-id
+bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
 
 # Deploy a un branch específico (preview)
 bun run deploy:preview
 # o
-bunx wrangler pages deploy ./dist --branch=preview
+bunx wrangler pages deploy ./dist --project-name=ticketpro --branch=preview
 ```
 
 ### 5. Deployment con GitHub Integration (Recomendado)
