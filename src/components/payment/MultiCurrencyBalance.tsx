@@ -9,7 +9,7 @@ import {
   formatCurrency,
   getTotalBalanceIn,
   convertCurrency,
-} from "../utils/currency";
+} from "../../utils/currency";
 
 interface MultiCurrencyBalanceProps {
   balance: BalanceType | number; // Support both old and new format

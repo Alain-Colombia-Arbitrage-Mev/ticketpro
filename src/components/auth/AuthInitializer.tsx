@@ -4,9 +4,9 @@
  */
 import { useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { api } from '../utils/api';
-import { useAuthStore } from '../stores/authStore';
+import { projectId, publicAnonKey } from '../../utils/supabase/info';
+import { api } from '../../utils/api';
+import { useAuthStore } from '../../stores/authStore';
 
 const supabase = createClient(
   `https://${projectId}.supabase.co`,

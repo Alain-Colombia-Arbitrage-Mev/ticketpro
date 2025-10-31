@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Currency, CURRENCIES, getCurrencySymbol } from "../utils/currency";
+import { Currency, CURRENCIES, getCurrencySymbol } from "../../utils/currency";
 
 interface CurrencySelectorProps {
   selectedCurrency: Currency;
