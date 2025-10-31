@@ -337,67 +337,84 @@ export function HomePage() {
       </section>
 
       {/* CTA Section - Call to action para organizadores */}
-      {/* Regla 60-30-10: 60% fondo (gradiente), 30% cards (blanco translúcido), 10% botones primarios */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 py-20 sm:py-24 lg:py-32">
-        {/* Patrón de fondo con mejor contraste */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40" />
+      {/* Diseño moderno y profesional con mejor jerarquía visual */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 py-24 sm:py-28 lg:py-36">
+        {/* Patrón de fondo sutil */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA4IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
         
-        {/* Elementos decorativos mejorados - contenidos dentro del ancho */}
-        <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/15 to-transparent blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tl from-white/15 to-transparent blur-3xl" />
+        {/* Elementos decorativos mejorados */}
+        <div className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
+        <div className="absolute -bottom-1/4 -right-1/4 h-[700px] w-[700px] rounded-full bg-gradient-to-tl from-white/20 via-white/10 to-transparent blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-yellow-300/10 via-transparent to-transparent blur-3xl" />
         
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-5xl text-center">
-            {/* Badge mejorado */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 dark:bg-white/10 px-5 py-2.5 backdrop-blur-md border border-white/30"
-            >
-              <span className="h-2 w-2 animate-pulse rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
-              <span className="text-sm font-semibold text-white">Para Organizadores</span>
-            </motion.div>
-            
-            {/* Título mejorado */}
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-6 bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl lg:text-6xl"
-            >
-              ¿Organizas Eventos?
-            </motion.h2>
-            
-            {/* Descripción mejorada */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-white/95 sm:text-xl lg:text-2xl"
-            >
-              Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.
-            </motion.p>
+          <div className="mx-auto max-w-6xl">
+            {/* Header Section - Centrado */}
+            <div className="mb-16 text-center">
+              {/* Badge premium */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-white/15 px-6 py-3 backdrop-blur-lg border border-white/30 shadow-lg"
+              >
+                <span className="relative h-2.5 w-2.5">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-block h-2.5 w-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
+                </span>
+                <span className="text-sm font-semibold tracking-wide text-white">Para Organizadores de Eventos</span>
+              </motion.div>
+              
+              {/* Título mejorado con mejor tipografía */}
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+              >
+                ¿Organizas{" "}
+                <span className="bg-gradient-to-r from-yellow-300 via-yellow-200 to-orange-300 bg-clip-text text-transparent">
+                  Eventos?
+                </span>
+              </motion.h2>
+              
+              {/* Descripción mejorada */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mx-auto max-w-3xl text-lg leading-relaxed text-white/95 sm:text-xl lg:text-2xl"
+              >
+                Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional diseñada para el éxito.
+              </motion.p>
+            </div>
 
-            {/* Características destacadas - Mejoradas con iconos de lucide-react */}
-            <div className="mb-12 grid gap-6 sm:grid-cols-3">
+            {/* Características destacadas - Diseño mejorado */}
+            <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl"
               >
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
-                    <Users className="h-7 w-7 text-white" />
+                {/* Efecto de brillo en hover */}
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                
+                <div className="relative">
+                  <div className="mb-6 flex justify-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Users className="h-8 w-8 text-white" />
+                    </div>
                   </div>
+                  <h3 className="mb-3 text-xl font-bold text-white">Alcance Masivo</h3>
+                  <p className="text-base leading-relaxed text-white/90">
+                    Llega a miles de personas en toda la región con nuestras herramientas de marketing integradas
+                  </p>
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-white">Alcance Masivo</h3>
-                <p className="text-sm leading-relaxed text-white/85">Llega a miles de personas en toda la región</p>
               </motion.div>
 
               <motion.div
@@ -405,15 +422,21 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl"
               >
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
-                    <Shield className="h-7 w-7 text-white" />
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                
+                <div className="relative">
+                  <div className="mb-6 flex justify-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <Shield className="h-8 w-8 text-white" />
+                    </div>
                   </div>
+                  <h3 className="mb-3 text-xl font-bold text-white">100% Seguro</h3>
+                  <p className="text-base leading-relaxed text-white/90">
+                    Pagos protegidos con cifrado de nivel bancario y códigos QR únicos anti-fraude
+                  </p>
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-white">100% Seguro</h3>
-                <p className="text-sm leading-relaxed text-white/85">Pagos protegidos y códigos QR únicos</p>
               </motion.div>
 
               <motion.div
@@ -421,68 +444,82 @@ export function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl sm:col-span-2 lg:col-span-1"
               >
-                <div className="mb-4 flex justify-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
-                    <BarChart3 className="h-7 w-7 text-white" />
+                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+                
+                <div className="relative">
+                  <div className="mb-6 flex justify-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <BarChart3 className="h-8 w-8 text-white" />
+                    </div>
                   </div>
+                  <h3 className="mb-3 text-xl font-bold text-white">Dashboard en Tiempo Real</h3>
+                  <p className="text-base leading-relaxed text-white/90">
+                    Estadísticas y reportes instantáneos para optimizar tus eventos y maximizar ingresos
+                  </p>
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-white">Dashboard en Tiempo Real</h3>
-                <p className="text-sm leading-relaxed text-white/85">Estadísticas y reportes instantáneos</p>
               </motion.div>
             </div>
 
-            {/* Botones mejorados - Con mejor contraste */}
+            {/* Botones mejorados con mejor diseño */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+              className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
             >
               <Button
                 size="lg"
-                className="group h-14 w-full gap-2 bg-white font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-50 hover:shadow-2xl sm:w-auto sm:px-10"
+                className="group relative h-16 w-full gap-3 overflow-hidden bg-white font-bold text-blue-600 shadow-2xl transition-all hover:scale-105 hover:bg-gray-50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] sm:w-auto sm:px-12"
               >
-                <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
-                Crear mi Primer Evento
+                <Plus className="h-6 w-6 transition-transform group-hover:rotate-90" />
+                <span className="text-lg">Crear mi Primer Evento</span>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-blue-600 hover:border-white hover:shadow-xl sm:w-auto sm:px-10"
+                className="group relative h-16 w-full gap-3 border-2 border-white/40 bg-white/10 font-bold text-white backdrop-blur-xl transition-all hover:border-white hover:bg-white hover:text-blue-600 hover:shadow-xl sm:w-auto sm:px-12"
               >
-                <Info className="h-5 w-5" />
-                Ver Cómo Funciona
+                <Info className="h-6 w-6" />
+                <span className="text-lg">Ver Cómo Funciona</span>
               </Button>
             </motion.div>
 
-            {/* Stats mejoradas */}
+            {/* Stats mejoradas con mejor diseño */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.7 }}
-              className="grid grid-cols-3 gap-6 rounded-2xl bg-white/10 dark:bg-white/5 p-8 backdrop-blur-md border border-white/20"
+              className="overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/25 shadow-2xl"
             >
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-                  <CountUp end={500} suffix="K+" />
+              <div className="grid grid-cols-3 divide-x divide-white/20">
+                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
+                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+                    <CountUp end={500} suffix="K+" />
+                  </div>
+                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
+                    Tickets Vendidos
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-white/85">Tickets Vendidos</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-                  <CountUp end={15} suffix="K+" />
+                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
+                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+                    <CountUp end={15} suffix="K+" />
+                  </div>
+                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
+                    Eventos Exitosos
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-white/85">Eventos Exitosos</div>
-              </div>
-              <div className="text-center">
-                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
-                  <CountUp end={98} suffix="%" />
+                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
+                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+                    <CountUp end={98} suffix="%" />
+                  </div>
+                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
+                    Satisfacción
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-white/85">Satisfacción</div>
               </div>
             </motion.div>
           </div>
