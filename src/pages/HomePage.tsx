@@ -385,9 +385,9 @@ export function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                  className="group rounded-xl border border-gray-200 bg-white p-6 shadow-lg transition-all hover:shadow-xl"
+                  className="group rounded-xl border border-gray-200 bg-white p-6 shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] hover:border-blue-200"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-100">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-blue-100 group-hover:to-indigo-100 group-hover:scale-110 group-hover:shadow-lg">
                     <feature.icon className="h-6 w-6" />
                   </div>
                   <h3 className="mb-2 text-lg font-semibold text-gray-900">{feature.title}</h3>
@@ -408,7 +408,7 @@ export function HomePage() {
             >
               <Button
                 size="lg"
-                className="w-full gap-2 bg-blue-600 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:w-auto sm:px-8"
+                className="w-full gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-semibold text-white shadow-lg shadow-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/60 hover:scale-105 sm:w-auto sm:px-8"
               >
                 <Plus className="h-5 w-5" />
                 {t('page.organizers.create_event')}
@@ -416,7 +416,7 @@ export function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white hover:text-blue-600 sm:w-auto sm:px-8"
+                className="w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:border-white hover:bg-white hover:text-blue-600 hover:shadow-lg hover:scale-105 sm:w-auto sm:px-8"
               >
                 <Info className="h-5 w-5" />
                 {t('page.organizers.how_it_works')}
@@ -429,7 +429,7 @@ export function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.7 }}
-              className="rounded-xl border border-gray-200 bg-white p-8 shadow-lg"
+              className="rounded-xl border border-gray-200 bg-white p-8 shadow-lg transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
             >
               <div className="grid grid-cols-3 gap-4 divide-x divide-gray-200">
                 <div className="text-center">
