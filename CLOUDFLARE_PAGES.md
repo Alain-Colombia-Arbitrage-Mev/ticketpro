@@ -23,8 +23,8 @@ Cloudflare Pages es **100% compatible con Bun**. Bun está incluido por defecto 
 **Nota**: No necesitas instalar Wrangler globalmente. Los scripts usan `bunx` que lo instala automáticamente.
 
 ```bash
-# Opción A: Usar bunx (recomendado - se instala automáticamente)
-bunx wrangler pages deploy ./dist
+# Opción A: Usar npx (recomendado - se instala automáticamente)
+npx wrangler@latest pages deploy ./dist
 
 # Opción B: Instalar Wrangler globalmente (opcional)
 npm install -g wrangler
@@ -43,7 +43,7 @@ Tienes dos opciones para autenticarte:
 
 ```bash
 # Iniciar sesión interactivamente (abre navegador)
-bunx wrangler login
+npx wrangler@latest login
 
 # O si wrangler está instalado globalmente
 wrangler login
@@ -77,8 +77,6 @@ set CLOUDFLARE_API_TOKEN=tu_token_aqui
 ```bash
 export CLOUDFLARE_ACCOUNT_ID=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
 ```
-
-O agréguelo al comando:
 
 ```bash
 bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
@@ -137,9 +135,19 @@ bunx wrangler pages deploy ./dist --project-name=ticketpro --branch=preview
    - **Project name**: `ticketpro` (o el nombre que prefieras)
 5. Click en "Save and Deploy"
 
-**Nota**: Si prefieres crear el proyecto manualmente primero, puedes usar cualquier nombre y luego actualizar el script de deploy con ese nombre.
+#### Opción C: Crear Proyecto desde la Línea de Comandos
 
-#### Opción B: Con GitHub Actions (CI/CD)
+Si prefieres crear el proyecto desde la terminal:
+
+```bash
+# Crear proyecto con nombre específico
+npx wrangler@latest pages project create ticketpro --production-branch=main
+
+# Después puedes hacer deploy
+bun run deploy
+```
+
+**Nota**: Una vez creado el proyecto, puedes hacer deploy con `bun run deploy` y tu sitio estará disponible en `https://ticketpro.pages.dev`
 
 Crea el archivo `.github/workflows/deploy.yml`:
 
@@ -210,22 +218,21 @@ bun run build
 bun run preview
 ```
 
-### Ver Logs de Deployment
 ```bash
 # Ver deployments recientes
-bunx wrangler pages deployment list
+npx wrangler@latest pages deployment list
 
 # Ver detalles de un deployment específico
-bunx wrangler pages deployment tail
+npx wrangler@latest pages deployment tail
 ```
 
 ### Rollback a Versión Anterior
 ```bash
 # Listar deployments
-bunx wrangler pages deployment list
+npx wrangler@latest pages deployment list
 
 # Hacer rollback (usa el deployment ID)
-bunx wrangler pages deployment rollback <deployment-id>
+npx wrangler@latest pages deployment rollback <deployment-id>
 ```
 
 ---
@@ -246,7 +253,7 @@ git push origin main
 # 3. (Opcional) Deploy manual si no usas GitHub integration
 bun run deploy
 # o
-bunx wrangler pages deploy ./dist
+npx wrangler@latest pages deploy ./dist --project-name=ticketpro
 ```
 
 ---
@@ -259,7 +266,7 @@ Este error indica que el token de API no tiene los permisos correctos. Solucione
 
 1. **Usar login interactivo** (más fácil y recomendado):
    ```bash
-   bunx wrangler login
+   npx wrangler@latest login
    ```
    Esto abrirá tu navegador para autenticarte con tu cuenta de Cloudflare.
 
@@ -272,7 +279,7 @@ Este error indica que el token de API no tiene los permisos correctos. Solucione
 
 3. **Especificar account-id en el comando**:
    ```bash
-   bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
+   npx wrangler@latest pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
    ```
 
 ### Error: "Project not found"
@@ -283,7 +290,12 @@ Asegúrate de que el proyecto existe en Cloudflare Pages:
 2. Crea el proyecto "ticketpro" si no existe
 3. O usa el nombre correcto del proyecto en el comando:
    ```bash
-   bunx wrangler pages deploy ./dist --project-name=nombre-correcto-del-proyecto
+   npx wrangler@latest pages deploy ./dist --project-name=nombre-correcto-del-proyecto
+   ```
+   
+   O crea el proyecto desde la línea de comandos:
+   ```bash
+   npx wrangler@latest pages project create ticketpro --production-branch=main
    ```
 
 ### Error: "Build failed"

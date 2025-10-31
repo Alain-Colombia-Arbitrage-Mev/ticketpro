@@ -63,18 +63,21 @@ bun install -g wrangler
 
 # 2. Autenticarse (elige una opción)
 # Opción A: Login interactivo (recomendado)
-bunx wrangler login
+npx wrangler@latest login
 
 # Opción B: Usar token de API (si tienes uno configurado)
 # export CLOUDFLARE_API_TOKEN=tu_token
 # export CLOUDFLARE_ACCOUNT_ID=tu_account_id
 
-# 3. Build y deploy
+# 3. Crear proyecto (solo la primera vez)
+# npx wrangler@latest pages project create ticketpro --production-branch=main
+
+# 4. Build y deploy
 bun run deploy
 
-# O manualmente (bunx instala wrangler automáticamente si no está)
+# O manualmente (npx instala wrangler automáticamente si no está)
 bun run build
-bunx wrangler pages deploy ./dist --project-name=ticketpro
+npx wrangler@latest pages deploy ./dist --project-name=ticketpro
 ```
 
 #### Configuración en Dashboard:
