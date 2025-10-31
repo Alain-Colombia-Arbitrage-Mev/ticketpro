@@ -1,7 +1,7 @@
 import { Calendar, MapPin, Ticket, TrendingUp, Clock, AlertCircle } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { Badge } from "../ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface EventCardProps {

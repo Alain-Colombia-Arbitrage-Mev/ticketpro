@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MapPin, ChevronDown, Check } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +8,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { cn } from "./ui/utils";
+} from "../ui/dropdown-menu";
+import { cn } from "../ui/utils";
 
 interface CityDropdownFilterProps {
   cities: string[];

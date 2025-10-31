@@ -1,5 +1,5 @@
 import { Check, ChevronDown, Languages } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { useLanguage } from "../hooks/useLanguage";
 import type { Language } from "../stores/languageStore";
 
