@@ -2,58 +2,142 @@
 node_modules/
 .pnp
 .pnp.js
+bun.lockb
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Testing
 coverage/
 .nyc_output
+*.test.js.snap
 
-# Production
+# Production builds
 dist/
 build/
+out/
+.next/
+.vercel/
 
-# Misc
-.DS_Store
-*.pem
-.vscode/
-.idea/
+# Development
+.vite/
+.vite-cache/
+.cache/
+.temp/
+*.local
 
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-bun.lockb
-
-# Local env files
+# Environment variables
 .env
+.env.*
+!.env.example
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Vite
-.vite/
-.vite-cache/
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
 
 # TypeScript
 *.tsbuildinfo
+*.tsbuildinfo.*
+tsconfig.tsbuildinfo
 
 # ESLint
 .eslintcache
+.eslintcache.*
+
+# Prettier
+.prettierignore
 
 # Temporary files
 *.tmp
 *.temp
-*.log
+*.bak
+*.backup
+*.old
+*.orig
 
-# OS files
-Thumbs.db
-.DS_Store
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.parcel-cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
 # Bun
-bun.lockb
+.bun/install/cache/
+.bun/install/*.lockb
 
-# Cache
-.cache/
-.temp/
+# Storybook build outputs
+storybook-static/
 
+# Vercel
+.vercel
+
+# Turbo
+.turbo
+
+# Sentry
+.sentryclirc
+
+# Misc
+*.pem
+*.key
+*.cert
+.secret
