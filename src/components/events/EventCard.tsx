@@ -38,14 +38,14 @@ export function EventCard({
   return (
     <>
       {/* EventCard - Regla 60-30-10: 60% fondo card (bg-white), 30% bordes (border-gray-200), 10% botón CTA (bg-blue-600) */}
-      <Card className="group cursor-pointer overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-xl hover:-translate-y-1">
+      <Card className="group cursor-pointer overflow-hidden border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900 shadow-md shadow-gray-200/50 dark:shadow-gray-900/50 transition-all duration-500 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 hover:-translate-y-2 hover:scale-[1.02]">
       <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[3/4]">
         <ImageWithFallback
           src={image}
           alt={title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-500 group-hover:from-black/90" />
         
         {/* Badges Container */}
         <div className="absolute left-3 top-3 flex flex-col gap-2">
@@ -109,7 +109,7 @@ export function EventCard({
         </div>
 
         {/* Botón CTA - Regla 60-30-10: 10% color de acento para elemento destacado */}
-        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 font-medium shadow-sm transition-shadow hover:shadow-md">
+        <Button className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-medium shadow-lg shadow-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/60 hover:scale-105 hover:-translate-y-0.5">
           <Ticket className="mr-2 h-4 w-4" />
           {t('event.buy')}
         </Button>
