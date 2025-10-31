@@ -118,16 +118,26 @@ bunx wrangler pages deploy ./dist --project-name=ticketpro --branch=preview
 
 ### 5. Deployment con GitHub Integration (Recomendado)
 
-#### Opción A: Desde el Dashboard de Cloudflare
-1. Ve a Cloudflare Dashboard → Pages
+#### Opción A: Desde el Dashboard de Cloudflare (Crear Proyecto)
+
+**⚠️ IMPORTANTE**: Si es la primera vez que deployas, debes crear el proyecto primero:
+
+1. Ve a Cloudflare Dashboard → Pages: https://dash.cloudflare.com/pages
 2. Click en "Create a project"
-3. Conecta tu repositorio de GitHub
-4. Configura:
-   - **Framework preset**: None (o Vite)
-   - **Build command**: `bun run build`
-   - **Build output directory**: `dist`
-   - **Root directory**: `/`
+3. Elige una de estas opciones:
+   - **"Connect to Git"**: Conecta tu repositorio de GitHub (recomendado para CI/CD)
+   - **"Upload assets"**: Para deployment manual (puedes cambiar después)
+4. Si conectas Git:
+   - Selecciona tu repositorio
+   - Configura:
+     - **Framework preset**: None (o Vite)
+     - **Build command**: `bun run build`
+     - **Build output directory**: `dist`
+     - **Root directory**: `/` (dejar vacío)
+   - **Project name**: `ticketpro` (o el nombre que prefieras)
 5. Click en "Save and Deploy"
+
+**Nota**: Si prefieres crear el proyecto manualmente primero, puedes usar cualquier nombre y luego actualizar el script de deploy con ese nombre.
 
 #### Opción B: Con GitHub Actions (CI/CD)
 

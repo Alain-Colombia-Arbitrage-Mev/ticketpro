@@ -80,7 +80,7 @@
         "lint:fix": "bunx eslint . --fix",
         "clean": "bunx rimraf dist node_modules/.vite",
         "analyze": "bun run vite build --mode analyze",
-        "deploy": "bun run build && bunx wrangler pages deploy ./dist --project-name=ticketpro",
-        "deploy:preview": "bun run build && bunx wrangler pages deploy ./dist --project-name=ticketpro --branch=preview"
+        "deploy": "bun run build && npx wrangler@latest pages deploy ./dist --project-name=ticketpro",
+        "deploy:preview": "bun run build && npx wrangler@latest pages deploy ./dist --project-name=ticketpro --branch=preview"
     }
 }
