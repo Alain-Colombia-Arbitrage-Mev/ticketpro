@@ -3,6 +3,7 @@ import { Button } from "../components/ui/button";
 import { UnifiedSearchBar } from "../components/search";
 import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh, Users, Shield, BarChart3, Plus, Info, Ticket as TicketIcon, Star, CalendarDays } from "lucide-react";
 import { useRouter } from "../hooks/useRouter";
+import { useLanguage } from "../hooks/useLanguage";
 import { mockEvents } from "../data/mockEvents";
 import { FadeIn, CountUp, FloatingParticles } from "../components/common";
 import { motion } from "motion/react";
@@ -15,6 +16,7 @@ import { SEOHead } from "../components/common";
  */
 export function HomePage() {
   const { navigate } = useRouter();
+  const { t } = useLanguage();
   
   const featuredEvents = mockEvents.filter(event => event.featured).slice(0, 8);
   const upcomingEvents = mockEvents.filter(event => !event.featured).slice(0, 8);
@@ -104,43 +106,38 @@ export function HomePage() {
             </motion.div>
             
             {/* Título principal */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
-            >
-              Vive la Experiencia de tus{" "}
-              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 dark:from-yellow-400 dark:to-orange-400 bg-clip-text text-transparent">
-                Eventos Favoritos
-              </span>
-            </motion.h1>
-            
-            {/* Descripción */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-8 px-4 text-lg text-white/90 dark:text-white/80 sm:mb-10 sm:text-xl"
-            >
-              Descubre y compra tickets para conciertos, deportes, teatro y más.
-              <br className="hidden sm:block" />
-              Los mejores eventos al alcance de tu mano.
-            </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="mb-6 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+              >
+                {t('hero.title')}
+              </motion.h1>
+              
+              {/* Descripción */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="mb-8 px-4 text-lg text-white/90 dark:text-white/80 sm:mb-10 sm:text-xl"
+              >
+                {t('hero.subtitle')}
+              </motion.p>
 
-            {/* Unified Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mx-auto max-w-4xl px-2 sm:px-0"
-            >
-              <UnifiedSearchBar
-                cities={cities}
-                onSearch={handleSearch}
-                placeholder="Buscar eventos, artistas, equipos..."
-              />
-            </motion.div>
+              {/* Unified Search Bar */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mx-auto max-w-4xl px-2 sm:px-0"
+              >
+                <UnifiedSearchBar
+                  cities={cities}
+                  onSearch={handleSearch}
+                  placeholder={t('hero.search.placeholder')}
+                />
+              </motion.div>
 
             {/* Quick Links - Botones rápidos de categorías */}
             <motion.div
@@ -236,7 +233,7 @@ export function HomePage() {
                 <div className="mb-2 text-4xl font-bold text-gray-900 dark:text-white">
                   <CountUp end={10000} suffix="+" />
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">Eventos Disponibles</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('page.events.available')}</p>
               </div>
             </FadeIn>
 
@@ -285,7 +282,7 @@ export function HomePage() {
             </div>
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                Eventos Destacados
+                {t('page.events.featured')}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400">Los eventos más populares del momento</p>
             </div>
@@ -308,7 +305,7 @@ export function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center sm:mb-12">
             <h2 className="mb-3 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-              Próximos Eventos
+              {t('page.events.upcoming')}
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">No te pierdas estos increíbles eventos</p>
           </div>
@@ -330,7 +327,7 @@ export function HomePage() {
               className="h-12 w-full border-2 border-gray-300 dark:border-gray-700 font-semibold text-gray-900 dark:text-white transition-all hover:border-blue-600 dark:hover:border-blue-500 hover:bg-blue-600 hover:text-white sm:w-auto sm:px-8"
               onClick={() => navigate("events")}
             >
-              Ver Todos los Eventos
+              {t('page.events.view_all')}
             </Button>
           </div>
         </div>
@@ -351,7 +348,7 @@ export function HomePage() {
                 className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                Para Organizadores
+                {t('page.organizers.badge')}
               </motion.div>
               
               <motion.h2
@@ -361,7 +358,7 @@ export function HomePage() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="mb-4 text-3xl font-bold text-white sm:text-4xl md:text-5xl"
               >
-                ¿Organizas Eventos?
+                {t('page.organizers.title')}
               </motion.h2>
               
               <motion.p
@@ -371,7 +368,7 @@ export function HomePage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="mx-auto max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg"
               >
-                Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.
+                {t('page.organizers.subtitle')}
               </motion.p>
             </div>
 
@@ -414,7 +411,7 @@ export function HomePage() {
                 className="w-full gap-2 bg-blue-600 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:w-auto sm:px-8"
               >
                 <Plus className="h-5 w-5" />
-                Crear mi Primer Evento
+                {t('page.organizers.create_event')}
               </Button>
               <Button
                 size="lg"
@@ -422,7 +419,7 @@ export function HomePage() {
                 className="w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white hover:text-blue-600 sm:w-auto sm:px-8"
               >
                 <Info className="h-5 w-5" />
-                Ver Cómo Funciona
+                {t('page.organizers.how_it_works')}
               </Button>
             </motion.div>
 
@@ -439,19 +436,19 @@ export function HomePage() {
                   <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={500} suffix="K+" />
                   </div>
-                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Tickets Vendidos</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">{t('page.organizers.stats.tickets')}</div>
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={15} suffix="K+" />
                   </div>
-                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Eventos Exitosos</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">{t('page.organizers.stats.events')}</div>
                 </div>
                 <div className="text-center">
                   <div className="mb-1 text-3xl font-bold text-gray-900 sm:text-4xl">
                     <CountUp end={98} suffix="%" />
                   </div>
-                  <div className="text-xs font-medium text-gray-600 sm:text-sm">Satisfacción</div>
+                  <div className="text-xs font-medium text-gray-600 sm:text-sm">{t('page.organizers.stats.satisfaction')}</div>
                 </div>
               </div>
             </motion.div>
