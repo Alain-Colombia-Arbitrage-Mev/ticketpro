@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { Badge } from "./ui/badge";
-import { LanguageSelector } from "./LanguageSelector";
-import { ThemeSelector } from "./ThemeSelector";
+import { LanguageSelector, ThemeSelector } from "../common";
 
 /**
  * Header Component - Cabecera principal de la aplicación
