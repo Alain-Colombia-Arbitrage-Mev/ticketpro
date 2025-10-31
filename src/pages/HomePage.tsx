@@ -1,12 +1,11 @@
 import { EventCard, CategoryCard } from "../components/events";
 import { Button } from "../components/ui/button";
 import { UnifiedSearchBar } from "../components/search";
-import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh, Users, Shield, BarChart3, Plus, Info, TrendingUp as TrendingUpIcon } from "lucide-react";
+import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh, Users, Shield, BarChart3, Plus, Info, Ticket as TicketIcon, Star, CalendarDays } from "lucide-react";
 import { useRouter } from "../hooks/useRouter";
 import { mockEvents } from "../data/mockEvents";
 import { FadeIn, CountUp, FloatingParticles } from "../components/common";
 import { motion } from "motion/react";
-import { Users, Ticket as TicketIcon, Star, CalendarDays } from "lucide-react";
 import { useMemo } from "react";
 import { SEOHead } from "../components/common";
 
