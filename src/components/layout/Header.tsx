@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { useRouter } from "../../hooks/useRouter";
 import { useAuth } from "../../hooks/useAuth";
+import { useLanguage } from "../../hooks/useLanguage";
 import { LanguageSelector } from "../common";
 
 /**
@@ -13,6 +14,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { navigate } = useRouter();
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
 
   const handleNavigation = (page: "home" | "events" | "profile", category?: string) => {
     setIsMenuOpen(false);
@@ -51,25 +53,25 @@ export function Header() {
             onClick={() => handleNavigation("events", "Concierto")}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
           >
-            Conciertos
+            {t('nav.category.concerts')}
           </button>
           <button 
             onClick={() => handleNavigation("events", "Deportes")}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
           >
-            Deportes
+            {t('nav.category.sports')}
           </button>
           <button 
             onClick={() => handleNavigation("events", "Teatro")}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
           >
-            Teatro
+            {t('nav.category.theater')}
           </button>
           <button 
             onClick={() => handleNavigation("events", "Familia")}
             className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
           >
-            Familia
+            {t('nav.category.family')}
           </button>
         </nav>
 
@@ -198,7 +200,7 @@ export function Header() {
                   onClick={() => handleNavigation("profile")}
                   className="text-left text-gray-700 dark:text-gray-300 transition-colors hover:text-blue-600 dark:hover:text-blue-400 focus-visible-ring"
                 >
-                  Mi Perfil
+                  {t('nav.profile')}
                 </button>
                 <button 
                   onClick={() => {
@@ -207,7 +209,7 @@ export function Header() {
                   }}
                   className="text-left text-red-600 dark:text-red-400 transition-colors hover:text-red-700 dark:hover:text-red-500 focus-visible-ring"
                 >
-                  Cerrar Sesión
+                  {t('nav.logout')}
                 </button>
               </>
             ) : (
@@ -215,7 +217,7 @@ export function Header() {
                 onClick={() => handleNavigation("login" as any)}
                 className="text-left text-blue-600 dark:text-blue-400 transition-colors hover:text-blue-700 dark:hover:text-blue-500 focus-visible-ring"
               >
-                Iniciar Sesión
+                {t('nav.login')}
               </button>
             )}
           </nav>
