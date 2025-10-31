@@ -7,8 +7,8 @@ import { persist } from 'zustand/middleware';
 
 export type Language = 'es' | 'en' | 'pt';
 
-// Translations dictionary
-const translations: Record<Language, Record<string, string>> = {
+// Translations dictionary - Exportado para uso en hooks
+export const translations: Record<Language, Record<string, string>> = {
   es: {
     // Navigation
     'nav.home': 'Inicio',
@@ -64,6 +64,30 @@ const translations: Record<Language, Record<string, string>> = {
     'common.back': 'Volver',
     'common.next': 'Siguiente',
     'common.previous': 'Anterior',
+    
+    // Pages
+    'page.events.available': 'Eventos Disponibles',
+    'page.events.featured': 'Eventos Destacados',
+    'page.events.upcoming': 'Próximos Eventos',
+    'page.events.view_all': 'Ver Todos los Eventos',
+    'page.organizers.title': '¿Organizas Eventos?',
+    'page.organizers.subtitle': 'Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.',
+    'page.organizers.badge': 'Para Organizadores',
+    'page.organizers.create_event': 'Crear mi Primer Evento',
+    'page.organizers.how_it_works': 'Ver Cómo Funciona',
+    'page.organizers.stats.tickets': 'Tickets Vendidos',
+    'page.organizers.stats.events': 'Eventos Exitosos',
+    'page.organizers.stats.satisfaction': 'Satisfacción',
+    'page.profile.view': 'Ver Mi Perfil',
+    'page.profile.explore': 'Explorar Eventos',
+    'page.confirmation.back_home': 'Volver al Inicio',
+    'page.event.buy_tickets': 'Comprar Tickets',
+    
+    // Navigation categories
+    'nav.category.concerts': 'Conciertos',
+    'nav.category.sports': 'Deportes',
+    'nav.category.theater': 'Teatro',
+    'nav.category.family': 'Familia',
   },
   
   en: {
@@ -121,6 +145,30 @@ const translations: Record<Language, Record<string, string>> = {
     'common.back': 'Back',
     'common.next': 'Next',
     'common.previous': 'Previous',
+    
+    // Pages
+    'page.events.available': 'Available Events',
+    'page.events.featured': 'Featured Events',
+    'page.events.upcoming': 'Upcoming Events',
+    'page.events.view_all': 'View All Events',
+    'page.organizers.title': 'Do You Organize Events?',
+    'page.organizers.subtitle': 'Transform your event into an unforgettable experience. Sell tickets, manage attendees and maximize your revenue with our professional platform.',
+    'page.organizers.badge': 'For Organizers',
+    'page.organizers.create_event': 'Create My First Event',
+    'page.organizers.how_it_works': 'See How It Works',
+    'page.organizers.stats.tickets': 'Tickets Sold',
+    'page.organizers.stats.events': 'Successful Events',
+    'page.organizers.stats.satisfaction': 'Satisfaction',
+    'page.profile.view': 'View My Profile',
+    'page.profile.explore': 'Explore Events',
+    'page.confirmation.back_home': 'Back to Home',
+    'page.event.buy_tickets': 'Buy Tickets',
+    
+    // Navigation categories
+    'nav.category.concerts': 'Concerts',
+    'nav.category.sports': 'Sports',
+    'nav.category.theater': 'Theater',
+    'nav.category.family': 'Family',
   },
   
   pt: {
@@ -178,13 +226,36 @@ const translations: Record<Language, Record<string, string>> = {
     'common.back': 'Voltar',
     'common.next': 'Próximo',
     'common.previous': 'Anterior',
+    
+    // Pages
+    'page.events.available': 'Eventos Disponíveis',
+    'page.events.featured': 'Eventos em Destaque',
+    'page.events.upcoming': 'Próximos Eventos',
+    'page.events.view_all': 'Ver Todos os Eventos',
+    'page.organizers.title': 'Você Organiza Eventos?',
+    'page.organizers.subtitle': 'Transforme seu evento em uma experiência inesquecível. Venda ingressos, gerencie participantes e maximize sua receita com nossa plataforma profissional.',
+    'page.organizers.badge': 'Para Organizadores',
+    'page.organizers.create_event': 'Criar Meu Primeiro Evento',
+    'page.organizers.how_it_works': 'Ver Como Funciona',
+    'page.organizers.stats.tickets': 'Ingressos Vendidos',
+    'page.organizers.stats.events': 'Eventos Bem-sucedidos',
+    'page.organizers.stats.satisfaction': 'Satisfação',
+    'page.profile.view': 'Ver Meu Perfil',
+    'page.profile.explore': 'Explorar Eventos',
+    'page.confirmation.back_home': 'Voltar ao Início',
+    'page.event.buy_tickets': 'Comprar Ingressos',
+    
+    // Navigation categories
+    'nav.category.concerts': 'Shows',
+    'nav.category.sports': 'Esportes',
+    'nav.category.theater': 'Teatro',
+    'nav.category.family': 'Família',
   },
 };
 
 interface LanguageState {
   language: Language;
   setLanguage: (language: Language) => void;
-  t: (key: string) => string;
 }
 
 export const useLanguageStore = create<LanguageState>()(
@@ -193,11 +264,6 @@ export const useLanguageStore = create<LanguageState>()(
       language: 'es',
       
       setLanguage: (language) => set({ language }),
-      
-      t: (key: string) => {
-        const state = useLanguageStore.getState();
-        return translations[state.language][key] || key;
-      },
     }),
     {
       name: 'language-storage',
