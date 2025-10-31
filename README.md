@@ -38,8 +38,44 @@ src/
 ## Scripts
 
 ```bash
-bun run dev      # Desarrollo
-bun run build    # Build producción
-bun run lint     # Linting
+bun run dev           # Desarrollo
+bun run build         # Build producción
+bun run preview       # Preview del build local
+bun run lint          # Linting
+bun run lint:fix      # Linting con auto-fix
+bun run deploy        # Build y deploy a Cloudflare Pages
+bun run deploy:preview # Build y deploy a preview branch
 ```
+
+## Deployment
+
+### Cloudflare Pages (Recomendado)
+
+Ver documentación completa en [`CLOUDFLARE_PAGES.md`](./CLOUDFLARE_PAGES.md)
+
+#### Comandos Rápidos:
+
+```bash
+# 1. Instalar Wrangler CLI
+npm install -g wrangler
+# o
+bun install -g wrangler
+
+# 2. Autenticarse
+wrangler login
+
+# 3. Build y deploy
+bun run build
+wrangler pages deploy ./dist
+
+# O usar el script npm
+bun run deploy
+```
+
+#### Configuración en Dashboard:
+
+- **Build command**: `bun run build`
+- **Build output directory**: `dist`
+- **Root directory**: `/`
+- **Environment Variables**: `BUN_VERSION=latest` (opcional)
 

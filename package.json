@@ -79,6 +79,8 @@
         "lint": "bunx eslint .",
         "lint:fix": "bunx eslint . --fix",
         "clean": "bunx rimraf dist node_modules/.vite",
-        "analyze": "bun run vite build --mode analyze"
+        "analyze": "bun run vite build --mode analyze",
+        "deploy": "bun run build && wrangler pages deploy ./dist",
+        "deploy:preview": "bun run build && wrangler pages deploy ./dist --branch=preview"
     }
 }
