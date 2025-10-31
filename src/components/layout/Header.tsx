@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "../../hooks/useRouter";
 import { useAuth } from "../../hooks/useAuth";
 import { Badge } from "../ui/badge";
-import { LanguageSelector, ThemeSelector } from "../common";
+import { LanguageSelector } from "../common";
 
 /**
  * Header Component - Cabecera principal de la aplicación
@@ -77,7 +77,6 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           {/* Theme Selector */}
-          <ThemeSelector />
           
           {/* Language Selector - Compact */}
           <LanguageSelector variant="compact" />
@@ -173,7 +172,6 @@ export function Header() {
           )}
           <div className="mb-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tema</span>
-            <ThemeSelector />
           </div>
           <nav className="flex flex-col gap-4">
             <button 
