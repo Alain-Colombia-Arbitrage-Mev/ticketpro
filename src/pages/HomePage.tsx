@@ -1,7 +1,7 @@
 import { EventCard, CategoryCard } from "../components/events";
 import { Button } from "../components/ui/button";
 import { UnifiedSearchBar } from "../components/search";
-import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh } from "lucide-react";
+import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh, Users, Shield, BarChart3, Plus, Info, TrendingUp as TrendingUpIcon } from "lucide-react";
 import { useRouter } from "../hooks/useRouter";
 import { mockEvents } from "../data/mockEvents";
 import { FadeIn, CountUp, FloatingParticles } from "../components/common";
@@ -338,107 +338,159 @@ export function HomePage() {
       </section>
 
       {/* CTA Section - Call to action para organizadores */}
+      {/* Regla 60-30-10: 60% fondo (gradiente), 30% cards (blanco translúcido), 10% botones primarios */}
       <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 py-20 sm:py-24 lg:py-32">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30 dark:opacity-10" />
+        {/* Patrón de fondo con mejor contraste */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40 dark:opacity-15" />
         
-        {/* Elementos decorativos - Círculos con blur */}
-        <div className="absolute left-0 top-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 dark:bg-white/5 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/2 translate-y-1/2 rounded-full bg-white/10 dark:bg-white/5 blur-3xl" />
+        {/* Elementos decorativos mejorados */}
+        <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/15 to-transparent blur-3xl dark:from-white/10" />
+        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tl from-white/15 to-transparent blur-3xl dark:from-white/10" />
         
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-              <span className="text-sm font-medium text-white">Para Organizadores</span>
-            </div>
+          <div className="mx-auto max-w-5xl text-center">
+            {/* Badge mejorado */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/20 dark:bg-white/10 px-5 py-2.5 backdrop-blur-md border border-white/30"
+            >
+              <span className="h-2 w-2 animate-pulse rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
+              <span className="text-sm font-semibold text-white">Para Organizadores</span>
+            </motion.div>
             
-            <h2 className="mb-6 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+            {/* Título mejorado */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-6 bg-gradient-to-r from-white via-white to-white/90 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl lg:text-6xl"
+            >
               ¿Organizas Eventos?
-            </h2>
+            </motion.h2>
             
-            <p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-white/95 sm:text-2xl">
+            {/* Descripción mejorada */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-white/95 sm:text-xl lg:text-2xl"
+            >
               Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.
-            </p>
+            </motion.p>
 
-            {/* Características destacadas */}
+            {/* Características destacadas - Mejoradas con iconos de lucide-react */}
             <div className="mb-12 grid gap-6 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white/10 p-6 backdrop-blur-sm transition-all hover:bg-white/20">
-                <div className="mb-3 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-                    <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+              >
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
+                    <Users className="h-7 w-7 text-white" />
                   </div>
                 </div>
-                <h3 className="mb-2 font-semibold text-white">Alcance Masivo</h3>
-                <p className="text-sm text-white/80">Llega a miles de personas en toda la región</p>
-              </div>
+                <h3 className="mb-2 text-lg font-bold text-white">Alcance Masivo</h3>
+                <p className="text-sm leading-relaxed text-white/85">Llega a miles de personas en toda la región</p>
+              </motion.div>
 
-              <div className="rounded-2xl bg-white/10 p-6 backdrop-blur-sm transition-all hover:bg-white/20">
-                <div className="mb-3 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-                    <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+              >
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
+                    <Shield className="h-7 w-7 text-white" />
                   </div>
                 </div>
-                <h3 className="mb-2 font-semibold text-white">100% Seguro</h3>
-                <p className="text-sm text-white/80">Pagos protegidos y códigos QR únicos</p>
-              </div>
+                <h3 className="mb-2 text-lg font-bold text-white">100% Seguro</h3>
+                <p className="text-sm leading-relaxed text-white/85">Pagos protegidos y códigos QR únicos</p>
+              </motion.div>
 
-              <div className="rounded-2xl bg-white/10 p-6 backdrop-blur-sm transition-all hover:bg-white/20">
-                <div className="mb-3 flex justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-                    <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="group rounded-2xl bg-white/10 dark:bg-white/5 p-7 backdrop-blur-md border border-white/20 transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/10 hover:scale-105 hover:shadow-xl"
+              >
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 dark:bg-white/10 group-hover:bg-white/30 transition-colors">
+                    <BarChart3 className="h-7 w-7 text-white" />
                   </div>
                 </div>
-                <h3 className="mb-2 font-semibold text-white">Dashboard en Tiempo Real</h3>
-                <p className="text-sm text-white/80">Estadísticas y reportes instantáneos</p>
-              </div>
+                <h3 className="mb-2 text-lg font-bold text-white">Dashboard en Tiempo Real</h3>
+                <p className="text-sm leading-relaxed text-white/85">Estadísticas y reportes instantáneos</p>
+              </motion.div>
             </div>
 
-            <div className="flex flex-col justify-center gap-4 px-4 sm:flex-row">
+            {/* Botones mejorados */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="mb-12 flex flex-col justify-center gap-4 px-4 sm:flex-row"
+            >
               <Button
                 size="lg"
                 className="group h-14 w-full gap-2 bg-white font-semibold text-blue-600 shadow-xl transition-all hover:scale-105 hover:bg-gray-50 hover:shadow-2xl sm:w-auto sm:px-10"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
                 Crear mi Primer Evento
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 w-full gap-2 border-2 border-white font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-blue-600 sm:w-auto sm:px-10"
+                className="h-14 w-full gap-2 border-2 border-white/90 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-blue-600 hover:border-white sm:w-auto sm:px-10"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <Info className="h-5 w-5" />
                 Ver Cómo Funciona
               </Button>
-            </div>
+            </motion.div>
 
-            {/* Stats rápidas */}
-            <div className="mt-12 grid grid-cols-3 gap-6 rounded-2xl bg-white/10 p-6 backdrop-blur-sm">
-              <div>
-                <div className="mb-1 text-3xl font-bold text-white">500K+</div>
-                <div className="text-sm text-white/80">Tickets Vendidos</div>
+            {/* Stats mejoradas */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="grid grid-cols-3 gap-6 rounded-2xl bg-white/10 dark:bg-white/5 p-8 backdrop-blur-md border border-white/20"
+            >
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
+                  <CountUp end={500} suffix="K+" />
+                </div>
+                <div className="text-sm font-medium text-white/85">Tickets Vendidos</div>
               </div>
-              <div>
-                <div className="mb-1 text-3xl font-bold text-white">15K+</div>
-                <div className="text-sm text-white/80">Eventos Exitosos</div>
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
+                  <CountUp end={15} suffix="K+" />
+                </div>
+                <div className="text-sm font-medium text-white/85">Eventos Exitosos</div>
               </div>
-              <div>
-                <div className="mb-1 text-3xl font-bold text-white">98%</div>
-                <div className="text-sm text-white/80">Satisfacción</div>
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-white sm:text-5xl">
+                  <CountUp end={98} suffix="%" />
+                </div>
+                <div className="text-sm font-medium text-white/85">Satisfacción</div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
     </>
   );
+}
+
 }
