@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronLeft, X, Calendar, DollarSign, Sparkles, TrendingUp, Zap, SlidersHorizontal } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { EventCard } from "../components/EventCard";
+import { EventCard } from "../components/events";
 import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
@@ -11,10 +11,10 @@ import { Label } from "../components/ui/label";
 import { Switch } from "../components/ui/switch";
 import { Separator } from "../components/ui/separator";
 import { Card } from "../components/ui/card";
-import { CityAutocomplete } from "../components/CityAutocomplete";
+import { CityAutocomplete } from "../components/search";
 import { useRouter } from "../hooks/useRouter";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
-import { SEOHead } from "../components/SEOHead";
+import { SEOHead } from "../components/common";
 
 const ITEMS_PER_PAGE = 12;
 

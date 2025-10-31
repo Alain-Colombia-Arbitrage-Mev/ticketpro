@@ -1,17 +1,14 @@
-import { EventCard } from "../components/EventCard";
-import { CategoryCard } from "../components/CategoryCard";
+import { EventCard, CategoryCard } from "../components/events";
 import { Button } from "../components/ui/button";
-import { UnifiedSearchBar } from "../components/UnifiedSearchBar";
+import { UnifiedSearchBar } from "../components/search";
 import { Search, Music, Trophy, Theater, Heart, Sparkles, TrendingUp, Palette, Laugh } from "lucide-react";
 import { useRouter } from "../hooks/useRouter";
 import { mockEvents } from "../data/mockEvents";
-import { FadeIn } from "../components/FadeIn";
-import { CountUp } from "../components/CountUp";
-import { FloatingParticles } from "../components/FloatingParticles";
+import { FadeIn, CountUp, FloatingParticles } from "../components/common";
 import { motion } from "motion/react";
 import { Users, Ticket as TicketIcon, Star, CalendarDays } from "lucide-react";
 import { useMemo } from "react";
-import { SEOHead } from "../components/SEOHead";
+import { SEOHead } from "../components/common";
 
 /**
  * HomePage Component - Página principal de la aplicación

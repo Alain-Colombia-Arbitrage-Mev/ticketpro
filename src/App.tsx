@@ -1,9 +1,7 @@
 import { ThemeProvider } from "next-themes";
-import { QueryProvider } from "./components/QueryProvider";
-import { AuthInitializer } from "./components/AuthInitializer";
-import { Header } from "./components/Header";
-import { ThemeScript } from "./components/Scripts";
-import { Footer } from "./components/Footer";
+import { QueryProvider, Header, Footer } from "./components/layout";
+import { AuthInitializer } from "./components/auth";
+import { Scripts } from "./components/common";
 import { useRouter } from "./hooks/useRouter";
 import { HomePage } from "./pages/HomePage";
 import { EventDetailPage } from "./pages/EventDetailPage";
@@ -48,7 +46,7 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="ticketpro-theme">
-      <ThemeScript />
+      <Scripts />
       <QueryProvider>
         <AuthInitializer />
         <AppContent />

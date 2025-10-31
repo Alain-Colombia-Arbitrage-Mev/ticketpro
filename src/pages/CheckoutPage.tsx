@@ -8,11 +8,11 @@ import { Label } from "../components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../utils/api";
-import { CurrencySelector } from "../components/CurrencySelector";
+import { CurrencySelector } from "../components/payment";
 import { Currency, formatCurrency, MultiCurrencyBalance } from "../utils/currency";
 
 export function CheckoutPage() {

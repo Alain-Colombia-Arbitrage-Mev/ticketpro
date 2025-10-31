@@ -9,8 +9,7 @@ import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { api, Transaction } from "../utils/api";
-import { MultiCurrencyBalance } from "../components/MultiCurrencyBalance";
-import { CurrencySelector } from "../components/CurrencySelector";
+import { MultiCurrencyBalance, CurrencySelector } from "../components/payment";
 import { Currency, formatCurrency, convertCurrency, CURRENCIES, EXCHANGE_RATES } from "../utils/currency";
 
 export function WalletPage() {

@@ -12,11 +12,10 @@ import { Label } from "../components/ui/label";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { api, Ticket, Transaction } from "../utils/api";
-import { QRCodeComponent } from "../components/QRCodeComponent";
-import { CurrencySelector } from "../components/CurrencySelector";
-import { MultiCurrencyBalance } from "../components/MultiCurrencyBalance";
+import { QRCodeComponent } from "../components/media";
+import { CurrencySelector, MultiCurrencyBalance } from "../components/payment";
 import { Currency, formatCurrency } from "../utils/currency";
-import { LanguageSelector } from "../components/LanguageSelector";
+import { LanguageSelector } from "../components/common";
 
 export function ProfilePage() {
   const { navigate } = useRouter();

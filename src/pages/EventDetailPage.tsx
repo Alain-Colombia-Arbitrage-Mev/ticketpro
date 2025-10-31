@@ -3,9 +3,9 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
+import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
-import { SEOHead } from "../components/SEOHead";
+import { SEOHead } from "../components/common";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();

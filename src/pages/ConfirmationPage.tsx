@@ -4,7 +4,7 @@ import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
-import { QRCodeComponent } from "../components/QRCodeComponent";
+import { QRCodeComponent } from "../components/media";
 import { Badge } from "../components/ui/badge";
 import { motion } from "motion/react";
 
