@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, MapPin, Calendar, X, TrendingUp } from "lucide-react";
+import { Search, MapPin, X, TrendingUp } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";

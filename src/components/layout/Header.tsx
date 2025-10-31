@@ -3,7 +3,6 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { useRouter } from "../../hooks/useRouter";
 import { useAuth } from "../../hooks/useAuth";
-import { Badge } from "../ui/badge";
 import { LanguageSelector } from "../common";
 
 /**
