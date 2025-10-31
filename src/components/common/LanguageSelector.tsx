@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useLanguage } from "../hooks/useLanguage";
-import type { Language } from "../stores/languageStore";
+import type { Language } from "../../types/common";
 
 interface LanguageSelectorProps {
   variant?: "default" | "compact";
