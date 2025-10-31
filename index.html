@@ -24,14 +24,8 @@
     <!-- Título por defecto (será reemplazado dinámicamente por SEOHead) -->
     <title>Tiquetera - Tu plataforma de eventos y boletos</title>
     <script>
-      (function() {
-        const theme = localStorage.getItem('ticketpro-theme') || 'light';
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      })();
+      // Dark mode desactivado - siempre usar tema light
+      document.documentElement.classList.remove('dark');
     </script>
   </head>
 

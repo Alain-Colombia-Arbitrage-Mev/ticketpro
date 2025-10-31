@@ -1,7 +1,5 @@
-import { ThemeProvider } from "next-themes";
 import { QueryProvider, Header, Footer } from "./components/layout";
 import { AuthInitializer } from "./components/auth";
-import { Scripts } from "./components/common";
 import { useRouter } from "./hooks/useRouter";
 import { HomePage } from "./pages/HomePage";
 import { EventDetailPage } from "./pages/EventDetailPage";
@@ -41,16 +39,12 @@ function AppContent() {
  * Stack Modernizado:
  * - TanStack Query para data fetching con cache
  * - Zustand stores para state management (en lugar de Context API)
- * - ThemeProvider para dark mode
  */
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="ticketpro-theme">
-      <Scripts />
-      <QueryProvider>
-        <AuthInitializer />
-        <AppContent />
-      </QueryProvider>
-    </ThemeProvider>
+    <QueryProvider>
+      <AuthInitializer />
+      <AppContent />
+    </QueryProvider>
   );
 }
