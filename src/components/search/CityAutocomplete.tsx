@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Check, MapPin, X } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { cn } from "./ui/utils";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { cn } from "../ui/utils";
 
 interface CityAutocompleteProps {
   cities: string[];

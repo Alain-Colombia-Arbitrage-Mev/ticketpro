@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Search, MapPin, Calendar, X, TrendingUp } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Card } from "./ui/card";
-import { cn } from "./ui/utils";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Card } from "../ui/card";
+import { cn } from "../ui/utils";
 
 interface SmartSearchBarProps {
   onSearch?: (query: string, city?: string) => void;

@@ -9,18 +9,18 @@ import {
   Calendar,
   TrendingUp 
 } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Card } from "./ui/card";
-import { cn } from "./ui/utils";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Card } from "../ui/card";
+import { cn } from "../ui/utils";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
 
 interface UnifiedSearchBarProps {
   onSearch?: (query: string, city?: string) => void;

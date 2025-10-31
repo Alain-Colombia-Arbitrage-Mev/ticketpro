@@ -1,5 +1,5 @@
 import { Check, ChevronDown } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 import { Currency, CURRENCIES, getCurrencySymbol } from "../../utils/currency";
 
 interface CurrencySelectorProps {
