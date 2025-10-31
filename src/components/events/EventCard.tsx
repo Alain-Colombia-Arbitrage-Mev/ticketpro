@@ -48,19 +48,20 @@ export function EventCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-500 group-hover:from-black/90" />
         
         {/* Badges Container */}
-        <div className="absolute left-3 top-3 flex flex-col gap-2">
-          <Badge className="border-0 bg-white/95 dark:bg-gray-900/95 text-xs font-medium text-gray-900 dark:text-white shadow-sm backdrop-blur-sm sm:text-sm">
+        <div className="absolute left-3 top-3 flex flex-col gap-2 z-10">
+          <Badge className="border-0 bg-white/95 dark:bg-gray-900/95 text-xs font-medium text-gray-900 dark:text-white shadow-lg backdrop-blur-md sm:text-sm transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
             {category}
           </Badge>
           
-            <Badge className="border-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-xs font-medium text-white shadow-sm sm:text-sm">
+          {trending && (
+            <Badge className="border-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-xs font-medium text-white shadow-lg shadow-blue-500/50 sm:text-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-blue-500/60 group-hover:scale-105">
               <TrendingUp className="mr-1 h-3 w-3" />
               {t('ui.trending')}
             </Badge>
           )}
           
           {lastTickets && !soldOut && (
-            <Badge className="border-0 bg-gradient-to-r from-orange-500 to-red-500 text-xs font-medium text-white shadow-sm sm:text-sm animate-pulse">
+            <Badge className="border-0 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-xs font-medium text-white shadow-lg shadow-orange-500/50 sm:text-sm animate-pulse transition-all duration-300 group-hover:scale-105">
               <Clock className="mr-1 h-3 w-3" />
               {t('ui.last_tickets')}
             </Badge>
@@ -68,16 +69,16 @@ export function EventCard({
         </div>
 
         {featured && (
-          <div className="absolute right-3 top-3">
-            <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-500 text-xs font-medium text-white shadow-sm sm:text-sm">
+          <div className="absolute right-3 top-3 z-10">
+            <Badge className="border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-xs font-medium text-white shadow-lg shadow-amber-500/50 sm:text-sm transition-all duration-300 group-hover:shadow-xl group-hover:shadow-amber-500/60 group-hover:scale-110">
               ⭐ {t('ui.featured')}
             </Badge>
           </div>
         )}
 
         {soldOut && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <Badge className="border-0 bg-gray-900/90 px-6 py-2 text-base font-bold text-white shadow-xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md z-20">
+            <Badge className="border-0 bg-gradient-to-r from-gray-900 to-black px-6 py-2 text-base font-bold text-white shadow-2xl animate-pulse">
               {t('ui.sold_out')}
             </Badge>
           </div>
@@ -85,10 +86,10 @@ export function EventCard({
 
         {/* Price overlay */}
         {!soldOut && (
-          <div className="absolute bottom-3 left-3">
-            <div className="rounded-xl bg-white/95 dark:bg-gray-900/95 px-3 py-1.5 shadow-lg backdrop-blur-sm">
+          <div className="absolute bottom-3 left-3 z-10">
+            <div className="rounded-xl bg-white/95 dark:bg-gray-900/95 px-3 py-1.5 shadow-xl backdrop-blur-md border border-white/20 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
               <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{t('ui.from')}</p>
-              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">{price}</p>
+              <p className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{price}</p>
             </div>
           </div>
         )}
