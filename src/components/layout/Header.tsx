@@ -76,8 +76,6 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Theme Selector */}
-          
           {/* Language Selector - Compact */}
           <LanguageSelector variant="compact" />
           
@@ -170,9 +168,6 @@ export function Header() {
               </span>
             </button>
           )}
-          <div className="mb-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tema</span>
-          </div>
           <nav className="flex flex-col gap-4">
             <button 
               onClick={() => handleNavigation("events", "Concierto")}
