@@ -174,25 +174,25 @@ export function Header() {
               onClick={() => handleNavigation("events", "Concierto")}
               className="text-left text-gray-700 dark:text-gray-300 transition-colors hover:text-blue-600 dark:hover:text-blue-400 focus-visible-ring"
             >
-              Conciertos
+              {t('nav.category.concerts')}
             </button>
             <button 
               onClick={() => handleNavigation("events", "Deportes")}
               className="text-left text-gray-700 dark:text-gray-300 transition-colors hover:text-blue-600 dark:hover:text-blue-400 focus-visible-ring"
             >
-              Deportes
+              {t('nav.category.sports')}
             </button>
             <button 
               onClick={() => handleNavigation("events", "Teatro")}
               className="text-left text-gray-700 dark:text-gray-300 transition-colors hover:text-blue-600 dark:hover:text-blue-400 focus-visible-ring"
             >
-              Teatro
+              {t('nav.category.theater')}
             </button>
             <button 
               onClick={() => handleNavigation("events", "Familia")}
               className="text-left text-gray-700 dark:text-gray-300 transition-colors hover:text-blue-600 dark:hover:text-blue-400 focus-visible-ring"
             >
-              Familia
+              {t('nav.category.family')}
             </button>
             {user ? (
               <>
