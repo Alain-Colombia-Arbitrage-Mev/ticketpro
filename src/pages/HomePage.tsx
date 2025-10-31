@@ -338,15 +338,15 @@ export function HomePage() {
 
       {/* CTA Section - Call to action para organizadores */}
       {/* Regla 60-30-10: 60% fondo (gradiente), 30% cards (blanco translúcido), 10% botones primarios */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 py-20 sm:py-24 lg:py-32">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 py-20 sm:py-24 lg:py-32">
         {/* Patrón de fondo con mejor contraste */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40 dark:opacity-15" />
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40" />
         
-        {/* Elementos decorativos mejorados */}
-        <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/15 to-transparent blur-3xl dark:from-white/10" />
-        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tl from-white/15 to-transparent blur-3xl dark:from-white/10" />
+        {/* Elementos decorativos mejorados - contenidos dentro del ancho */}
+        <div className="absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-white/15 to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-[500px] w-[500px] translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-tl from-white/15 to-transparent blur-3xl" />
         
-        <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl text-center">
             {/* Badge mejorado */}
             <motion.div
@@ -433,13 +433,13 @@ export function HomePage() {
               </motion.div>
             </div>
 
-            {/* Botones mejorados */}
+            {/* Botones mejorados - Con mejor contraste */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-12 flex flex-col justify-center gap-4 px-4 sm:flex-row"
+              className="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
             >
               <Button
                 size="lg"
@@ -451,7 +451,7 @@ export function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 w-full gap-2 border-2 border-white/90 font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-blue-600 hover:border-white sm:w-auto sm:px-10"
+                className="h-14 w-full gap-2 border-2 border-white bg-white/10 font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-blue-600 hover:border-white hover:shadow-xl sm:w-auto sm:px-10"
               >
                 <Info className="h-5 w-5" />
                 Ver Cómo Funciona
