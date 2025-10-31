@@ -6,8 +6,7 @@ import {
   Music, 
   Trophy, 
   Theater, 
-  Calendar,
-  TrendingUp 
+  Calendar 
 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
