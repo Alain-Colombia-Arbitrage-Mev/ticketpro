@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLanguage } from '../hooks/useLanguage';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export interface SEOData {
   title: string;
