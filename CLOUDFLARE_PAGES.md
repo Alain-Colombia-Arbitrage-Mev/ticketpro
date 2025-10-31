@@ -18,14 +18,21 @@ Cloudflare Pages es **100% compatible con Bun**. Bun está incluido por defecto 
 
 ## Comandos de Deployment
 
-### 1. Instalación de Wrangler CLI
+### 1. Instalación de Wrangler CLI (Opcional)
+
+**Nota**: No necesitas instalar Wrangler globalmente. Los scripts usan `bunx` que lo instala automáticamente.
 
 ```bash
-# Instalar Wrangler globalmente
-npm install -g wrangler
+# Opción A: Usar bunx (recomendado - se instala automáticamente)
+bunx wrangler pages deploy ./dist
 
-# O con Bun
+# Opción B: Instalar Wrangler globalmente (opcional)
+npm install -g wrangler
+# o
 bun install -g wrangler
+
+# Después puedes usar directamente
+wrangler pages deploy ./dist
 ```
 
 ### 2. Autenticación en Cloudflare
@@ -51,14 +58,19 @@ bun run preview
 ### 4. Deployment Manual
 
 ```bash
-# Deploy a producción
-wrangler pages deploy ./dist
+# Deploy a producción (con bunx - se instala automáticamente)
+bunx wrangler pages deploy ./dist
+
+# O usando el script npm (más fácil)
+bun run deploy
 
 # Deploy con mensaje personalizado
-wrangler pages deploy ./dist --project-name=ticketpro
+bunx wrangler pages deploy ./dist --project-name=ticketpro
 
 # Deploy a un branch específico (preview)
-wrangler pages deploy ./dist --branch=preview
+bun run deploy:preview
+# o
+bunx wrangler pages deploy ./dist --branch=preview
 ```
 
 ### 5. Deployment con GitHub Integration (Recomendado)
@@ -148,19 +160,19 @@ bun run preview
 ### Ver Logs de Deployment
 ```bash
 # Ver deployments recientes
-wrangler pages deployment list
+bunx wrangler pages deployment list
 
 # Ver detalles de un deployment específico
-wrangler pages deployment tail
+bunx wrangler pages deployment tail
 ```
 
 ### Rollback a Versión Anterior
 ```bash
 # Listar deployments
-wrangler pages deployment list
+bunx wrangler pages deployment list
 
 # Hacer rollback (usa el deployment ID)
-wrangler pages deployment rollback <deployment-id>
+bunx wrangler pages deployment rollback <deployment-id>
 ```
 
 ---
@@ -179,7 +191,9 @@ git commit -m "Preparar para deployment"
 git push origin main
 
 # 3. (Opcional) Deploy manual si no usas GitHub integration
-wrangler pages deploy ./dist
+bun run deploy
+# o
+bunx wrangler pages deploy ./dist
 ```
 
 ---

@@ -65,11 +65,11 @@ bun install -g wrangler
 wrangler login
 
 # 3. Build y deploy
-bun run build
-wrangler pages deploy ./dist
-
-# O usar el script npm
 bun run deploy
+
+# O manualmente (bunx instala wrangler automáticamente si no está)
+bun run build
+bunx wrangler pages deploy ./dist
 ```
 
 #### Configuración en Dashboard:
