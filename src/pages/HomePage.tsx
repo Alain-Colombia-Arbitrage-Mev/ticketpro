@@ -336,189 +336,125 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section - Call to action para organizadores */}
-      {/* Diseño moderno y profesional con mejor jerarquía visual */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 py-24 sm:py-28 lg:py-36">
-        {/* Patrón de fondo sutil */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA4IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
-        
-        {/* Elementos decorativos mejorados */}
-        <div className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-gradient-to-br from-white/20 via-white/10 to-transparent blur-3xl" />
-        <div className="absolute -bottom-1/4 -right-1/4 h-[700px] w-[700px] rounded-full bg-gradient-to-tl from-white/20 via-white/10 to-transparent blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-yellow-300/10 via-transparent to-transparent blur-3xl" />
+      {/* CTA Section - Para Organizadores */}
+      {/* Diseño elegante y minimalista */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 sm:py-28">
+        {/* Fondo sutil con gradiente */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
         
         <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-6xl">
-            {/* Header Section - Centrado */}
-            <div className="mb-16 text-center">
-              {/* Badge premium */}
+          <div className="mx-auto max-w-5xl">
+            {/* Header - Diseño limpio */}
+            <div className="mb-12 text-center sm:mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-white/15 px-6 py-3 backdrop-blur-lg border border-white/30 shadow-lg"
+                transition={{ duration: 0.6 }}
+                className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-4 py-1.5 text-xs font-medium text-blue-300 ring-1 ring-blue-500/20"
               >
-                <span className="relative h-2.5 w-2.5">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-block h-2.5 w-2.5 rounded-full bg-green-400 shadow-lg shadow-green-400/50" />
-                </span>
-                <span className="text-sm font-semibold tracking-wide text-white">Para Organizadores de Eventos</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                Para Organizadores
               </motion.div>
               
-              {/* Título mejorado con mejor tipografía */}
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="mb-6 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="mb-4 text-3xl font-bold text-white sm:text-4xl md:text-5xl"
               >
-                ¿Organizas{" "}
-                <span className="bg-gradient-to-r from-yellow-300 via-yellow-200 to-orange-300 bg-clip-text text-transparent">
-                  Eventos?
-                </span>
+                ¿Organizas Eventos?
               </motion.h2>
               
-              {/* Descripción mejorada */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mx-auto max-w-3xl text-lg leading-relaxed text-white/95 sm:text-xl lg:text-2xl"
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="mx-auto max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg"
               >
-                Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional diseñada para el éxito.
+                Transforma tu evento en una experiencia inolvidable. Vende tickets, gestiona asistentes y maximiza tus ingresos con nuestra plataforma profesional.
               </motion.p>
             </div>
 
-            {/* Características destacadas - Diseño mejorado */}
-            <div className="mb-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl"
-              >
-                {/* Efecto de brillo en hover */}
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-                
-                <div className="relative">
-                  <div className="mb-6 flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <Users className="h-8 w-8 text-white" />
-                    </div>
+            {/* Features Grid - Diseño limpio */}
+            <div className="mb-12 grid gap-4 sm:grid-cols-3 sm:gap-6">
+              {[
+                { icon: Users, title: "Alcance Masivo", description: "Llega a miles de personas con nuestras herramientas de marketing" },
+                { icon: Shield, title: "100% Seguro", description: "Pagos protegidos y códigos QR únicos anti-fraude" },
+                { icon: BarChart3, title: "Dashboard Real-time", description: "Estadísticas y reportes instantáneos para optimizar tus eventos" },
+              ].map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                  className="group rounded-xl border border-slate-700/50 bg-slate-800/30 p-6 backdrop-blur-sm transition-all hover:border-slate-600 hover:bg-slate-800/50"
+                >
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 transition-colors group-hover:bg-blue-500/20">
+                    <feature.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-3 text-xl font-bold text-white">Alcance Masivo</h3>
-                  <p className="text-base leading-relaxed text-white/90">
-                    Llega a miles de personas en toda la región con nuestras herramientas de marketing integradas
+                  <h3 className="mb-2 text-lg font-semibold text-white">{feature.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-400">
+                    {feature.description}
                   </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl"
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-                
-                <div className="relative">
-                  <div className="mb-6 flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <Shield className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="mb-3 text-xl font-bold text-white">100% Seguro</h3>
-                  <p className="text-base leading-relaxed text-white/90">
-                    Pagos protegidos con cifrado de nivel bancario y códigos QR únicos anti-fraude
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="group relative overflow-hidden rounded-3xl bg-white/15 p-8 backdrop-blur-xl border border-white/25 shadow-xl transition-all duration-500 hover:bg-white/20 hover:scale-[1.02] hover:shadow-2xl sm:col-span-2 lg:col-span-1"
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-                
-                <div className="relative">
-                  <div className="mb-6 flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-white/30 to-white/10 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      <BarChart3 className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="mb-3 text-xl font-bold text-white">Dashboard en Tiempo Real</h3>
-                  <p className="text-base leading-relaxed text-white/90">
-                    Estadísticas y reportes instantáneos para optimizar tus eventos y maximizar ingresos
-                  </p>
-                </div>
-              </motion.div>
+                </motion.div>
+              ))}
             </div>
 
-            {/* Botones mejorados con mejor diseño */}
+            {/* CTAs - Diseño limpio */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="mb-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
             >
               <Button
                 size="lg"
-                className="group relative h-16 w-full gap-3 overflow-hidden bg-white font-bold text-blue-600 shadow-2xl transition-all hover:scale-105 hover:bg-gray-50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] sm:w-auto sm:px-12"
+                className="w-full gap-2 bg-blue-600 font-semibold text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl sm:w-auto sm:px-8"
               >
-                <Plus className="h-6 w-6 transition-transform group-hover:rotate-90" />
-                <span className="text-lg">Crear mi Primer Evento</span>
+                <Plus className="h-5 w-5" />
+                Crear mi Primer Evento
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="group relative h-16 w-full gap-3 border-2 border-white/40 bg-white/10 font-bold text-white backdrop-blur-xl transition-all hover:border-white hover:bg-white hover:text-blue-600 hover:shadow-xl sm:w-auto sm:px-12"
+                className="w-full gap-2 border-slate-600 bg-transparent font-semibold text-slate-300 transition-all hover:border-slate-500 hover:bg-slate-800/50 hover:text-white sm:w-auto sm:px-8"
               >
-                <Info className="h-6 w-6" />
-                <span className="text-lg">Ver Cómo Funciona</span>
+                <Info className="h-5 w-5" />
+                Ver Cómo Funciona
               </Button>
             </motion.div>
 
-            {/* Stats mejoradas con mejor diseño */}
+            {/* Stats - Diseño minimalista */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="overflow-hidden rounded-3xl bg-white/10 backdrop-blur-xl border border-white/25 shadow-2xl"
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-8 backdrop-blur-sm"
             >
-              <div className="grid grid-cols-3 divide-x divide-white/20">
-                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
-                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+              <div className="grid grid-cols-3 gap-4 divide-x divide-slate-700/50">
+                <div className="text-center">
+                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
                     <CountUp end={500} suffix="K+" />
                   </div>
-                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
-                    Tickets Vendidos
-                  </div>
+                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Tickets Vendidos</div>
                 </div>
-                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
-                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+                <div className="text-center">
+                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
                     <CountUp end={15} suffix="K+" />
                   </div>
-                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
-                    Eventos Exitosos
-                  </div>
+                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Eventos Exitosos</div>
                 </div>
-                <div className="px-6 py-10 text-center sm:px-8 sm:py-12">
-                  <div className="mb-3 text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl">
+                <div className="text-center">
+                  <div className="mb-1 text-3xl font-bold text-white sm:text-4xl">
                     <CountUp end={98} suffix="%" />
                   </div>
-                  <div className="text-sm font-semibold uppercase tracking-wider text-white/90 sm:text-base">
-                    Satisfacción
-                  </div>
+                  <div className="text-xs font-medium text-slate-400 sm:text-sm">Satisfacción</div>
                 </div>
               </div>
             </motion.div>
