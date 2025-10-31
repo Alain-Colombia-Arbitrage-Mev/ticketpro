@@ -243,6 +243,39 @@ bunx wrangler pages deploy ./dist
 
 ## Troubleshooting
 
+### Error: "Authentication error [code: 10000]"
+
+Este error indica que el token de API no tiene los permisos correctos. Soluciones:
+
+1. **Usar login interactivo** (más fácil y recomendado):
+   ```bash
+   bunx wrangler login
+   ```
+   Esto abrirá tu navegador para autenticarte con tu cuenta de Cloudflare.
+
+2. **Verificar permisos del token**:
+   - Ve a https://dash.cloudflare.com/profile/api-tokens
+   - Verifica que el token tenga el permiso: `Cloudflare Pages:Edit`
+   - Si no lo tiene, crea un nuevo token con este permiso:
+     - Account → Cloudflare Pages:Edit
+     - Account → Account Settings:Read (opcional pero recomendado)
+
+3. **Especificar account-id en el comando**:
+   ```bash
+   bunx wrangler pages deploy ./dist --project-name=ticketpro --account-id=1993a0eaf7f6e3e6f7fd7b3b3f377d6c
+   ```
+
+### Error: "Project not found"
+
+Asegúrate de que el proyecto existe en Cloudflare Pages:
+
+1. Ve a Cloudflare Dashboard → Pages
+2. Crea el proyecto "ticketpro" si no existe
+3. O usa el nombre correcto del proyecto en el comando:
+   ```bash
+   bunx wrangler pages deploy ./dist --project-name=nombre-correcto-del-proyecto
+   ```
+
 ### Error: "Build failed"
 - Verifica que `bun run build` funciona localmente
 - Revisa los logs en Cloudflare Dashboard
