@@ -37,7 +37,7 @@ export function AuthInitializer() {
 
     // Escuchar cambios en el estado de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (_event, session) => {
         if (session?.access_token) {
           api.setAccessToken(session.access_token);
           await refreshUser();
