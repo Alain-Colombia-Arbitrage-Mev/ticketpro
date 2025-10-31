@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+.vite
+*.config.js
+*.config.ts
+DESIGN_SYSTEM.md
+STACK_MODERNIZATION.md
+
