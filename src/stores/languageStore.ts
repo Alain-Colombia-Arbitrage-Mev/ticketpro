@@ -13,6 +13,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Navigation
     'nav.home': 'Inicio',
     'nav.events': 'Eventos',
+    'nav.contact': 'Contacto',
     'nav.profile': 'Mi Perfil',
     'nav.login': 'Iniciar Sesión',
     'nav.logout': 'Cerrar Sesión',
@@ -390,6 +391,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Navigation
     'nav.home': 'Home',
     'nav.events': 'Events',
+    'nav.contact': 'Contact',
     'nav.profile': 'My Profile',
     'nav.login': 'Sign In',
     'nav.logout': 'Sign Out',
@@ -767,6 +769,7 @@ export const translations: Record<Language, Record<string, string>> = {
     // Navigation
     'nav.home': 'Início',
     'nav.events': 'Eventos',
+    'nav.contact': 'Contato',
     'nav.profile': 'Meu Perfil',
     'nav.login': 'Entrar',
     'nav.logout': 'Sair',
