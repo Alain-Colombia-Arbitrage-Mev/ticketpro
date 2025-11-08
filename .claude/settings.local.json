@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__figma-dev-mode-mcp-server__get_design_context",
+      "WebFetch(domain:127.0.0.1)",
+      "mcp__figma-dev-mode-mcp-server__get_screenshot"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

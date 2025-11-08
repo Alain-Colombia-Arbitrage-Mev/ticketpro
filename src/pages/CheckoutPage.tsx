@@ -1,645 +1,689 @@
-import { useState, useEffect } from "react";
-import { ChevronLeft, Wallet, Lock, Ticket, Calendar, MapPin, Minus, Plus, AlertCircle, Sparkles, User, Mail, Phone, Users, CheckCircle2 } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronLeft, CreditCard, Lock, Ticket, Calendar, MapPin, User, Mail, Phone, CheckCircle2, Shield, Building2, Bitcoin, Wallet } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { Label } from "../components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
+import { Label } from "../components/ui/label";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "../utils/api";
-import { CurrencySelector } from "../components/payment";
-import { Currency, formatCurrency, MultiCurrencyBalance } from "../utils/currency";
+import { useLanguage } from "../hooks/useLanguage";
+import { SEOHead } from "../components/common";
+
+type PaymentMethod = "card" | "ach" | "crypto";
 
 export function CheckoutPage() {
   const { navigate, pageData } = useRouter();
-  const { user, refreshUser } = useAuth();
-  const [ticketQuantity, setTicketQuantity] = useState(1);
-  const [selectedTicketType, setSelectedTicketType] = useState("general");
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showAddBalanceModal, setShowAddBalanceModal] = useState(false);
-  const [balanceAmount, setBalanceAmount] = useState("");
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(
-    user?.preferredCurrency || pageData?.currency || 'USD'
-  );
-
-  // Onboarding states
-  const [currentStep, setCurrentStep] = useState(1);
-  const [buyerInfo, setBuyerInfo] = useState({
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  
+  // Formulario
+  const [formData, setFormData] = useState({
     fullName: user?.name || "",
     email: user?.email || "",
     phone: "",
+    // Tarjeta
+    cardNumber: "",
+    cardExpiry: "",
+    cardCVV: "",
+    // ACH
+    routingNumber: "",
+    accountNumber: "",
+    accountType: "checking",
+    // Crypto
+    walletAddress: "",
+    cryptoType: "bitcoin",
   });
-  const [attendees, setAttendees] = useState<Array<{ name: string; email?: string }>>([]);
-  const [specialRequests, setSpecialRequests] = useState("");
 
   if (!pageData) {
     navigate("home");
     return null;
   }
 
-  if (!user) {
-    navigate("login");
-    return null;
-  }
-
-  const ticketPrices: Record<string, number> = {
-    general: parseInt(pageData.price?.replace(/[^0-9]/g, "") || "800"),
-    vip: parseInt(pageData.price?.replace(/[^0-9]/g, "") || "800") * 2,
-    palco: parseInt(pageData.price?.replace(/[^0-9]/g, "") || "800") * 4,
-  };
-
-  const subtotal = ticketPrices[selectedTicketType] * ticketQuantity;
-  const serviceFee = subtotal * 0.1;
+  const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
+  const subtotal = ticketPrice * quantity;
+  const serviceFee = Math.round(subtotal * 0.1);
   const total = subtotal + serviceFee;
 
-  // Get user balance in selected currency
-  const getUserBalance = (): number => {
-    if (typeof user.balance === 'number') {
-      // Old format - assume MXN
-      return selectedCurrency === 'MXN' ? user.balance : 0;
+  const handleQuantityChange = (delta: number) => {
+    const newQty = quantity + delta;
+    if (newQty >= 1 && newQty <= 10) {
+      setQuantity(newQty);
     }
-    return (user.balance as MultiCurrencyBalance)[selectedCurrency] || 0;
   };
 
-  const userBalance = getUserBalance();
-
-  // Update attendees array when ticket quantity changes
-  useEffect(() => {
-    if (attendees.length !== ticketQuantity) {
-      const newAttendees = Array.from({ length: ticketQuantity }, (_, i) => 
-        attendees[i] || { name: "" }
-      );
-      setAttendees(newAttendees);
-    }
-  }, [ticketQuantity]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-      // Validate buyer info
-      if (!buyerInfo.fullName.trim() || !buyerInfo.email.trim()) {
-        setError("Por favor completa todos los campos obligatorios");
-        return;
-      }
-      if (!buyerInfo.email.includes("@")) {
-        setError("Por favor ingresa un email válido");
-        return;
-      }
-      // Initialize attendees array
-      setAttendees(Array.from({ length: ticketQuantity }, () => ({ name: "" })));
-    }
-    if (currentStep === 2) {
-      // Validate attendees
-      const invalidAttendees = attendees.filter(a => !a.name.trim());
-      if (invalidAttendees.length > 0) {
-        setError("Por favor ingresa el nombre de todos los asistentes");
-        return;
-      }
-    }
-    setError("");
-    setCurrentStep(currentStep + 1);
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePreviousStep = () => {
-    setError("");
-    setCurrentStep(currentStep - 1);
+  const handleCardNumberChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    const formatted = cleaned.replace(/(\d{4})(?=\d)/g, "$1 ");
+    handleInputChange("cardNumber", formatted);
   };
 
-  const handleCheckout = async () => {
-    // Validate onboarding is complete
-    if (currentStep < 3) {
-      setError("Por favor completa todos los pasos antes de realizar el pago");
-      return;
+  const handleExpiryChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    let formatted = cleaned;
+    if (cleaned.length >= 2) {
+      formatted = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4);
+    }
+    handleInputChange("cardExpiry", formatted);
+  };
+
+  const handleCVVChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, 4);
+    handleInputChange("cardCVV", cleaned);
+  };
+
+  const handleRoutingNumberChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, 9);
+    handleInputChange("routingNumber", cleaned);
+  };
+
+  const handleAccountNumberChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, 17);
+    handleInputChange("accountNumber", cleaned);
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.fullName || !formData.email || !formData.phone) {
+      alert("Por favor completa todos los campos de contacto");
+      return false;
     }
 
-    if (!buyerInfo.fullName.trim() || !buyerInfo.email.trim()) {
-      setError("Por favor completa la información del comprador");
-      setCurrentStep(1);
-      return;
+    if (paymentMethod === "card") {
+      if (!formData.cardNumber || !formData.cardExpiry || !formData.cardCVV) {
+        alert("Por favor completa todos los datos de la tarjeta");
+        return false;
+      }
+    } else if (paymentMethod === "ach") {
+      if (!formData.routingNumber || !formData.accountNumber) {
+        alert("Por favor completa todos los datos bancarios");
+        return false;
+      }
+    } else if (paymentMethod === "crypto") {
+      if (!formData.walletAddress) {
+        alert("Por favor ingresa tu dirección de wallet");
+        return false;
+      }
     }
 
-    const invalidAttendees = attendees.filter(a => !a.name.trim());
-    if (invalidAttendees.length > 0) {
-      setError("Por favor ingresa el nombre de todos los asistentes");
-      setCurrentStep(2);
-      return;
-    }
+    return true;
+  };
 
-    if (userBalance < total) {
-      setError(`Saldo insuficiente en ${selectedCurrency}. Por favor recarga tu cuenta.`);
-      setShowAddBalanceModal(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    setError("");
-
-    try {
-      const result = await api.purchaseTicket({
-        eventId: pageData.id?.toString() || "1",
-        eventTitle: pageData.title || "",
-        eventDate: pageData.date || "",
-        eventLocation: pageData.location || "",
-        eventImage: pageData.image || "",
-        price: ticketPrices[selectedTicketType],
-        quantity: ticketQuantity,
-        currency: selectedCurrency,
-        buyerInfo: {
-          name: buyerInfo.fullName,
-          email: buyerInfo.email,
-          phone: buyerInfo.phone,
-        },
-        attendees: attendees.map(a => ({ name: a.name })),
-        specialRequests: specialRequests || undefined,
-      });
-
-      await refreshUser();
-
-      navigate("confirmation", {
-        tickets: result.tickets,
-        total: total,
-        currency: selectedCurrency,
-        quantity: ticketQuantity,
-        ...pageData,
-      });
-    } catch (err: any) {
-      setError(err.message || "Error al procesar la compra");
-    } finally {
+    
+    // Simular procesamiento de pago
+    setTimeout(() => {
       setLoading(false);
-    }
+      setShowSuccessModal(true);
+    }, 2000);
   };
 
-  const handleAddBalance = async () => {
-    const amount = parseFloat(balanceAmount);
-    if (!amount || amount <= 0) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await api.addBalance(amount, selectedCurrency);
-      await refreshUser();
-      setShowAddBalanceModal(false);
-      setBalanceAmount("");
-      setError("");
-    } catch (err: any) {
-      setError(err.message || "Error al agregar saldo");
-    } finally {
-      setLoading(false);
-    }
+  const handleCloseSuccess = () => {
+    setShowSuccessModal(false);
+    navigate("home");
   };
 
-  const insufficientBalance = userBalance < total;
+  const paymentMethods = [
+    {
+      id: "card" as PaymentMethod,
+      name: "Tarjeta de Crédito/Débito",
+      icon: <CreditCard className="h-5 w-5" />,
+      description: "Visa, Mastercard, American Express",
+    },
+    {
+      id: "ach" as PaymentMethod,
+      name: "Transferencia ACH",
+      icon: <Building2 className="h-5 w-5" />,
+      description: "Transferencia bancaria en EE.UU.",
+    },
+    {
+      id: "crypto" as PaymentMethod,
+      name: "Criptomonedas",
+      icon: <Bitcoin className="h-5 w-5" />,
+      description: "Bitcoin, Ethereum, USDT",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-black">
+      <SEOHead
+        seo={{
+          title: `Checkout - ${pageData.title}`,
+          description: `Completa tu compra para ${pageData.title}`,
+        }}
+      />
+
       {/* Header */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-4">
+      <div className="border-b border-white/20 bg-black sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             onClick={() => navigate("event-detail", pageData)}
-            className="gap-2"
+            className="gap-2 !text-white hover:!bg-white/10"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4 !text-white" />
             Volver
           </Button>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Finalizar Compra</h1>
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="mb-8 text-3xl font-bold !text-white">Checkout</h1>
 
           <div className="grid gap-8 lg:grid-cols-3">
-            {/* Left Column - Ticket Selection */}
+            {/* Formulario de Pago */}
             <div className="lg:col-span-2">
-              {/* Event Summary */}
-              <Card className="mb-6 overflow-hidden border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
-                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
-                  <Ticket className="h-5 w-5 text-blue-600" />
-                  Detalles del Evento
-                </h2>
-
-                <div className="flex gap-4">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
-                    <ImageWithFallback
-                      src={pageData.image}
-                      alt={pageData.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex-1">
-                    <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">{pageData.title}</h3>
-                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>{pageData.date}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{pageData.location}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Ticket Type Selection */}
-              <Card className="mb-6 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
-                <h2 className="mb-4 font-semibold text-gray-900 dark:text-white">Tipo de Boleto</h2>
-                <RadioGroup value={selectedTicketType} onValueChange={setSelectedTicketType}>
-                  <div className="space-y-3">
-                    <label className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 p-4 transition-all hover:border-blue-300 dark:hover:border-blue-600 has-[:checked]:border-blue-600 dark:has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="general" id="general" />
-                        <div>
-                          <Label htmlFor="general" className="cursor-pointer font-medium text-gray-900 dark:text-white">
-                            General
-                          </Label>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Acceso estándar al evento</p>
-                        </div>
-                      </div>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(ticketPrices.general, selectedCurrency)}</span>
-                    </label>
-
-                    <label className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 p-4 transition-all hover:border-blue-300 dark:hover:border-blue-600 has-[:checked]:border-blue-600 dark:has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="vip" id="vip" />
-                        <div>
-                          <Label htmlFor="vip" className="cursor-pointer font-medium text-gray-900 dark:text-white">
-                            VIP
-                          </Label>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Asientos preferenciales</p>
-                        </div>
-                      </div>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(ticketPrices.vip, selectedCurrency)}</span>
-                    </label>
-
-                    <label className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 p-4 transition-all hover:border-blue-300 dark:hover:border-blue-600 has-[:checked]:border-blue-600 dark:has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50 dark:has-[:checked]:bg-blue-900/30">
-                      <div className="flex items-center gap-3">
-                        <RadioGroupItem value="palco" id="palco" />
-                        <div>
-                          <Label htmlFor="palco" className="cursor-pointer font-medium text-gray-900 dark:text-white">
-                            Palco Premium
-                          </Label>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">Experiencia exclusiva</p>
-                        </div>
-                      </div>
-                      <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(ticketPrices.palco, selectedCurrency)}</span>
-                    </label>
-                  </div>
-                </RadioGroup>
-              </Card>
-
-              {/* Quantity Selection */}
-              <Card className="mb-6 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
-                <h2 className="mb-4 font-semibold text-gray-900 dark:text-white">Cantidad de Boletos</h2>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setTicketQuantity(Math.max(1, ticketQuantity - 1))}
-                    disabled={ticketQuantity <= 1}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-12 text-center text-xl font-semibold">{ticketQuantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setTicketQuantity(Math.min(10, ticketQuantity + 1))}
-                    disabled={ticketQuantity >= 10}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm text-gray-500">Máximo 10 boletos por compra</span>
-                </div>
-              </Card>
-
-              {/* Onboarding Steps */}
-              <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
-                {/* Progress Steps */}
-                <div className="mb-6 flex items-center justify-between">
-                  {[1, 2, 3].map((step) => (
-                    <div key={step} className="flex items-center">
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all ${
-                          currentStep === step
-                            ? "border-blue-600 dark:border-blue-500 bg-blue-600 text-white"
-                            : currentStep > step
-                            ? "border-green-600 dark:border-green-500 bg-green-600 text-white"
-                            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500"
-                        }`}
-                      >
-                        {currentStep > step ? (
-                          <CheckCircle2 className="h-5 w-5" />
-                        ) : (
-                          <span className="font-semibold">{step}</span>
-                        )}
-                      </div>
-                      {step < 3 && (
-                        <div
-                          className={`h-0.5 w-12 transition-all ${
-                            currentStep > step ? "bg-green-600 dark:bg-green-500" : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        />
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Step 1: Buyer Information */}
-                {currentStep === 1 && (
-                  <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Información de Contacto */}
+                <Card className="p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
+                    <User className="h-5 w-5" />
+                    Información de Contacto
+                  </h2>
+                  
+                  <div className="space-y-4">
                     <div>
-                      <h2 className="mb-2 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
-                        <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Información del Comprador
-                      </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Necesitamos esta información para procesar tu compra y enviarte los boletos
-                      </p>
+                      <Label htmlFor="fullName" className="!text-white/80">Nombre Completo *</Label>
+                      <Input
+                        id="fullName"
+                        type="text"
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange("fullName", e.target.value)}
+                        className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
+                        placeholder="Juan Pérez"
+                        required
+                      />
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName">
-                          Nombre Completo <span className="text-red-500">*</span>
-                        </Label>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <Label htmlFor="email" className="!text-white/80">Email *</Label>
                         <Input
-                          id="fullName"
-                          value={buyerInfo.fullName}
-                          onChange={(e) =>
-                            setBuyerInfo({ ...buyerInfo, fullName: e.target.value })
-                          }
-                          placeholder="Juan Pérez"
-                          className="h-11"
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
+                          placeholder="juan@example.com"
+                          required
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="email">
-                          Correo Electrónico <span className="text-red-500">*</span>
-                        </Label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                          <Input
-                            id="email"
-                            type="email"
-                            value={buyerInfo.email}
-                            onChange={(e) =>
-                              setBuyerInfo({ ...buyerInfo, email: e.target.value })
-                            }
-                            placeholder="tu@email.com"
-                            className="h-11 pl-10"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">
-                          Teléfono <span className="text-gray-500">(opcional)</span>
-                        </Label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                          <Input
-                            id="phone"
-                            type="tel"
-                            value={buyerInfo.phone}
-                            onChange={(e) =>
-                              setBuyerInfo({ ...buyerInfo, phone: e.target.value })
-                            }
-                            placeholder="+52 55 1234 5678"
-                            className="h-11 pl-10"
-                          />
-                        </div>
+                      <div>
+                        <Label htmlFor="phone" className="!text-white/80">Teléfono *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
+                          placeholder="+1 (555) 123-4567"
+                          required
+                        />
                       </div>
                     </div>
                   </div>
-                )}
+                </Card>
 
-                {/* Step 2: Attendees Information */}
-                {currentStep === 2 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="mb-2 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
-                        <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Información de los Asistentes
-                      </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Ingresa el nombre completo de cada persona que asistirá al evento
-                      </p>
-                    </div>
-
-                    <div className="space-y-4">
-                      {attendees.map((attendee, index) => (
-                        <div key={index} className="space-y-2">
-                          <Label htmlFor={`attendee-${index}`}>
-                            Asistente {index + 1} <span className="text-red-500">*</span>
+                {/* Método de Pago */}
+                <Card className="p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-6 flex items-center gap-2 text-xl font-bold !text-white">
+                    <Wallet className="h-5 w-5" />
+                    Selecciona tu Método de Pago
+                  </h2>
+                  
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {paymentMethods.map((method) => (
+                      <div
+                        key={method.id}
+                        className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 cursor-pointer transition-all hover:scale-105 ${
+                          paymentMethod === method.id
+                            ? "border-[#c61619] !bg-[#c61619]/20 shadow-lg shadow-[#c61619]/20"
+                            : "border-white/20 !bg-white/5 hover:border-white/40 hover:!bg-white/10"
+                        }`}
+                        onClick={() => {
+                          console.log("Cambiando método de pago a:", method.id);
+                          setPaymentMethod(method.id);
+                        }}
+                      >
+                          {paymentMethod === method.id && (
+                            <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c61619]">
+                              <CheckCircle2 className="h-4 w-4 text-white" />
+                            </div>
+                          )}
+                          
+                          <div className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full transition-all ${
+                            paymentMethod === method.id
+                              ? "bg-[#c61619] text-white"
+                              : "bg-white/10 text-white/70"
+                          }`}>
+                            <div className="scale-150">
+                              {method.icon}
+                            </div>
+                          </div>
+                          
+                          <Label
+                            htmlFor={method.id}
+                            className="text-center !text-white font-bold cursor-pointer mb-2"
+                          >
+                            {method.name}
                           </Label>
-                          <Input
-                            id={`attendee-${index}`}
-                            value={attendee.name}
-                            onChange={(e) => {
-                              const newAttendees = [...attendees];
-                              newAttendees[index] = { ...newAttendees[index], name: e.target.value };
-                              setAttendees(newAttendees);
-                            }}
-                            placeholder={`Nombre completo del asistente ${index + 1}`}
-                            className="h-11"
-                          />
+                          
+                          <p className="text-xs text-center !text-white/60">{method.description}</p>
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {/* Step 3: Review and Additional Info */}
-                {currentStep === 3 && (
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="mb-2 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
-                        <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                        Revisión y Solicitudes Especiales
-                      </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Revisa la información y agrega cualquier solicitud especial si es necesario
-                      </p>
-                    </div>
-
-                    <div className="space-y-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
-                      <div>
-                        <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">Información del Comprador</h3>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">Nombre:</span>
-                            <span className="font-medium text-gray-900 dark:text-white">{buyerInfo.fullName}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">Email:</span>
-                            <span className="font-medium text-gray-900 dark:text-white">{buyerInfo.email}</span>
-                          </div>
-                          {buyerInfo.phone && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600 dark:text-gray-400">Teléfono:</span>
-                              <span className="font-medium text-gray-900 dark:text-white">{buyerInfo.phone}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <Separator className="dark:bg-gray-700" />
-
-                      <div>
-                        <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">Asistentes ({attendees.length})</h3>
-                        <div className="space-y-1 text-sm">
-                          {attendees.map((attendee, index) => (
-                            <div key={index} className="flex justify-between">
-                              <span className="text-gray-600 dark:text-gray-400">Asistente {index + 1}:</span>
-                              <span className="font-medium text-gray-900 dark:text-white">{attendee.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="specialRequests">
-                        Solicitudes Especiales <span className="text-gray-500">(opcional)</span>
-                      </Label>
-                      <Textarea
-                        id="specialRequests"
-                        value={specialRequests}
-                        onChange={(e) => setSpecialRequests(e.target.value)}
-                        placeholder="Accesibilidad, preferencias de asientos, necesidades especiales..."
-                        className="min-h-[100px] resize-none"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Navigation Buttons */}
-                <div className="mt-6 flex justify-between">
-                  {currentStep > 1 && (
-                    <Button variant="outline" onClick={handlePreviousStep}>
-                      Anterior
-                    </Button>
-                  )}
-                  <div className="ml-auto">
-                    {currentStep < 3 ? (
-                      <Button onClick={handleNextStep} className="bg-gradient-to-r from-blue-600 to-indigo-600">
-                        Siguiente
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => setCurrentStep(1)}
-                        variant="outline"
-                      >
-                        Editar Información
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {error}
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            {/* Right Column - Summary */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-20">
-                {/* Balance Card */}
-                <Card className="mb-6 border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-indigo-50 dark:to-indigo-900/20 p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Tu Saldo en {selectedCurrency}</h3>
-                    <div className="flex items-center gap-2">
-                      <Wallet className="h-5 w-5 text-blue-600" />
-                      <CurrencySelector
-                        selectedCurrency={selectedCurrency}
-                        onCurrencyChange={setSelectedCurrency}
-                        showLabel={false}
-                      />
-                    </div>
-                  </div>
-                  <p className="mb-4 text-3xl font-bold text-gray-900 dark:text-white">
-                    {formatCurrency(userBalance, selectedCurrency)}
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => navigate("add-balance")}
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Agregar Saldo
-                  </Button>
                 </Card>
 
-                {/* Summary Card */}
-                <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
-                  <h2 className="mb-4 font-semibold text-gray-900 dark:text-white">Resumen de Compra</h2>
+                {/* Formulario según método de pago */}
+                <Card className="p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
+                    <Lock className="h-5 w-5" />
+                    Información de Pago
+                  </h2>
 
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">
-                        {ticketQuantity}x Boleto {selectedTicketType.charAt(0).toUpperCase() + selectedTicketType.slice(1)}
-                      </span>
-                      <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(subtotal, selectedCurrency)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Cargo por servicio (10%)</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(serviceFee, selectedCurrency)}</span>
-                    </div>
-                  </div>
+                  {/* Tarjeta de Crédito/Débito */}
+                  {paymentMethod === "card" && (
+                    <div key="card-form" className="space-y-4 animate-fade-in-up">
+                      {/* Logos de tarjetas aceptadas */}
+                      <div className="flex items-center justify-center gap-4 p-4 rounded-lg !bg-white/5 border border-white/10">
+                        <div className="text-xs !text-white/60">Aceptamos:</div>
+                        <div className="flex gap-3">
+                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                            <span className="text-xs font-bold !text-white">VISA</span>
+                          </div>
+                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                            <span className="text-xs font-bold !text-white">MC</span>
+                          </div>
+                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                            <span className="text-xs font-bold !text-white">AMEX</span>
+                          </div>
+                        </div>
+                      </div>
 
-                  <Separator className="my-4 dark:bg-gray-700" />
+                      <div>
+                        <Label htmlFor="cardNumber" className="!text-white/80 mb-2 block">Número de Tarjeta *</Label>
+                        <div className="relative">
+                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                          <Input
+                            id="cardNumber"
+                            type="text"
+                            value={formData.cardNumber}
+                            onChange={(e) => handleCardNumberChange(e.target.value)}
+                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                            placeholder="1234 5678 9012 3456"
+                            maxLength={19}
+                            required
+                          />
+                        </div>
+                      </div>
 
-                  <div className="mb-6 flex justify-between text-lg">
-                    <span className="font-semibold text-gray-900 dark:text-white">Total</span>
-                    <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(total, selectedCurrency)}</span>
-                  </div>
-
-                  {insufficientBalance && (
-                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-                      <div className="flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+                      <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <p className="font-medium text-red-900">Saldo Insuficiente</p>
-                          <p className="text-sm text-red-700">
-                            Necesitas ${(total - user.balance).toLocaleString()} MXN más para completar esta compra
+                          <Label htmlFor="cardExpiry" className="!text-white/80 mb-2 block">Vencimiento *</Label>
+                          <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                            <Input
+                              id="cardExpiry"
+                              type="text"
+                              value={formData.cardExpiry}
+                              onChange={(e) => handleExpiryChange(e.target.value)}
+                              className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                              placeholder="MM/YY"
+                              maxLength={5}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="cardCVV" className="!text-white/80 mb-2 block">CVV *</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 !text-white/40" />
+                            <Input
+                              id="cardCVV"
+                              type="text"
+                              value={formData.cardCVV}
+                              onChange={(e) => handleCVVChange(e.target.value)}
+                              className="pl-10 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                              placeholder="123"
+                              maxLength={4}
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ACH Transfer */}
+                  {paymentMethod === "ach" && (
+                    <div key="ach-form" className="space-y-4 animate-fade-in-up">
+                      {/* Info banner */}
+                      <div className="flex items-start gap-3 rounded-lg !bg-blue-500/10 p-4 border border-blue-500/20">
+                        <Building2 className="h-5 w-5 !text-blue-300 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm !text-blue-300 font-semibold mb-1">Transferencia Bancaria en EE.UU.</p>
+                          <p className="text-xs !text-blue-200/80">
+                            Las transferencias ACH tardan 1-3 días hábiles. Recibirás tus tickets por email una vez confirmado el pago.
                           </p>
                         </div>
                       </div>
+
+                      <div>
+                        <Label htmlFor="routingNumber" className="!text-white/80 mb-2 block">Routing Number (9 dígitos) *</Label>
+                        <div className="relative">
+                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                          <Input
+                            id="routingNumber"
+                            type="text"
+                            value={formData.routingNumber}
+                            onChange={(e) => handleRoutingNumberChange(e.target.value)}
+                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
+                            placeholder="123456789"
+                            maxLength={9}
+                            required
+                          />
+                        </div>
+                        <p className="text-xs !text-white/50 mt-1">Número de ruta de 9 dígitos de tu banco</p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="accountNumber" className="!text-white/80 mb-2 block">Account Number *</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                          <Input
+                            id="accountNumber"
+                            type="text"
+                            value={formData.accountNumber}
+                            onChange={(e) => handleAccountNumberChange(e.target.value)}
+                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
+                            placeholder="12345678901234"
+                            maxLength={17}
+                            required
+                          />
+                        </div>
+                        <p className="text-xs !text-white/50 mt-1">Número de cuenta bancaria (hasta 17 dígitos)</p>
+                      </div>
+
+                      <div>
+                        <Label className="!text-white/80 mb-3 block">Tipo de Cuenta *</Label>
+                        <RadioGroup value={formData.accountType} onValueChange={(value) => handleInputChange("accountType", value)}>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div 
+                              className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                                formData.accountType === "checking"
+                                  ? "border-[#c61619] !bg-[#c61619]/10"
+                                  : "border-white/20 !bg-white/5 hover:border-white/40"
+                              }`}
+                              onClick={() => handleInputChange("accountType", "checking")}
+                            >
+                              <RadioGroupItem value="checking" id="checking" />
+                              <Label htmlFor="checking" className="!text-white cursor-pointer font-medium flex-1">
+                                Checking Account
+                              </Label>
+                            </div>
+                            <div 
+                              className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                                formData.accountType === "savings"
+                                  ? "border-[#c61619] !bg-[#c61619]/10"
+                                  : "border-white/20 !bg-white/5 hover:border-white/40"
+                              }`}
+                              onClick={() => handleInputChange("accountType", "savings")}
+                            >
+                              <RadioGroupItem value="savings" id="savings" />
+                              <Label htmlFor="savings" className="!text-white cursor-pointer font-medium flex-1">
+                                Savings Account
+                              </Label>
+                            </div>
+                          </div>
+                        </RadioGroup>
+                      </div>
                     </div>
                   )}
 
-                  {error && !insufficientBalance && (
-                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                      {error}
+                  {/* Crypto */}
+                  {paymentMethod === "crypto" && (
+                    <div key="crypto-form" className="space-y-4 animate-fade-in-up">
+                      <div>
+                        <Label className="!text-white/80 mb-3 block">Selecciona tu Criptomoneda *</Label>
+                        <RadioGroup value={formData.cryptoType} onValueChange={(value) => handleInputChange("cryptoType", value)}>
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <div 
+                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
+                                formData.cryptoType === "bitcoin"
+                                  ? "border-[#c61619] !bg-[#c61619]/10"
+                                  : "border-white/20 !bg-white/5 hover:border-white/40"
+                              }`}
+                              onClick={() => handleInputChange("cryptoType", "bitcoin")}
+                            >
+                              <RadioGroupItem value="bitcoin" id="bitcoin" className="sr-only" />
+                              <Bitcoin className="h-10 w-10 !text-orange-400 mb-2" />
+                              <Label htmlFor="bitcoin" className="!text-white cursor-pointer font-bold">Bitcoin</Label>
+                              <span className="text-xs !text-white/60">BTC</span>
+                            </div>
+                            <div 
+                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
+                                formData.cryptoType === "ethereum"
+                                  ? "border-[#c61619] !bg-[#c61619]/10"
+                                  : "border-white/20 !bg-white/5 hover:border-white/40"
+                              }`}
+                              onClick={() => handleInputChange("cryptoType", "ethereum")}
+                            >
+                              <RadioGroupItem value="ethereum" id="ethereum" className="sr-only" />
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center mb-2">
+                                <span className="text-white font-bold text-xs">ETH</span>
+                              </div>
+                              <Label htmlFor="ethereum" className="!text-white cursor-pointer font-bold">Ethereum</Label>
+                              <span className="text-xs !text-white/60">ETH</span>
+                            </div>
+                            <div 
+                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
+                                formData.cryptoType === "usdt"
+                                  ? "border-[#c61619] !bg-[#c61619]/10"
+                                  : "border-white/20 !bg-white/5 hover:border-white/40"
+                              }`}
+                              onClick={() => handleInputChange("cryptoType", "usdt")}
+                            >
+                              <RadioGroupItem value="usdt" id="usdt" className="sr-only" />
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center mb-2">
+                                <span className="text-white font-bold text-xs">₮</span>
+                              </div>
+                              <Label htmlFor="usdt" className="!text-white cursor-pointer font-bold">Tether</Label>
+                              <span className="text-xs !text-white/60">USDT</span>
+                            </div>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="walletAddress" className="!text-white/80 mb-2 block">Tu Dirección de Wallet *</Label>
+                        <div className="relative">
+                          <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                          <Input
+                            id="walletAddress"
+                            type="text"
+                            value={formData.walletAddress}
+                            onChange={(e) => handleInputChange("walletAddress", e.target.value)}
+                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono text-sm"
+                            placeholder="0x1234...5678 o bc1q..."
+                            required
+                          />
+                        </div>
+                        <p className="text-xs !text-white/50 mt-1">Esta será la dirección desde la cual realizarás el pago</p>
+                      </div>
+
+                      <div className="rounded-lg !bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-5 border border-purple-500/30 backdrop-blur">
+                        <div className="flex items-start gap-3 mb-3">
+                          <Bitcoin className="h-5 w-5 !text-purple-300 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm !text-purple-300 font-semibold mb-1">
+                              Dirección para enviar el pago
+                            </p>
+                            <p className="text-xs !text-purple-200/70">
+                              Envía exactamente ${total} USD equivalente en {formData.cryptoType.toUpperCase()}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="!bg-black/50 p-4 rounded-lg border border-purple-500/30 relative">
+                          <code className="text-sm !text-white break-all font-mono block">
+                            {formData.cryptoType === "bitcoin" && "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"}
+                            {formData.cryptoType === "ethereum" && "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
+                            {formData.cryptoType === "usdt" && "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
+                          </code>
+                          <Button
+                            type="button"
+                            size="sm"
+                            className="absolute top-2 right-2 h-8 !bg-purple-500/20 hover:!bg-purple-500/30 !text-purple-200 border border-purple-500/30"
+                            onClick={() => {
+                              const address = formData.cryptoType === "bitcoin" 
+                                ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                                : "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+                              navigator.clipboard.writeText(address);
+                            }}
+                          >
+                            Copiar
+                          </Button>
+                        </div>
+                        
+                        <div className="mt-3 flex items-center gap-2 text-xs !text-purple-200/80">
+                          <Shield className="h-4 w-4" />
+                          <span>Los tickets se enviarán tras confirmar la transacción blockchain</span>
+                        </div>
+                      </div>
                     </div>
                   )}
 
-                  <Button
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm hover:shadow-md"
-                    onClick={handleCheckout}
-                    disabled={loading || insufficientBalance || currentStep < 3}
-                  >
-                    {loading ? "Procesando..." : currentStep < 3 ? "Completa el formulario arriba" : `Pagar ${formatCurrency(total, selectedCurrency)}`}
-                  </Button>
+                  <div className="flex items-center gap-2 rounded-lg !bg-white/5 p-3 border border-white/10 mt-4">
+                    <Shield className="h-4 w-4 !text-green-400" />
+                    <p className="text-sm !text-white/70">
+                      Tu información está protegida con encriptación SSL de 256 bits
+                    </p>
+                  </div>
+                </Card>
 
-                  <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-                    <Lock className="h-3 w-3" />
-                    <span>Pago seguro con tu saldo interno</span>
+                {/* Botón de Pago */}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="h-14 w-full !bg-[#c61619] hover:!bg-[#a01316] text-lg font-semibold shadow-lg !text-white"
+                >
+                  {loading ? (
+                    <>Procesando...</>
+                  ) : (
+                    <>
+                      <Shield className="mr-2 h-5 w-5" />
+                      {paymentMethod === "ach" ? "Autorizar Transferencia" : "Pagar"} ${total.toLocaleString()} MXN
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
+
+            {/* Resumen del Pedido */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <Card className="overflow-hidden !bg-white/5 border-white/20">
+                  <div className="border-b border-white/20 bg-[#c61619] p-4">
+                    <h3 className="font-bold text-white">Resumen del Pedido</h3>
+                  </div>
+                  
+                  <div className="p-4 space-y-4">
+                    {/* Imagen del Evento */}
+                    <div className="aspect-video w-full overflow-hidden rounded-lg">
+                      <ImageWithFallback
+                        src={pageData.image}
+                        alt={pageData.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+
+                    {/* Detalles del Evento */}
+                    <div>
+                      <h4 className="font-bold !text-white mb-2">{pageData.title}</h4>
+                      <div className="space-y-2 text-sm !text-white/70">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>{pageData.date}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          <span>{pageData.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Ticket className="h-4 w-4" />
+                          <span className="capitalize">{pageData.selectedTicketType || "General"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="!bg-white/20" />
+
+                    {/* Cantidad */}
+                    <div>
+                      <Label className="!text-white/80 mb-2 block">Cantidad de Tickets</Label>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(-1)}
+                          disabled={quantity <= 1}
+                          className="h-10 w-10 !bg-white/10 border-white/20 !text-white hover:!bg-white/20"
+                        >
+                          -
+                        </Button>
+                        <span className="flex-1 text-center text-xl font-bold !text-white">{quantity}</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(1)}
+                          disabled={quantity >= 10}
+                          className="h-10 w-10 !bg-white/10 border-white/20 !text-white hover:!bg-white/20"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator className="!bg-white/20" />
+
+                    {/* Desglose de Precios */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between !text-white/70">
+                        <span>Subtotal ({quantity} {quantity === 1 ? 'ticket' : 'tickets'})</span>
+                        <span>${subtotal.toLocaleString()} MXN</span>
+                      </div>
+                      <div className="flex justify-between !text-white/70">
+                        <span>Cargo por servicio</span>
+                        <span>${serviceFee.toLocaleString()} MXN</span>
+                      </div>
+                      <Separator className="!bg-white/20" />
+                      <div className="flex justify-between text-lg font-bold !text-white">
+                        <span>Total</span>
+                        <span>${total.toLocaleString()} MXN</span>
+                      </div>
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -648,65 +692,47 @@ export function CheckoutPage() {
         </div>
       </div>
 
-      {/* Add Balance Modal */}
-      <Dialog open={showAddBalanceModal} onOpenChange={setShowAddBalanceModal}>
-        <DialogContent>
+      {/* Modal de Éxito */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="!bg-black border-white/20">
           <DialogHeader>
-            <DialogTitle>Agregar Saldo</DialogTitle>
-            <DialogDescription>
-              Agrega fondos a tu cuenta para comprar tickets
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+              <CheckCircle2 className="h-10 w-10 text-green-400" />
+            </div>
+            <DialogTitle className="text-center text-2xl !text-white">
+              ¡Compra Exitosa!
+            </DialogTitle>
+            <DialogDescription className="text-center !text-white/70">
+              {paymentMethod === "ach" 
+                ? "Tu transferencia ha sido autorizada. Recibirás una confirmación por email en 1-3 días hábiles."
+                : paymentMethod === "crypto"
+                ? "Tu pago en criptomonedas ha sido recibido. Los tickets se enviarán a tu email una vez confirmada la transacción."
+                : "Tu compra ha sido procesada correctamente. Los tickets han sido enviados a tu email."}
             </DialogDescription>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4">
-              <p className="text-sm text-blue-900 dark:text-blue-300">
-                Saldo actual: <span className="font-bold dark:text-blue-200">${user.balance.toLocaleString()} MXN</span>
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="balance-amount">Cantidad a Agregar</Label>
-              <Input
-                id="balance-amount"
-                type="number"
-                placeholder="1000"
-                value={balanceAmount}
-                onChange={(e) => setBalanceAmount(e.target.value)}
-                min="1"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <Button variant="outline" onClick={() => setBalanceAmount("500")}>
-                $500
-              </Button>
-              <Button variant="outline" onClick={() => setBalanceAmount("1000")}>
-                $1,000
-              </Button>
-              <Button variant="outline" onClick={() => setBalanceAmount("2000")}>
-                $2,000
-              </Button>
-            </div>
-
-            {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {error}
+          
+          <div className="space-y-4 py-4">
+            <Card className="p-4 !bg-white/5 border-white/20">
+              <p className="text-sm !text-white/70 mb-2">Detalles de la compra:</p>
+              <div className="space-y-1 text-sm">
+                <p className="!text-white"><strong>Evento:</strong> {pageData.title}</p>
+                <p className="!text-white"><strong>Cantidad:</strong> {quantity} {quantity === 1 ? 'ticket' : 'tickets'}</p>
+                <p className="!text-white"><strong>Método de pago:</strong> {
+                  paymentMethod === "card" ? "Tarjeta" :
+                  paymentMethod === "ach" ? "ACH Transfer" :
+                  "Criptomonedas"
+                }</p>
+                <p className="!text-white"><strong>Total:</strong> ${total.toLocaleString()} MXN</p>
               </div>
-            )}
-
-            <Button
-              className="w-full"
-              onClick={handleAddBalance}
-              disabled={loading || !balanceAmount || parseFloat(balanceAmount) <= 0}
-            >
-              {loading ? "Procesando..." : "Agregar Saldo"}
-            </Button>
-
-            <p className="text-xs text-gray-500 text-center">
-              En un entorno de producción, aquí se integraría un procesador de pagos real
-            </p>
+            </Card>
           </div>
+
+          <Button
+            onClick={handleCloseSuccess}
+            className="w-full !bg-[#c61619] hover:!bg-[#a01316] !text-white"
+          >
+            Volver al Inicio
+          </Button>
         </DialogContent>
       </Dialog>
     </div>

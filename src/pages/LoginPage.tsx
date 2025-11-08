@@ -7,8 +7,9 @@ import { Label } from "../components/ui/label";
 import { Card } from "../components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { Ticket, Lock, Mail, User, Wand2, Check, KeyRound } from "lucide-react";
+import { Lock, Mail, User, Wand2, Check, KeyRound } from "lucide-react";
 import { motion } from "motion/react";
+import logo2 from "../assets/images/logo2.svg";
 
 export function LoginPage() {
   const { signIn, signUp, sendMagicLink, forgotPassword } = useAuth();
@@ -99,7 +100,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 via-indigo-50 dark:via-gray-900 to-purple-50 dark:to-gray-900">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto flex min-h-screen items-center justify-center px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -108,33 +109,50 @@ export function LoginPage() {
           className="w-full max-w-md"
         >
           <div className="mb-8 text-center">
-            <div className="mb-4 flex justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600">
-                <Ticket className="h-8 w-8 text-white" />
-              </div>
+            <div className="mb-6 flex justify-center">
+              <img 
+                src={logo2} 
+                alt="vetlix.com" 
+                className="h-12 w-auto object-contain"
+              />
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Bienvenido a TicketMaster</h1>
-            <p className="text-gray-600 dark:text-gray-400">Ingresa o crea tu cuenta para continuar</p>
+            <h1 className="mb-2 text-3xl font-bold text-white">Bienvenido a vetlix</h1>
+            <p className="text-gray-400">Ingresa o crea tu cuenta para continuar</p>
           </div>
 
-          <Card className="border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-xl">
+          <Card className="border-gray-800 bg-gray-900 p-6 shadow-xl">
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="mb-6 grid w-full grid-cols-3">
-                <TabsTrigger value="login">Contraseña</TabsTrigger>
-                <TabsTrigger value="magic">Magic Link</TabsTrigger>
-                <TabsTrigger value="signup">Registrarse</TabsTrigger>
+              <TabsList className="mb-6 grid w-full grid-cols-3 bg-gray-800/30 border border-gray-700 h-auto p-1">
+                <TabsTrigger 
+                  value="login"
+                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-gray-700 transition-all py-2.5 font-medium"
+                >
+                  Contraseña
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="magic"
+                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-gray-700 transition-all py-2.5 font-medium"
+                >
+                  Magic Link
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="signup"
+                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-gray-700 transition-all py-2.5 font-medium"
+                >
+                  Registrarse
+                </TabsTrigger>
               </TabsList>
 
               {/* Magic Link Tab */}
               <TabsContent value="magic">
                 {!magicLinkSent ? (
                   <form onSubmit={handleMagicLink} className="space-y-4">
-                    <div className="rounded-lg border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 p-4 mb-4">
+                    <div className="rounded-lg border border-purple-800 bg-purple-900/20 p-4 mb-4">
                       <div className="flex items-start gap-3">
-                        <Wand2 className="h-5 w-5 flex-shrink-0 text-purple-600 dark:text-purple-400" />
+                        <Wand2 className="h-5 w-5 flex-shrink-0 text-purple-400" />
                         <div>
-                          <p className="font-medium text-purple-900 dark:text-purple-300">Ingreso sin contraseña</p>
-                          <p className="text-sm text-purple-700 dark:text-purple-400">
+                          <p className="font-medium text-purple-300">Ingreso sin contraseña</p>
+                          <p className="text-sm text-purple-400">
                             Recibe un enlace mágico en tu email para acceder instantáneamente
                           </p>
                         </div>
@@ -158,7 +176,7 @@ export function LoginPage() {
                     </div>
 
                     {error && (
-                      <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 text-sm text-red-600 dark:text-red-400">
+                      <div className="rounded-lg bg-red-900/20 border border-red-800 p-3 text-sm text-red-400">
                         {error}
                       </div>
                     )}
@@ -177,19 +195,19 @@ export function LoginPage() {
                   </form>
                 ) : (
                   <div className="space-y-4">
-                    <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-6 text-center">
+                    <div className="rounded-lg border border-green-800 bg-green-900/20 p-6 text-center">
                       <div className="flex justify-center mb-4">
-                        <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                          <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+                        <div className="h-16 w-16 rounded-full bg-green-900/30 flex items-center justify-center">
+                          <Check className="h-8 w-8 text-green-400" />
                         </div>
                       </div>
-                      <h3 className="font-semibold text-green-900 dark:text-green-300 mb-2">
+                      <h3 className="font-semibold text-green-300 mb-2">
                         ¡Enlace Mágico Enviado! 📧
                       </h3>
-                      <p className="text-sm text-green-700 dark:text-green-400 mb-4">
-                        Hemos enviado un enlace de acceso a <strong className="dark:text-green-300">{magicLinkEmail}</strong>
+                      <p className="text-sm text-green-400 mb-4">
+                        Hemos enviado un enlace de acceso a <strong className="text-green-300">{magicLinkEmail}</strong>
                       </p>
-                      <p className="text-xs text-green-600 dark:text-green-400">
+                      <p className="text-xs text-green-400">
                         Revisa tu bandeja de entrada y haz clic en el enlace para ingresar automáticamente
                       </p>
                     </div>
@@ -205,7 +223,7 @@ export function LoginPage() {
                       Enviar otro enlace
                     </Button>
 
-                    <div className="rounded-lg border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 p-3 text-xs text-yellow-800 dark:text-yellow-300">
+                    <div className="rounded-lg border border-yellow-800 bg-yellow-900/20 p-3 text-xs text-yellow-300">
                       <strong>Nota:</strong> Para que funcione el envío de emails, debes configurar el servicio SMTP en Supabase. 
                       Mientras tanto, este es un sistema de demostración.
                     </div>
@@ -238,7 +256,7 @@ export function LoginPage() {
                       <button
                         type="button"
                         onClick={openForgotPassword}
-                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 hover:underline"
+                        className="text-xs text-blue-400 hover:text-blue-300 hover:underline"
                       >
                         ¿Olvidaste tu contraseña?
                       </button>
@@ -258,7 +276,7 @@ export function LoginPage() {
                   </div>
 
                   {error && (
-                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                    <div className="rounded-lg bg-red-900/20 border border-red-800 p-3 text-sm text-red-400">
                       {error}
                     </div>
                   )}
@@ -327,7 +345,7 @@ export function LoginPage() {
                   </div>
 
                   {error && (
-                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                    <div className="rounded-lg bg-red-900/20 border border-red-800 p-3 text-sm text-red-400">
                       {error}
                     </div>
                   )}
@@ -344,7 +362,7 @@ export function LoginPage() {
             </Tabs>
           </Card>
 
-          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-center text-sm text-gray-400">
             Al continuar, aceptas nuestros términos y condiciones
           </p>
         </motion.div>
@@ -406,24 +424,24 @@ export function LoginPage() {
               </form>
             ) : (
               <div className="space-y-4">
-                <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 p-6 text-center">
+                <div className="rounded-lg border border-green-800 bg-green-900/20 p-6 text-center">
                   <div className="flex justify-center mb-4">
-                    <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    <div className="h-16 w-16 rounded-full bg-green-900/30 flex items-center justify-center">
+                      <Check className="h-8 w-8 text-green-400" />
                     </div>
                   </div>
-                  <h3 className="font-semibold text-green-900 dark:text-green-300 mb-2">
+                  <h3 className="font-semibold text-green-300 mb-2">
                     ¡Enlace Enviado! ✅
                   </h3>
-                  <p className="text-sm text-green-700 dark:text-green-400 mb-4">
-                    Hemos enviado un enlace de recuperación a <strong className="dark:text-green-300">{resetEmail}</strong>
+                  <p className="text-sm text-green-400 mb-4">
+                    Hemos enviado un enlace de recuperación a <strong className="text-green-300">{resetEmail}</strong>
                   </p>
-                  <p className="text-xs text-green-600 dark:text-green-400">
+                  <p className="text-xs text-green-400">
                     Revisa tu bandeja de entrada y haz clic en el enlace para restablecer tu contraseña
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-xs text-yellow-800">
+                <div className="rounded-lg border border-yellow-800 bg-yellow-900/20 p-3 text-xs text-yellow-300">
                   <strong>Nota:</strong> Para que funcione el envío de emails, debes configurar el servicio SMTP en Supabase.
                 </div>
 

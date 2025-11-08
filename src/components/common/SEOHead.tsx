@@ -24,12 +24,12 @@ export interface SEOData {
 }
 
 const DEFAULT_SEO = {
-  siteName: 'TicketPro',
-  defaultTitle: 'TicketPro - Tu plataforma de eventos y boletos',
+  siteName: 'vetlix.com',
+  defaultTitle: 'vetlix.com - Tu plataforma de eventos y boletos',
   defaultDescription: 'Descubre y compra boletos para los mejores eventos: conciertos, deportes, teatro, comedia y más. Compra segura y rápida.',
   defaultImage: '/og-image.jpg',
-  twitterHandle: '@ticketpro',
-  siteUrl: typeof window !== 'undefined' ? window.location.origin : 'https://tiquetera.com',
+  twitterHandle: '@vetlix',
+  siteUrl: typeof window !== 'undefined' ? window.location.origin : 'https://vetlix.com',
 };
 
 export function SEOHead({ seo }: { seo: SEOData }) {

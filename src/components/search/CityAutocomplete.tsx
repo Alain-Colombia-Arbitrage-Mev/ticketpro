@@ -56,11 +56,11 @@ export function CityAutocomplete({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between min-h-[40px] h-auto"
+          className="w-full justify-between min-h-[40px] h-auto border-white/20 bg-black/50 text-white hover:bg-white/10"
         >
           <div className="flex flex-wrap gap-1 flex-1 mr-2">
             {selectedCities.length === 0 ? (
-              <span className="text-muted-foreground dark:text-gray-400 flex items-center gap-2">
+              <span className="text-white/60 flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 {placeholder}
               </span>
@@ -69,20 +69,20 @@ export function CityAutocomplete({
                 <Badge
                   key={city}
                   variant="secondary"
-                  className="gap-1 hover:bg-secondary"
+                  className="gap-1 bg-white/20 text-white border-white/30 hover:bg-white/30"
                 >
                   <MapPin className="h-3 w-3" />
                   {city}
                   <button
                     onClick={(e) => handleRemove(city, e)}
-                    className="ml-1 hover:text-destructive rounded-sm"
+                    className="ml-1 hover:text-red-400 rounded-sm"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               ))
             ) : (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 text-white">
                 <MapPin className="h-4 w-4" />
                 {selectedCities[0]}
               </span>
@@ -94,22 +94,23 @@ export function CityAutocomplete({
                 e.stopPropagation();
                 clearAll();
               }}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-white/60 hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-black border-white/20" align="start">
         <Command shouldFilter={false}>
           <CommandInput
             placeholder="Buscar ciudad..."
             value={searchQuery}
             onValueChange={setSearchQuery}
+            className="text-white border-white/20 bg-black/50"
           />
           <CommandList>
-            <CommandEmpty>No se encontró la ciudad.</CommandEmpty>
+            <CommandEmpty className="text-white/60">No se encontró la ciudad.</CommandEmpty>
             <CommandGroup>
               {filteredCities.map((city) => {
                 const isSelected = selectedCities.includes(city);
@@ -118,14 +119,14 @@ export function CityAutocomplete({
                     key={city}
                     value={city}
                     onSelect={() => handleSelect(city)}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-white hover:bg-white/10"
                   >
                     <div className="flex items-center gap-2 flex-1">
-                      <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <MapPin className="h-4 w-4 text-white/60" />
                       <span>{city}</span>
                     </div>
                     {isSelected && (
-                      <Check className="h-4 w-4 text-primary dark:text-blue-400" />
+                      <Check className="h-4 w-4 text-white" />
                     )}
                   </CommandItem>
                 );
