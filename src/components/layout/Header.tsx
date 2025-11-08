@@ -20,7 +20,7 @@ export function Header() {
   // Log para debug
   console.log('Header - Idioma actual:', language);
 
-  const handleNavigation = (page: "home" | "events" | "profile", category?: string) => {
+  const handleNavigation = (page: any, category?: string) => {
     setIsMenuOpen(false);
     if (category) {
       navigate(page, { category });
@@ -59,34 +59,34 @@ export function Header() {
             {t('nav.home')}
           </button>
           <button 
-            onClick={() => handleNavigation("events", "Concierto")}
+            onClick={() => handleNavigation("all-events", "Concierto")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
             {t('nav.category.concerts')}
           </button>
           <button 
-            onClick={() => handleNavigation("events", "Deportes")}
+            onClick={() => handleNavigation("all-events", "Deportes")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
             {t('nav.category.sports')}
           </button>
           <button 
-            onClick={() => handleNavigation("events", "Teatro")}
+            onClick={() => handleNavigation("all-events", "Teatro")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
             {t('nav.category.theater')}
           </button>
           <button 
-            onClick={() => handleNavigation("events")}
+            onClick={() => handleNavigation("all-events")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
             {t('nav.events')}
           </button>
           <button 
-            onClick={() => handleNavigation("profile")}
+            onClick={() => handleNavigation("home")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
-            Contacto
+            {t('nav.contact')}
           </button>
         </nav>
 
@@ -99,7 +99,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             className="hidden rounded-lg md:flex focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white"
-            onClick={() => handleNavigation("events")}
+            onClick={() => handleNavigation("all-events")}
           >
             <Search className="h-5 w-5 !text-white" />
           </Button>
@@ -132,7 +132,7 @@ export function Header() {
               <Button 
                 variant="glass"
                 className="hidden lg:flex h-12 w-[140px] lg:w-[172px] px-4 rounded-[31px] hover:scale-105 focus-visible-ring transition-all duration-300 text-base lg:text-[20px]"
-                onClick={() => handleNavigation("events")}
+                onClick={() => handleNavigation("all-events")}
               >
                 {t('page.events.view_all')}
               </Button>
@@ -195,34 +195,34 @@ export function Header() {
               {t('nav.home')}
             </button>
             <button 
-              onClick={() => handleNavigation("events", "Concierto")}
+              onClick={() => handleNavigation("all-events", "Concierto")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
               {t('nav.category.concerts')}
             </button>
             <button 
-              onClick={() => handleNavigation("events", "Deportes")}
+              onClick={() => handleNavigation("all-events", "Deportes")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
               {t('nav.category.sports')}
             </button>
             <button 
-              onClick={() => handleNavigation("events", "Teatro")}
+              onClick={() => handleNavigation("all-events", "Teatro")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
               {t('nav.category.theater')}
             </button>
             <button 
-              onClick={() => handleNavigation("events")}
+              onClick={() => handleNavigation("all-events")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
               {t('nav.events')}
             </button>
             <button 
-              onClick={() => handleNavigation("profile")}
+              onClick={() => handleNavigation("home")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
-              Contacto
+              {t('nav.contact')}
             </button>
             {user ? (
               <>
