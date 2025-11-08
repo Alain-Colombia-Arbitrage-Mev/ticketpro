@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-type Page = "home" | "events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet";
+// Tipos de páginas disponibles en la aplicación
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy";
 
 interface RouterContextType {
   currentPage: Page;
@@ -25,7 +26,8 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as Page;
-      if (hash && (hash === "home" || hash === "events" || hash === "event-detail" || hash === "checkout" || hash === "profile" || hash === "confirmation" || hash === "login" || hash === "add-balance" || hash === "wallet")) {
+      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy"];
+      if (hash && validPages.includes(hash)) {
         setCurrentPage(hash);
       }
     };

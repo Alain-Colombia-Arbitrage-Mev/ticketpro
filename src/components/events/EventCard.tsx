@@ -37,8 +37,8 @@ export function EventCard({
   const { t } = useLanguage();
   return (
     <>
-      {/* EventCard - Regla 60-30-10: 60% fondo card (bg-white), 30% bordes (border-gray-200), 10% botón CTA (bg-blue-600) */}
-      <Card className="group cursor-pointer overflow-hidden border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900 shadow-md shadow-gray-200/50 dark:shadow-gray-900/50 transition-all duration-500 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 hover:-translate-y-2 hover:scale-[1.02]">
+      {/* EventCard - Tema negro */}
+      <Card className="group cursor-pointer overflow-hidden border border-white/20 bg-black/50 shadow-md transition-all duration-500 hover:border-white/40 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]">
       <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[3/4]">
         <ImageWithFallback
           src={image}
@@ -49,7 +49,7 @@ export function EventCard({
         
         {/* Badges Container */}
         <div className="absolute left-3 top-3 flex flex-col gap-2 z-10">
-          <Badge className="border-0 bg-white/95 dark:bg-gray-900/95 text-xs font-medium text-gray-900 dark:text-white shadow-lg backdrop-blur-md sm:text-sm transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
+          <Badge className="border-0 bg-black/80 text-xs font-medium text-white shadow-lg backdrop-blur-md sm:text-sm transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
             {category}
           </Badge>
           
@@ -87,31 +87,31 @@ export function EventCard({
         {/* Price overlay */}
         {!soldOut && (
           <div className="absolute bottom-3 left-3 z-10">
-            <div className="rounded-xl bg-white/95 dark:bg-gray-900/95 px-3 py-1.5 shadow-xl backdrop-blur-md border border-white/20 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-              <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{t('ui.from')}</p>
-              <p className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{price}</p>
+            <div className="rounded-xl bg-black/80 px-3 py-1.5 shadow-xl backdrop-blur-md border border-white/20 transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+              <p className="text-[10px] font-medium text-white/60">{t('ui.from')}</p>
+              <p className="text-sm font-semibold text-white">{price}</p>
             </div>
           </div>
         )}
       </div>
 
       <div className="p-4 sm:p-5">
-        <h3 className="mb-3 line-clamp-2 text-base font-semibold leading-tight text-gray-900 dark:text-white sm:text-lg">{title}</h3>
+        <h3 className="mb-3 line-clamp-2 text-base font-semibold leading-tight text-white sm:text-lg">{title}</h3>
         
         <div className="mb-4 space-y-2">
-          <div className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300">
-            <Calendar className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
+          <div className="flex items-center gap-2.5 text-sm text-white/70">
+            <Calendar className="h-4 w-4 flex-shrink-0 text-white/60" />
             <span className="line-clamp-1 font-medium">{date}</span>
           </div>
-          <div className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-gray-300">
-            <MapPin className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
+          <div className="flex items-center gap-2.5 text-sm text-white/70">
+            <MapPin className="h-4 w-4 flex-shrink-0 text-white/60" />
             <span className="line-clamp-1">{location}</span>
           </div>
         </div>
 
-        {/* Botón CTA - Regla 60-30-10: 10% color de acento para elemento destacado */}
-        <Button className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 font-medium shadow-lg shadow-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/60 hover:scale-105 hover:-translate-y-0.5">
-          <Ticket className="mr-2 h-4 w-4" />
+        {/* Botón CTA - Tema negro */}
+        <Button className="w-full bg-white text-black font-medium shadow-lg transition-all duration-300 hover:bg-white/90 hover:scale-105 hover:-translate-y-0.5" style={{ color: '#000000' }}>
+          <Ticket className="mr-2 h-4 w-4" style={{ color: '#000000' }} />
           {t('event.buy')}
         </Button>
       </div>

@@ -31,6 +31,8 @@ export default defineConfig({
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       // Manejar módulos CommonJS de Supabase
       mainFields: ['browser', 'module', 'main'],
+      // Asegurar resolución única de React
+      dedupe: ['react', 'react-dom'],
       alias: {
         'vaul@1.1.2': 'vaul',
         'sonner@2.0.3': 'sonner',
@@ -76,7 +78,7 @@ export default defineConfig({
       },
     },
     build: {
-      target: 'esnext',
+      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
       outDir: 'dist',
       minify: 'esbuild',
       cssMinify: 'lightningcss',
@@ -89,8 +91,10 @@ export default defineConfig({
           manualChunks: (id) => {
             // Vendor chunks
             if (id.includes('node_modules')) {
-              if (id.includes('react') || id.includes('react-dom')) {
-                return 'vendor-react';
+              // NO separar React - mantenerlo en el bundle principal para evitar errores de useLayoutEffect
+              // Esto asegura que React esté siempre disponible cuando se necesite
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
+                return undefined; // Mantener en el bundle principal
               }
               if (id.includes('@radix-ui')) {
                 return 'vendor-radix';
@@ -131,6 +135,7 @@ export default defineConfig({
         'react',
         'react-dom',
         'react/jsx-runtime',
+        'react/jsx-dev-runtime',
       ],
       // No excluir Supabase, dejarlo que se procese
       exclude: [],

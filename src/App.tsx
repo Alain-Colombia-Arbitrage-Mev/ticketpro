@@ -4,12 +4,16 @@ import { useRouter } from "./hooks/useRouter";
 import { HomePage } from "./pages/HomePage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 import { EventsListPage } from "./pages/EventsListPage";
+import { AllEventsPage } from "./pages/AllEventsPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import { ConfirmationPage } from "./pages/ConfirmationPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { LoginPage } from "./pages/LoginPage";
 import { AddBalancePage } from "./pages/AddBalancePage";
 import { WalletPage } from "./pages/WalletPage";
+import { TermsPage } from "./pages/TermsPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { RefundPolicyPage } from "./pages/RefundPolicyPage";
 
 function AppContent() {
   const { currentPage } = useRouter();
@@ -20,6 +24,7 @@ function AppContent() {
       
       {currentPage === "home" && <HomePage />}
       {currentPage === "events" && <EventsListPage />}
+      {currentPage === "all-events" && <AllEventsPage />}
       {currentPage === "event-detail" && <EventDetailPage />}
       {currentPage === "checkout" && <CheckoutPage />}
       {currentPage === "confirmation" && <ConfirmationPage />}
@@ -27,6 +32,9 @@ function AppContent() {
       {currentPage === "login" && <LoginPage />}
       {currentPage === "add-balance" && <AddBalancePage />}
       {currentPage === "wallet" && <WalletPage />}
+      {currentPage === "terms" && <TermsPage />}
+      {currentPage === "privacy" && <PrivacyPage />}
+      {currentPage === "refund-policy" && <RefundPolicyPage />}
       
       <Footer />
     </div>

@@ -1,55 +1,36 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ChevronLeft, X, Calendar, DollarSign, Sparkles, TrendingUp, Zap, SlidersHorizontal } from "lucide-react";
+import { Search, Users, Ticket, CalendarDays, Star, Music, Trophy, Drama, UsersRound, Palette, Smile } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { EventCard } from "../components/events";
-import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
-import { Slider } from "../components/ui/slider";
-import { Label } from "../components/ui/label";
-import { Switch } from "../components/ui/switch";
-import { Separator } from "../components/ui/separator";
-import { Card } from "../components/ui/card";
-import { CityAutocomplete } from "../components/search";
 import { useRouter } from "../hooks/useRouter";
+import { useLanguage } from "../hooks/useLanguage";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
-
-const ITEMS_PER_PAGE = 12;
+import video1 from "../assets/backgrounds/video1.mp4";
+import logohome from "../assets/images/logohome.svg";
 
 export function EventsListPage() {
-  const { navigate, pageData } = useRouter();
+  const { pageData, navigate } = useRouter();
+  const { t } = useLanguage();
   
   // Filter states (initialize from pageData if coming from search)
   const [selectedCategory, setSelectedCategory] = useState<string>(pageData?.category || "all");
-  const [sortBy, setSortBy] = useState<string>("date");
   const [searchQuery, setSearchQuery] = useState<string>(pageData?.searchQuery || "");
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  // Advanced filters
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000]);
-  const [showFeatured, setShowFeatured] = useState(false);
-  const [showTrending, setShowTrending] = useState(false);
-  const [showLastTickets, setShowLastTickets] = useState(false);
   const [selectedCities, setSelectedCities] = useState<string[]>(
     pageData?.selectedCity ? [pageData.selectedCity] : []
   );
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Update filters when pageData changes (e.g., navigation from Header)
   useEffect(() => {
     if (pageData?.category) {
       setSelectedCategory(pageData.category);
-      setCurrentPage(1); // Reset to first page when category changes
     }
     if (pageData?.searchQuery) {
       setSearchQuery(pageData.searchQuery);
-      setCurrentPage(1);
     }
     if (pageData?.selectedCity) {
       setSelectedCities([pageData.selectedCity]);
-      setCurrentPage(1);
     }
   }, [pageData]);
 
@@ -62,11 +43,6 @@ export function EventsListPage() {
     });
     return Array.from(citiesSet).sort();
   }, []);
-
-  // Extract price from string
-  const extractPrice = (priceStr: string): number => {
-    return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
-  };
 
   // Filter and sort events
   const filteredAndSortedEvents = useMemo(() => {
@@ -95,114 +71,8 @@ export function EventsListPage() {
       );
     }
 
-    // Price range filter
-    result = result.filter(event => {
-      const price = extractPrice(event.price);
-      return price >= priceRange[0] && price <= priceRange[1];
-    });
-
-    // Featured filter
-    if (showFeatured) {
-      result = result.filter(event => event.featured);
-    }
-
-    // Trending filter
-    if (showTrending) {
-      result = result.filter(event => event.trending);
-    }
-
-    // Last tickets filter
-    if (showLastTickets) {
-      result = result.filter(event => event.lastTickets);
-    }
-
-    // Sorting
-    switch (sortBy) {
-      case "price-asc":
-        result.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));
-        break;
-      case "price-desc":
-        result.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));
-        break;
-      case "date":
-        result.sort((a, b) => a.date.localeCompare(b.date));
-        break;
-      case "popular":
-        result.sort((a, b) => {
-          const scoreA = (a.featured ? 2 : 0) + (a.trending ? 1 : 0);
-          const scoreB = (b.featured ? 2 : 0) + (b.trending ? 1 : 0);
-          return scoreB - scoreA;
-        });
-        break;
-      case "name":
-        result.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-    }
-
     return result;
-  }, [selectedCategory, selectedCities, searchQuery, sortBy, priceRange, showFeatured, showTrending, showLastTickets]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedEvents.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentEvents = filteredAndSortedEvents.slice(startIndex, endIndex);
-
-  // Reset to page 1 when filters change
-  const handleFilterChange = () => {
-    setCurrentPage(1);
-  };
-
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    handleFilterChange();
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    handleFilterChange();
-  };
-
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-    handleFilterChange();
-  };
-
-  const handleCitiesChange = (cities: string[]) => {
-    setSelectedCities(cities);
-    handleFilterChange();
-  };
-
-  const clearAllFilters = () => {
-    setSelectedCategory("all");
-    setSelectedCities([]);
-    setSearchQuery("");
-    setSortBy("date");
-    setPriceRange([0, 3000]);
-    setShowFeatured(false);
-    setShowTrending(false);
-    setShowLastTickets(false);
-    setCurrentPage(1);
-  };
-
-  const hasActiveFilters = 
-    selectedCategory !== "all" ||
-    selectedCities.length > 0 ||
-    searchQuery.trim() !== "" ||
-    priceRange[0] !== 0 ||
-    priceRange[1] !== 3000 ||
-    showFeatured ||
-    showTrending ||
-    showLastTickets;
-
-  const activeFiltersCount = 
-    (selectedCategory !== "all" ? 1 : 0) +
-    selectedCities.length +
-    (searchQuery.trim() !== "" ? 1 : 0) +
-    (priceRange[0] !== 0 || priceRange[1] !== 3000 ? 1 : 0) +
-    (showFeatured ? 1 : 0) +
-    (showTrending ? 1 : 0) +
-    (showLastTickets ? 1 : 0);
+  }, [selectedCategory, selectedCities, searchQuery]);
 
   // Generar descripción SEO dinámica
   const seoDescription = useMemo(() => {
@@ -228,11 +98,11 @@ export function EventsListPage() {
     if (searchQuery) {
       title = `${searchQuery} - ${title}`;
     }
-    return `${title} | Tiquetera`;
+    return `${title} | vetlix.com`;
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 dark:from-gray-900 via-blue-50/30 dark:via-gray-900 to-purple-50/30 dark:to-gray-900">
+    <div className="min-h-screen bg-black">
       <SEOHead
         seo={{
           title: seoTitle,
@@ -242,434 +112,629 @@ export function EventsListPage() {
           type: "website",
         }}
       />
-      {/* Header */}
-      <div className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("home")}
-            className="mb-4 gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Volver
-          </Button>
-          
-          <div className="mb-4 flex items-center gap-3">
-            <h1 className="text-gray-900 dark:text-white">Explorar Eventos</h1>
-            {hasActiveFilters && (
-              <Badge variant="secondary" className="gap-1">
-                {activeFiltersCount} {activeFiltersCount === 1 ? 'filtro' : 'filtros'}
-              </Badge>
-            )}
-          </div>
-          
-          {/* Search and Filters */}
-          <div className="flex flex-col gap-3">
-            {/* Search Bar */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Buscar eventos, artistas, lugares..."
-                className="pl-10 pr-10 h-11 border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-500 dark:focus:border-blue-500 focus:ring-blue-500"
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => handleSearchChange("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
 
-            {/* Filters Row */}
-            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
-              {/* Sort */}
-              <Select value={sortBy} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-full sm:w-48 h-11 border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                  <SelectValue placeholder="Ordenar por" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Fecha
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="price-asc">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Precio: Menor a Mayor
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="price-desc">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Precio: Mayor a Menor
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="popular">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      Popularidad
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="name">Nombre A-Z</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              {/* Advanced Filters Button */}
-              <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className={`gap-2 h-11 px-4 border-gray-300 dark:border-gray-700 ${hasActiveFilters ? 'border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : ''}`}
-                  >
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="hidden sm:inline">Filtros</span>
-                    {activeFiltersCount > 0 && (
-                      <Badge variant="default" className="ml-1 h-5 min-w-[20px] px-1">
-                        {activeFiltersCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle className="flex items-center gap-2">
-                      <SlidersHorizontal className="h-5 w-5" />
-                      Filtros Avanzados
-                    </SheetTitle>
-                    <SheetDescription>
-                      Personaliza tu búsqueda para encontrar el evento perfecto
-                    </SheetDescription>
-                  </SheetHeader>
+      {/* Sección Principal: Página de Eventos Completa */}
+      <section 
+        id="events-page-content"
+        className="w-full"
+        aria-label="Página de eventos: búsqueda, estadísticas, categorías y eventos destacados"
+      >
+        {/* Hero Section con Video de Fondo - Búsqueda de Eventos */}
+        <div className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
+        {/* Capa de color de fondo (solo visible en el óvalo) */}
+        <div className="absolute inset-0 bg-[#68211A]"></div>
 
-                  <div className="mt-6 space-y-6">
-                    {/* Cities - Autocomplete */}
-                    <Card className="p-4 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-indigo-50 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
-                      <Label className="mb-3 block text-base">
-                        🌆 Ciudades
-                      </Label>
-                      <CityAutocomplete
-                        cities={cities}
-                        selectedCities={selectedCities}
-                        onCitiesChange={handleCitiesChange}
-                        placeholder="Buscar y seleccionar ciudades..."
-                        multiple={true}
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Selecciona una o varias ciudades para filtrar eventos
-                      </p>
-                    </Card>
-
-                    <Separator />
-
-                    {/* Price Range */}
-                    <Card className="p-4 bg-gradient-to-br from-green-50 dark:from-green-900/20 to-emerald-50 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
-                      <Label className="mb-3 block text-base">
-                        💰 Rango de Precio
-                      </Label>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-2xl font-bold text-green-700 dark:text-green-400">
-                            ${priceRange[0].toLocaleString()}
-                          </span>
-                          <span className="text-sm text-muted-foreground dark:text-gray-400">a</span>
-                          <span className="text-2xl font-bold text-green-700 dark:text-green-400">
-                            ${priceRange[1].toLocaleString()}
-                          </span>
-                        </div>
-                        <Slider
-                          min={0}
-                          max={3000}
-                          step={50}
-                          value={priceRange}
-                          onValueChange={(value) => {
-                            setPriceRange(value as [number, number]);
-                            handleFilterChange();
-                          }}
-                          className="mb-2"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>$0 MXN</span>
-                          <span>$3,000 MXN</span>
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Separator />
-
-                    {/* Event Type Filters */}
-                    <Card className="p-4 bg-gradient-to-br from-purple-50 dark:from-purple-900/20 to-pink-50 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
-                      <Label className="mb-3 block text-base">
-                        ✨ Tipos Especiales
-                      </Label>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-500">
-                              <Sparkles className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-medium">Eventos Destacados</div>
-                              <div className="text-xs text-muted-foreground">Los mejores eventos</div>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={showFeatured}
-                            onCheckedChange={(checked) => {
-                              setShowFeatured(checked);
-                              handleFilterChange();
-                            }}
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-pink-500">
-                              <TrendingUp className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-medium">En Tendencia</div>
-                              <div className="text-xs text-muted-foreground">Los más populares ahora</div>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={showTrending}
-                            onCheckedChange={(checked) => {
-                              setShowTrending(checked);
-                              handleFilterChange();
-                            }}
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500">
-                              <Zap className="h-5 w-5 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-medium">Últimos Boletos</div>
-                              <div className="text-xs text-muted-foreground">¡Date prisa!</div>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={showLastTickets}
-                            onCheckedChange={(checked) => {
-                              setShowLastTickets(checked);
-                              handleFilterChange();
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Separator />
-
-                    {/* Clear Filters */}
-                    <Button
-                      variant="outline"
-                      className="w-full h-11 border-2 hover:bg-red-50 hover:border-red-500 hover:text-red-600"
-                      onClick={clearAllFilters}
-                      disabled={!hasActiveFilters}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Limpiar Todos los Filtros
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Category Filters */}
-        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {mockCategories.map((category) => (
-            <Badge
-              key={category.name}
-              variant={selectedCategory === category.name ? "default" : "outline"}
-              className={`cursor-pointer whitespace-nowrap transition-all hover:scale-105 px-4 py-2 ${
-                selectedCategory === category.name 
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-blue-500/50' 
-                  : 'hover:border-blue-400'
-              }`}
-              onClick={() => handleCategoryChange(category.name)}
+        {/* Video de fondo con opacidad reducida */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-40">
+          <div className="hero-video-background w-[1576px] h-[754px] shrink-0" style={{ aspectRatio: '788/377' }}>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover animate-pulse-slow"
             >
-              {category.label}
-            </Badge>
-          ))}
-        </div>
-
-        {/* Active Filters Display */}
-        {hasActiveFilters && (
-          <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtros activos:</span>
-              {selectedCategory !== "all" && (
-                <Badge variant="secondary" className="gap-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
-                  {mockCategories.find(c => c.name === selectedCategory)?.label}
-                  <button
-                    onClick={() => handleCategoryChange("all")}
-                    className="ml-1 hover:text-destructive dark:hover:text-red-400"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {searchQuery && (
-                <Badge variant="secondary" className="gap-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700">
-                  Búsqueda: "{searchQuery}"
-                  <button
-                    onClick={() => handleSearchChange("")}
-                    className="ml-1 hover:text-destructive dark:hover:text-red-400"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {(priceRange[0] !== 0 || priceRange[1] !== 3000) && (
-                <Badge variant="secondary" className="gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700">
-                  ${priceRange[0]} - ${priceRange[1]}
-                  <button
-                    onClick={() => {
-                      setPriceRange([0, 3000]);
-                      handleFilterChange();
-                    }}
-                    className="ml-1 hover:text-destructive dark:hover:text-red-400"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {selectedCities.map(city => (
-                <Badge key={city} variant="secondary" className="gap-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700">
-                  📍 {city}
-                  <button
-                    onClick={() => handleCitiesChange(selectedCities.filter(c => c !== city))}
-                    className="ml-1 hover:text-destructive"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="h-7 text-xs hover:bg-red-50 hover:text-red-600"
-              >
-                <X className="mr-1 h-3 w-3" />
-                Limpiar todo
-              </Button>
-            </div>
+              <source src={video1} type="video/mp4" />
+            </video>
           </div>
-        )}
-
-        {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-gray-600 dark:text-gray-400">
-            Mostrando <span className="font-semibold text-gray-900 dark:text-white">{currentEvents.length}</span> de{" "}
-            <span className="font-semibold text-gray-900 dark:text-white">{filteredAndSortedEvents.length}</span> evento
-            {filteredAndSortedEvents.length !== 1 ? "s" : ""}
-            {currentPage > 1 && ` · Página ${currentPage} de ${totalPages}`}
-          </p>
         </div>
+        
+        {/* Capa de color adicional para intensificar el tinte */}
+        <div className="absolute inset-0 bg-[#68211A]/60"></div>
 
-        {/* Events Grid */}
-        {currentEvents.length === 0 ? (
-          <Card className="p-20 text-center bg-white dark:bg-gray-800">
-            <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 dark:from-gray-700 to-gray-200 dark:to-gray-600">
-              <Search className="h-10 w-10 text-gray-400 dark:text-gray-500" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-              No se encontraron eventos
-            </h3>
-            <p className="mb-6 text-gray-600 dark:text-gray-400">
-              Intenta ajustar tus filtros de búsqueda para obtener más resultados
-            </p>
-            <Button onClick={clearAllFilters} variant="outline" className="border-2">
-              <X className="mr-2 h-4 w-4" />
-              Limpiar Filtros
-            </Button>
-          </Card>
-        ) : (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-              {currentEvents.map((event) => (
-                <div 
-                  key={event.id} 
-                  onClick={() => navigate("event-detail", event)}
-                  className="cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
-                >
-                  <EventCard {...event} />
-                </div>
-              ))}
-            </div>
+        {/* Máscara oval degradado (negro en los bordes, transparente en el centro) */}
+        <div className="video-mask"></div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-12 flex flex-col items-center gap-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="border-2"
-                  >
-                    Anterior
-                  </Button>
-                  
-                  {/* Page Numbers */}
-                  <div className="flex gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
+        {/* Contenido frontal */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col items-center gap-8 md:gap-12 lg:gap-[68px]">
+              
+              {/* Sección superior: Logo + Título + Subtítulo */}
+              <div className="flex flex-col items-center gap-3 md:gap-4 lg:gap-[19px] text-center animate-fade-in-up">
+                {/* Logo VELTLIX */}
+                <img 
+                  src={logohome} 
+                  alt="VELTLIX" 
+                  className="h-12 md:h-16 lg:h-[75px] w-auto"
+                />
 
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant={currentPage === pageNum ? "default" : "outline"}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`w-10 ${currentPage === pageNum ? 'shadow-lg' : 'border-2'}`}
-                        >
-                          {pageNum}
-                        </Button>
-                      );
-                    })}
-                  </div>
+                {/* Título principal */}
+                <h1 className="text-white font-bold text-4xl md:text-5xl lg:text-[64px] max-w-6xl leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('events.hero.title')}
+                </h1>
 
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="border-2"
-                  >
-                    Siguiente
-                  </Button>
-                </div>
-
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Página {currentPage} de {totalPages}
+                {/* Subtítulo */}
+                <p className="text-white font-montserrat font-semibold text-sm md:text-base lg:text-[20px] max-w-4xl leading-normal">
+                  {t('events.hero.subtitle')}
                 </p>
               </div>
-            )}
-          </>
-        )}
-      </div>
+
+              {/* Caja roja con blur - Búsqueda */}
+              <div className="w-full max-w-[1202px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <div 
+                  className="relative bg-[#460000]/60 backdrop-blur-[30.95px] rounded-[10px] px-6 md:px-12 py-5 md:py-6"
+                  style={{ mixBlendMode: 'hard-light' }}
+                >
+                  <div className="flex flex-col md:flex-row gap-4 md:gap-5 items-center">
+                    {/* Campo de búsqueda */}
+                    <div className="relative w-full md:w-[516px]">
+                      <Search className="absolute left-4 top-1/2 h-[45px] w-[45px] -translate-y-1/2 text-black/60" />
+                      <Input
+                        placeholder={t('events.search.placeholder')}
+                        className="pl-16 pr-4 !h-14 !min-h-14 !max-h-14 border-0 !bg-white text-black placeholder:text-black/60 text-base rounded-[10px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                        }}
+                      />
+                    </div>
+
+                    {/* Dropdown de ciudades */}
+                    <div className="w-full md:w-[315px]">
+                      <Select 
+                        value={selectedCities.length > 0 ? selectedCities[0] : "all"}
+                        onValueChange={(value: string) => {
+                          if (value === "all") {
+                            setSelectedCities([]);
+                          } else {
+                            setSelectedCities([value]);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="!h-14 !min-h-14 !max-h-14 border-0 !bg-white text-black rounded-[10px] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold text-base">
+                          <SelectValue placeholder={t('events.search.cities')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{t('events.search.cities')}</SelectItem>
+                          {cities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Botón de búsqueda */}
+                    <Button
+                      onClick={() => {
+                        document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="!h-14 !min-h-14 !max-h-14 w-full md:w-[252px] bg-[#c61619] hover:bg-[#a01316] text-white font-montserrat font-semibold rounded-[10px] text-base transition-all shrink-0"
+                    >
+                      {t('events.search.button')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categorías rápidas */}
+              <div className="flex flex-wrap gap-[13px] justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                {mockCategories.slice(1, 5).map((cat) => (
+                  <button
+                    key={cat.name}
+                    onClick={() => {
+                      setSelectedCategory(cat.name);
+                      document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className={`w-[132px] h-[39px] rounded-[10px] text-base font-montserrat font-semibold transition-all flex items-center justify-center ${
+                      selectedCategory === cat.name
+                        ? 'bg-white text-black shadow-lg'
+                        : 'bg-[#e6e6e6] text-black hover:bg-white hover:shadow-md'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Estadísticas y Exploración de Categorías */}
+        <div className="bg-white py-12 md:py-16">
+        <div className="container mx-auto px-4">
+          
+          {/* Estadísticas */}
+          <div className="flex flex-row gap-4 md:gap-7 justify-center items-center overflow-x-auto mb-12 md:mb-16">
+            
+            {/* Usuarios Activos */}
+            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                <Users className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                2.500.000 +
+              </h3>
+              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+                {t('events.stats.users')}
+              </p>
+            </div>
+
+            {/* Tickets Vendidos */}
+            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                <Ticket className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                500.000 +
+              </h3>
+              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+                {t('events.stats.tickets')}
+              </p>
+            </div>
+
+            {/* Eventos Disponibles */}
+            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                <CalendarDays className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                10.000 +
+              </h3>
+              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+                {t('events.stats.events')}
+              </p>
+            </div>
+
+            {/* Calificación Promedio */}
+            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                <Star className="w-full h-full text-[#c61619]" strokeWidth={1.5} fill="#c61619" />
+              </div>
+              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                4.9
+              </h3>
+              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+                {t('events.stats.rating')}
+              </p>
+            </div>
+
+          </div>
+
+          {/* Título de Explorar por Categoría */}
+          <div className="text-center mb-8 md:mb-11">
+            <h2 className="font-bold text-4xl md:text-5xl text-black mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              {t('home.categories.title')}
+            </h2>
+            <p className="font-montserrat font-semibold text-base md:text-lg text-black">
+              {t('home.categories.subtitle')}
+            </p>
+          </div>
+
+          {/* Cards de Categorías */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
+            {/* Conciertos */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Concierto");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-700 to-pink-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('nav.category.concerts')}
+                </h3>
+                <Music className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  8 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+
+            {/* Deportes */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Deportes");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-900 via-orange-700 to-yellow-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('nav.category.sports')}
+                </h3>
+                <Trophy className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  15 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+
+            {/* Teatro */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Teatro");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-red-700 to-orange-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('nav.category.theater')}
+                </h3>
+                <Drama className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  3 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+
+            {/* Familia */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Familia");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-700 to-cyan-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('category.family')}
+                </h3>
+                <UsersRound className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  20 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+
+            {/* Arte */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Arte");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-amber-700 to-yellow-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('category.art')}
+                </h3>
+                <Palette className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  10 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+
+            {/* Comedia */}
+            <div 
+              onClick={() => {
+                setSelectedCategory("Comedia");
+                document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-900 via-yellow-700 to-orange-600"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
+                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('category.comedy')}
+                </h3>
+                <Smile className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-sm text-white">
+                  5 {t('events.category.eventsCount')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Eventos Destacados */}
+        <div id="eventos-destacados" className="bg-white py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            {/* Título de la sección */}
+            <div className="flex items-center gap-4 mb-8 md:mb-11">
+              <Ticket className="w-12 h-12 md:w-16 md:h-16 text-[#c61619]" strokeWidth={1.5} />
+              <div>
+                <h2 className="font-bold text-3xl md:text-5xl text-black" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                  {t('events.featured.title')}
+                </h2>
+                <p className="font-montserrat font-semibold text-sm md:text-lg text-black">
+                  {t('home.featured.subtitle')}
+                </p>
+              </div>
+            </div>
+
+            {/* Grid de Eventos Destacados */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-9">
+              {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
+                <div key={event.id} className="relative flex flex-col w-full">
+                  {/* Imagen del evento */}
+                  <div className="h-[544px] rounded-t-[13px] overflow-hidden relative">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Badges superiores */}
+                    <div className="absolute top-3 left-[23px] flex flex-col gap-[12px] z-10">
+                      {/* Badge de categoría */}
+                      <div className="bg-white h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                        <p className="font-montserrat font-bold text-[14px] text-black">
+                          {t(`category.${event.category.toLowerCase()}`)}
+                        </p>
+                      </div>
+                      
+                      {/* Badge de estado (Últimos/Próximos/Futuros) */}
+                      {event.lastTickets && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.lastTickets')}
+                          </p>
+                        </div>
+                      )}
+                      {!event.lastTickets && index % 2 === 0 && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.upcoming')}
+                          </p>
+                        </div>
+                      )}
+                      {!event.lastTickets && index % 2 !== 0 && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.future')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Badge de Destacado/Imperdible */}
+                    {event.featured && (
+                      <div className="absolute top-3 right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.featured')}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {!event.featured && event.trending && (
+                      <div className="absolute top-3 right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.recommended')}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Badge de precio */}
+                    <div className="absolute bottom-[15px] left-[23px] z-10">
+                      <div className="bg-white h-[67px] rounded-[20px] px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[14px] text-black">
+                          {t('events.card.from')}
+                        </p>
+                        <p className="font-bold text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                          {event.price}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Información del evento - FONDO GRIS #e3e0e0 */}
+                  <div className="bg-[#e3e0e0] h-[258px] rounded-b-[13px] p-[27px] flex flex-col">
+                    {/* Título */}
+                    <h3 className="font-bold text-[30px] text-black mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                      {t(`event.title.${event.id}`)}
+                    </h3>
+
+                    {/* Fecha */}
+                    <p className="font-montserrat font-black text-[14px] text-black mb-4">
+                      {event.date}
+                    </p>
+
+                    {/* Ubicación */}
+                    <p className="font-montserrat font-semibold text-[14px] text-black mb-6">
+                      {event.location}
+                    </p>
+
+                    {/* Botón de acción */}
+                    <button 
+                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full transition-colors"
+                      onClick={() => {
+                        navigate("event-detail", {
+                          id: event.id,
+                          title: event.title,
+                          date: event.date,
+                          location: event.location,
+                          price: event.price,
+                          image: event.image,
+                          category: event.category,
+                          featured: event.featured,
+                        });
+                      }}
+                    >
+                    <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                      {t('events.button.buy')}
+                    </p>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Próximos Eventos */}
+        <div className="bg-black py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            {/* Título de la sección */}
+            <div className="text-center mb-4">
+              <h2 className="font-bold text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                {t('events.upcoming.title')}
+              </h2>
+              <p className="font-montserrat font-semibold text-base md:text-lg text-white">
+                {t('events.upcoming.subtitle')}
+              </p>
+            </div>
+
+            {/* Grid de Próximos Eventos */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-9 mt-12 md:mt-[51px]">
+              {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
+                <div key={event.id} className="relative flex flex-col w-full">
+                  {/* Imagen del evento */}
+                  <div className="h-[544px] rounded-t-[13px] overflow-hidden relative">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Badges superiores */}
+                    <div className="absolute top-3 left-[23px] flex flex-col gap-[12px] z-10">
+                      {/* Badge de categoría */}
+                      <div className="bg-white h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                        <p className="font-montserrat font-bold text-[14px] text-black">
+                          {t(`category.${event.category.toLowerCase()}`)}
+                        </p>
+                      </div>
+                      
+                      {/* Badge de estado (Últimos/Próximos/Actuales) */}
+                      {event.lastTickets && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.lastTickets')}
+                          </p>
+                        </div>
+                      )}
+                      {!event.lastTickets && index % 2 === 0 && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.upcoming')}
+                          </p>
+                        </div>
+                      )}
+                      {!event.lastTickets && index % 2 !== 0 && (
+                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.current')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Badge de Destacado */}
+                    {event.featured && (
+                      <div className="absolute top-3 right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[14px] text-white">
+                            {t('events.card.featuredAlt')}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Badge de precio */}
+                    <div className="absolute bottom-[15px] left-[23px] z-10">
+                      <div className="bg-white h-[67px] rounded-[20px] px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[14px] text-black">
+                          {t('events.card.from')}
+                        </p>
+                        <p className="font-bold text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                          {event.price}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Información del evento */}
+                  <div className="bg-white h-[258px] rounded-b-[13px] p-[27px] flex flex-col">
+                    {/* Título */}
+                    <h3 className="font-bold text-[30px] text-black mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                      {t(`event.title.${event.id}`)}
+                    </h3>
+
+                    {/* Fecha */}
+                    <p className="font-montserrat font-black text-[14px] text-black mb-4">
+                      {event.date}
+                    </p>
+
+                    {/* Ubicación */}
+                    <p className="font-montserrat font-semibold text-[14px] text-black mb-6">
+                      {event.location}
+                    </p>
+
+                    {/* Botón de acción */}
+                    <button 
+                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full transition-colors"
+                      onClick={() => {
+                        navigate("event-detail", {
+                          id: event.id,
+                          title: event.title,
+                          date: event.date,
+                          location: event.location,
+                          price: event.price,
+                          image: event.image,
+                          category: event.category,
+                          featured: event.featured,
+                        });
+                      }}
+                    >
+                    <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                      {t('events.button.buy')}
+                    </p>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Botón Ver todos los eventos */}
+            <div className="flex justify-center mt-12 md:mt-16">
+              <button 
+                className="bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full max-w-[338px] transition-colors"
+                onClick={() => {
+                  navigate("all-events");
+                }}
+              >
+                <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                  {t('events.button.viewAll')}
+                </p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
     </div>
   );
 }
