@@ -496,17 +496,24 @@ export function EventsListPage() {
         </div>
         </div>
 
+        {/* Sección Negra Adicional (separador visual) */}
+        <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
+          <div className="container mx-auto px-4">
+            {/* Contenido de la sección negra si es necesario */}
+          </div>
+        </div>
+
         {/* Eventos Destacados */}
-        <div id="eventos-destacados" className="bg-black py-12 md:py-16">
+        <div id="eventos-destacados" className="bg-white py-12 md:py-16">
           <div className="container mx-auto px-4">
             {/* Título de la sección */}
             <div className="flex items-center gap-4 mb-8 md:mb-11">
               <Ticket className="w-12 h-12 md:w-16 md:h-16 text-[#c61619]" strokeWidth={1.5} />
               <div>
-                <h2 className="font-bold text-3xl md:text-5xl text-white" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                <h2 className="font-bold text-3xl md:text-5xl text-black" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('events.featured.title')}
                 </h2>
-                <p className="font-montserrat font-semibold text-sm md:text-lg text-white/80">
+                <p className="font-montserrat font-semibold text-sm md:text-lg text-black">
                   {t('home.featured.subtitle')}
                 </p>
               </div>
@@ -635,14 +642,14 @@ export function EventsListPage() {
         </div>
 
         {/* Próximos Eventos */}
-        <div className="bg-black py-12 md:py-16">
+        <div className="bg-white py-12 md:py-16">
           <div className="container mx-auto px-4">
             {/* Título de la sección */}
             <div className="text-center mb-4">
-              <h2 className="font-bold text-4xl md:text-5xl text-white mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h2 className="font-bold text-4xl md:text-5xl text-black mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 {t('events.upcoming.title')}
               </h2>
-              <p className="font-montserrat font-semibold text-base md:text-lg text-white">
+              <p className="font-montserrat font-semibold text-base md:text-lg text-black">
                 {t('events.upcoming.subtitle')}
               </p>
             </div>
