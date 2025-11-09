@@ -36,7 +36,9 @@
   body {
   background-color: #000;
   color: #fff;
-    font-family: 'Montserrat Alternates', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: 'Montserrat Alternates', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  overflow-x: hidden; /* Prevenir scroll horizontal */
+  max-width: 100vw; /* Limitar ancho a viewport */
   }
   
   /* Fuentes personalizadas */
@@ -185,6 +187,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Prevenir scroll horizontal */
+  max-width: 100vw; /* Limitar ancho a viewport */
 }
 
 /* Utilities */

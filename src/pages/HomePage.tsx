@@ -29,7 +29,7 @@ export function HomePage() {
       />
       
       {/* Container principal */}
-      <div className="relative w-full min-h-screen bg-black">
+      <div className="relative w-full min-h-screen bg-black overflow-x-hidden">
         
         {/* Primera Sección - Hero con Video de Fondo */}
         <section 
