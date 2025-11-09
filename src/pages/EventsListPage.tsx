@@ -120,23 +120,21 @@ export function EventsListPage() {
         aria-label="Página de eventos: búsqueda, estadísticas, categorías y eventos destacados"
       >
         {/* Hero Section con Video de Fondo - Búsqueda de Eventos */}
-        <div className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
+        <div className="relative w-full min-h-[600px] sm:min-h-[700px] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black">
         {/* Capa de color de fondo (solo visible en el óvalo) */}
         <div className="absolute inset-0 bg-[#68211A]"></div>
 
         {/* Video de fondo con opacidad reducida */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-40">
-          <div className="hero-video-background w-[1576px] h-[754px] shrink-0" style={{ aspectRatio: '788/377' }}>
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover animate-pulse-slow"
-            >
-              <source src={video1} type="video/mp4" />
-            </video>
-          </div>
+        <div className="absolute inset-0 opacity-40">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src={video1} type="video/mp4" />
+          </video>
         </div>
         
         {/* Capa de color adicional para intensificar el tinte */}
@@ -146,43 +144,43 @@ export function EventsListPage() {
         <div className="video-mask"></div>
 
         {/* Contenido frontal */}
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="container mx-auto px-4">
+        <div className="absolute inset-0 flex items-center justify-center z-10 py-8 sm:py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center gap-8 md:gap-12 lg:gap-[68px]">
               
               {/* Sección superior: Logo + Título + Subtítulo */}
-              <div className="flex flex-col items-center gap-3 md:gap-4 lg:gap-[19px] text-center animate-fade-in-up">
+              <div className="flex flex-col items-center gap-2 sm:gap-3 md:gap-4 lg:gap-[19px] text-center animate-fade-in-up w-full">
                 {/* Logo VELTLIX */}
                 <img 
                   src={logohome} 
                   alt="VELTLIX" 
-                  className="h-12 md:h-16 lg:h-[75px] w-auto"
+                  className="h-10 sm:h-12 md:h-16 lg:h-[75px] w-auto"
                 />
 
                 {/* Título principal */}
-                <h1 className="text-white font-bold text-4xl md:text-5xl lg:text-[64px] max-w-6xl leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                <h1 className="text-white font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] max-w-6xl leading-tight px-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('events.hero.title')}
                 </h1>
 
                 {/* Subtítulo */}
-                <p className="text-white font-montserrat font-semibold text-sm md:text-base lg:text-[20px] max-w-4xl leading-normal">
+                <p className="text-white font-montserrat font-semibold text-xs sm:text-sm md:text-base lg:text-lg xl:text-[20px] max-w-4xl leading-normal px-4">
                   {t('events.hero.subtitle')}
                 </p>
               </div>
 
               {/* Caja roja con blur - Búsqueda */}
-              <div className="w-full max-w-[1202px] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="w-full max-w-[1202px] px-2 sm:px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <div 
-                  className="relative bg-[#460000]/60 backdrop-blur-[30.95px] rounded-[10px] px-6 md:px-12 py-5 md:py-6"
+                  className="relative bg-[#460000]/60 backdrop-blur-[30.95px] rounded-[10px] px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-5 md:py-6"
                   style={{ mixBlendMode: 'hard-light' }}
                 >
-                  <div className="flex flex-col md:flex-row gap-4 md:gap-5 items-center">
+                  <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-5 items-stretch md:items-center">
                     {/* Campo de búsqueda */}
-                    <div className="relative w-full md:w-[516px]">
-                      <Search className="absolute left-4 top-1/2 h-[45px] w-[45px] -translate-y-1/2 text-black/60" />
+                    <div className="relative w-full md:flex-1 md:max-w-[516px]">
+                      <Search className="absolute left-3 sm:left-4 top-1/2 h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 -translate-y-1/2 text-black/60" />
                       <Input
                         placeholder={t('events.search.placeholder')}
-                        className="pl-16 pr-4 !h-14 !min-h-14 !max-h-14 border-0 !bg-white text-black placeholder:text-black/60 text-base rounded-[10px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold"
+                        className="pl-10 sm:pl-12 md:pl-16 pr-3 sm:pr-4 !h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 border-0 !bg-white text-black placeholder:text-black/60 text-sm sm:text-base rounded-[10px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold"
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
@@ -191,7 +189,7 @@ export function EventsListPage() {
                     </div>
 
                     {/* Dropdown de ciudades */}
-                    <div className="w-full md:w-[315px]">
+                    <div className="w-full md:w-auto md:flex-1 md:max-w-[315px]">
                       <Select 
                         value={selectedCities.length > 0 ? selectedCities[0] : "all"}
                         onValueChange={(value: string) => {
@@ -202,7 +200,7 @@ export function EventsListPage() {
                           }
                         }}
                       >
-                        <SelectTrigger className="!h-14 !min-h-14 !max-h-14 border-0 !bg-white text-black rounded-[10px] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold text-base">
+                        <SelectTrigger className="!h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 border-0 !bg-white text-black rounded-[10px] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold text-sm sm:text-base">
                           <SelectValue placeholder={t('events.search.cities')} />
                         </SelectTrigger>
                         <SelectContent>
@@ -221,7 +219,7 @@ export function EventsListPage() {
                       onClick={() => {
                         document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="!h-14 !min-h-14 !max-h-14 w-full md:w-[252px] bg-[#c61619] hover:bg-[#a01316] text-white font-montserrat font-semibold rounded-[10px] text-base transition-all shrink-0"
+                      className="!h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 w-full md:w-auto md:min-w-[200px] lg:min-w-[252px] bg-[#c61619] hover:bg-[#a01316] text-white font-montserrat font-semibold rounded-[10px] text-sm sm:text-base transition-all shrink-0"
                     >
                       {t('events.search.button')}
                     </Button>
@@ -230,7 +228,7 @@ export function EventsListPage() {
               </div>
 
               {/* Categorías rápidas */}
-              <div className="flex flex-wrap gap-[13px] justify-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
                 {mockCategories.slice(1, 5).map((cat) => (
                   <button
                     key={cat.name}
@@ -238,7 +236,7 @@ export function EventsListPage() {
                       setSelectedCategory(cat.name);
                       document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className={`w-[132px] h-[39px] rounded-[10px] text-base font-montserrat font-semibold transition-all flex items-center justify-center ${
+                    className={`min-w-[100px] sm:min-w-[120px] md:w-[132px] h-[36px] sm:h-[38px] md:h-[39px] rounded-[10px] text-sm sm:text-base font-montserrat font-semibold transition-all flex items-center justify-center px-3 ${
                       selectedCategory === cat.name
                         ? 'bg-white text-black shadow-lg'
                         : 'bg-[#e6e6e6] text-black hover:bg-white hover:shadow-md'
