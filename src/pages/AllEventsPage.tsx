@@ -261,35 +261,35 @@ export function AllEventsPage() {
             <div className="flex gap-2 flex-wrap sm:flex-nowrap">
               {/* Sort */}
               <Select value={sortBy} onValueChange={handleSortChange}>
-                <SelectTrigger className="w-full sm:w-48 h-11 border-white/20 !bg-black/50 !text-white">
+                <SelectTrigger className="w-full sm:w-48 h-11 border-white/20 !bg-black !text-white">
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
-                <SelectContent className="bg-black border-white/20 text-white">
-                  <SelectItem value="date" className="text-white hover:bg-white/10 focus:bg-white/10">
+                <SelectContent className="!bg-black border-white/20 !text-white">
+                  <SelectItem value="date" className="!text-white !bg-black hover:!bg-white/10 focus:!bg-white/10">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       Fecha
                     </div>
                   </SelectItem>
-                  <SelectItem value="price-asc" className="text-white hover:bg-white/10 focus:bg-white/10">
+                  <SelectItem value="price-asc" className="!text-white !bg-black hover:!bg-white/10 focus:!bg-white/10">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />
                       Precio: Menor a Mayor
                     </div>
                   </SelectItem>
-                  <SelectItem value="price-desc" className="text-white hover:bg-white/10 focus:bg-white/10">
+                  <SelectItem value="price-desc" className="!text-white !bg-black hover:!bg-white/10 focus:!bg-white/10">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />
                       Precio: Mayor a Menor
                     </div>
                   </SelectItem>
-                  <SelectItem value="popular" className="text-white hover:bg-white/10 focus:bg-white/10">
+                  <SelectItem value="popular" className="!text-white !bg-black hover:!bg-white/10 focus:!bg-white/10">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-4 w-4" />
                       Popularidad
                     </div>
                   </SelectItem>
-                  <SelectItem value="name" className="text-white hover:bg-white/10 focus:bg-white/10">Nombre A-Z</SelectItem>
+                  <SelectItem value="name" className="!text-white !bg-black hover:!bg-white/10 focus:!bg-white/10">Nombre A-Z</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -536,7 +536,7 @@ export function AllEventsPage() {
                 >
                   <div className="relative flex flex-col w-full">
                     {/* Imagen del evento */}
-                    <div className="h-[544px] rounded-t-[13px] overflow-hidden relative">
+                    <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                       <img 
                         src={event.image} 
                         alt={event.title}
@@ -544,18 +544,18 @@ export function AllEventsPage() {
                       />
                       
                       {/* Badges superiores */}
-                      <div className="absolute top-3 left-[23px] flex flex-col gap-[12px] z-10">
+                      <div className="absolute top-1.5 sm:top-2 md:top-3 left-2 sm:left-3 md:left-[23px] flex flex-col gap-1.5 sm:gap-2 md:gap-[12px] z-10">
                         {/* Badge de categoría */}
-                        <div className="bg-white h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-black">
+                        <div className="bg-white h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-black">
                             {event.category}
                           </p>
                         </div>
                         
                         {/* Badge de estado */}
                         {event.lastTickets && (
-                          <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                            <p className="font-montserrat font-bold text-[14px] text-white">
+                          <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                            <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                               Últimos
                             </p>
                           </div>
@@ -564,9 +564,9 @@ export function AllEventsPage() {
 
                       {/* Badge de Destacado */}
                       {event.featured && (
-                        <div className="absolute top-3 right-[17px] z-10">
-                          <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                            <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="absolute top-1.5 sm:top-2 md:top-3 right-2 sm:right-3 md:right-[17px] z-10">
+                          <div className="bg-[#f55d09] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                            <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                               Destacado
                             </p>
                           </div>
@@ -574,12 +574,12 @@ export function AllEventsPage() {
                       )}
 
                       {/* Badge de precio */}
-                      <div className="absolute bottom-[15px] left-[23px] z-10">
-                        <div className="bg-white h-[67px] rounded-[20px] px-4 flex flex-col items-start justify-center">
-                          <p className="font-montserrat font-medium text-[14px] text-black">
+                      <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                        <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                          <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
                             {t('events.card.from')}
                           </p>
-                          <p className="font-bold text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                          <p className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                             {event.price}
                           </p>
                         </div>
@@ -587,25 +587,25 @@ export function AllEventsPage() {
                     </div>
 
                     {/* Información del evento */}
-                    <div className="bg-white h-[258px] rounded-b-[13px] p-[27px] flex flex-col">
+                    <div className="bg-white h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                       {/* Título */}
-                      <h3 className="font-bold text-[30px] text-black mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                      <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
                         {t(`event.title.${event.id}`)}
                       </h3>
 
                       {/* Fecha */}
-                      <p className="font-montserrat font-black text-[14px] text-black mb-4">
+                      <p className="font-montserrat font-black text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4">
                         {event.date}
                       </p>
 
                       {/* Ubicación */}
-                      <p className="font-montserrat font-semibold text-[14px] text-black mb-6">
+                      <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-2 sm:mb-3 md:mb-4 lg:mb-6 line-clamp-1">
                         {event.location}
                       </p>
 
                       {/* Botón de acción */}
                       <button 
-                        className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full transition-colors"
+                        className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate("event-detail", {
@@ -620,7 +620,7 @@ export function AllEventsPage() {
                           });
                         }}
                       >
-                        <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                        <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
                           Comprar boletos
                         </p>
                       </button>
