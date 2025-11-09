@@ -120,7 +120,7 @@ export function EventsListPage() {
         aria-label="Página de eventos: búsqueda, estadísticas, categorías y eventos destacados"
       >
         {/* Hero Section con Video de Fondo - Búsqueda de Eventos */}
-        <div className="relative w-full min-h-[500px] sm:min-h-[600px] md:h-[65vh] lg:h-[75vh] overflow-hidden bg-black">
+        <div className="relative w-full min-h-[420px] sm:min-h-[520px] md:h-[60vh] lg:h-[70vh] overflow-hidden bg-black">
         {/* Capa de color de fondo (solo visible en el óvalo) */}
         <div className="absolute inset-0 bg-[#68211A]"></div>
 
@@ -144,26 +144,26 @@ export function EventsListPage() {
         <div className="video-mask"></div>
 
         {/* Contenido frontal */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 py-4 sm:py-8 md:py-12">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-10 lg:gap-[68px]">
+        <div className="absolute inset-0 flex items-center justify-center z-10 py-3 sm:py-6 md:py-10">
+          <div className="container mx-auto px-3 sm:px-4 lg:px-8">
+            <div className="flex flex-col items-center gap-3 sm:gap-5 md:gap-8 lg:gap-[68px]">
               
               {/* Sección superior: Logo + Título + Subtítulo */}
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-[19px] text-center animate-fade-in-up w-full">
+              <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-[19px] text-center animate-fade-in-up w-full">
                 {/* Logo VELTLIX */}
                 <img 
                   src={logohome} 
                   alt="VELTLIX" 
-                  className="h-14 sm:h-16 md:h-20 lg:h-24 xl:h-[75px] w-auto"
+                  className="h-10 sm:h-14 md:h-18 lg:h-22 xl:h-[75px] w-auto"
                 />
 
                 {/* Título principal */}
-                <h1 className="text-white font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl max-w-6xl leading-tight px-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                <h1 className="text-white font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl max-w-6xl leading-tight px-3" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('events.hero.title')}
                 </h1>
 
                 {/* Subtítulo */}
-                <p className="text-white font-montserrat font-semibold text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-lg max-w-4xl leading-snug px-4">
+                <p className="text-white font-montserrat font-semibold text-[10px] sm:text-[11px] md:text-xs lg:text-sm xl:text-base max-w-4xl leading-snug px-3">
                   {t('events.hero.subtitle')}
                 </p>
               </div>
@@ -171,16 +171,16 @@ export function EventsListPage() {
               {/* Caja roja con blur - Búsqueda */}
               <div className="w-full max-w-[1202px] px-2 sm:px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <div 
-                  className="relative bg-[#460000]/60 backdrop-blur-[30.95px] rounded-[10px] px-4 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-5 md:py-6"
+                  className="relative bg-[#460000]/60 backdrop-blur-[30.95px] rounded-[8px] sm:rounded-[10px] px-3 sm:px-5 md:px-7 lg:px-10 py-2.5 sm:py-4 md:py-5"
                   style={{ mixBlendMode: 'hard-light' }}
                 >
-                  <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-5 items-stretch md:items-center">
+                  <div className="flex flex-col md:flex-row gap-2 sm:gap-3 md:gap-4 items-stretch md:items-center">
                     {/* Campo de búsqueda */}
                     <div className="relative w-full md:flex-1 md:max-w-[516px]">
-                      <Search className="absolute left-3 sm:left-4 top-1/2 h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 -translate-y-1/2 text-black/60" />
+                      <Search className="absolute left-2.5 sm:left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 md:h-7 md:w-7 -translate-y-1/2 text-black/60" />
                       <Input
                         placeholder={t('events.search.placeholder')}
-                        className="pl-10 sm:pl-12 md:pl-16 pr-3 sm:pr-4 !h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 border-0 !bg-white text-black placeholder:text-black/60 text-sm sm:text-base rounded-[10px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold"
+                        className="pl-8 sm:pl-10 md:pl-14 pr-2.5 sm:pr-3 !h-9 sm:!h-11 md:!h-13 !min-h-9 sm:!min-h-11 md:!min-h-13 !max-h-9 sm:!max-h-11 md:!max-h-13 border-0 !bg-white text-black placeholder:text-black/60 text-xs sm:text-sm md:text-base rounded-[8px] sm:rounded-[10px] shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold"
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
@@ -200,7 +200,7 @@ export function EventsListPage() {
                           }
                         }}
                       >
-                        <SelectTrigger className="!h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 border-0 !bg-white text-black rounded-[10px] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold text-sm sm:text-base">
+                        <SelectTrigger className="!h-9 sm:!h-11 md:!h-13 !min-h-9 sm:!min-h-11 md:!min-h-13 !max-h-9 sm:!max-h-11 md:!max-h-13 border-0 !bg-white text-black rounded-[8px] sm:rounded-[10px] focus:ring-2 focus:ring-white/30 font-montserrat font-semibold text-xs sm:text-sm md:text-base">
                           <SelectValue placeholder={t('events.search.cities')} />
                         </SelectTrigger>
                         <SelectContent>
@@ -219,7 +219,7 @@ export function EventsListPage() {
                       onClick={() => {
                         document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="!h-12 sm:!h-13 md:!h-14 !min-h-12 sm:!min-h-13 md:!min-h-14 !max-h-12 sm:!max-h-13 md:!max-h-14 w-full md:w-auto md:min-w-[200px] lg:min-w-[252px] bg-[#c61619] hover:bg-[#a01316] text-white font-montserrat font-semibold rounded-[10px] text-sm sm:text-base transition-all shrink-0"
+                      className="!h-9 sm:!h-11 md:!h-13 !min-h-9 sm:!min-h-11 md:!min-h-13 !max-h-9 sm:!max-h-11 md:!max-h-13 w-full md:w-auto md:min-w-[160px] lg:min-w-[220px] bg-[#c61619] hover:bg-[#a01316] text-white font-montserrat font-semibold rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm md:text-base transition-all shrink-0"
                     >
                       {t('events.search.button')}
                     </Button>
@@ -228,7 +228,7 @@ export function EventsListPage() {
               </div>
 
               {/* Categorías rápidas */}
-              <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
                 {mockCategories.slice(1, 5).map((cat) => (
                   <button
                     key={cat.name}
@@ -236,7 +236,7 @@ export function EventsListPage() {
                       setSelectedCategory(cat.name);
                       document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className={`min-w-[100px] sm:min-w-[120px] md:w-[132px] h-[36px] sm:h-[38px] md:h-[39px] rounded-[10px] text-sm sm:text-base font-montserrat font-semibold transition-all flex items-center justify-center px-3 ${
+                    className={`min-w-[80px] sm:min-w-[100px] md:w-[120px] h-[30px] sm:h-[34px] md:h-[38px] rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm md:text-base font-montserrat font-semibold transition-all flex items-center justify-center px-2 sm:px-3 ${
                       selectedCategory === cat.name
                         ? 'bg-white text-black shadow-lg'
                         : 'bg-[#e6e6e6] text-black hover:bg-white hover:shadow-md'
