@@ -120,7 +120,7 @@ export function EventsListPage() {
         aria-label="Página de eventos: búsqueda, estadísticas, categorías y eventos destacados"
       >
         {/* Hero Section con Video de Fondo - Búsqueda de Eventos */}
-        <div className="relative w-full min-h-[600px] sm:min-h-[700px] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black">
+        <div className="relative w-full min-h-[500px] sm:min-h-[600px] md:h-[65vh] lg:h-[75vh] overflow-hidden bg-black">
         {/* Capa de color de fondo (solo visible en el óvalo) */}
         <div className="absolute inset-0 bg-[#68211A]"></div>
 
@@ -144,26 +144,26 @@ export function EventsListPage() {
         <div className="video-mask"></div>
 
         {/* Contenido frontal */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 py-8 sm:py-12">
+        <div className="absolute inset-0 flex items-center justify-center z-10 py-4 sm:py-8 md:py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center gap-8 md:gap-12 lg:gap-[68px]">
+            <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-10 lg:gap-[68px]">
               
               {/* Sección superior: Logo + Título + Subtítulo */}
-              <div className="flex flex-col items-center gap-2 sm:gap-3 md:gap-4 lg:gap-[19px] text-center animate-fade-in-up w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-[19px] text-center animate-fade-in-up w-full">
                 {/* Logo VELTLIX */}
                 <img 
                   src={logohome} 
                   alt="VELTLIX" 
-                  className="h-10 sm:h-12 md:h-16 lg:h-[75px] w-auto"
+                  className="h-14 sm:h-16 md:h-20 lg:h-24 xl:h-[75px] w-auto"
                 />
 
                 {/* Título principal */}
-                <h1 className="text-white font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[64px] max-w-6xl leading-tight px-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                <h1 className="text-white font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl max-w-6xl leading-tight px-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('events.hero.title')}
                 </h1>
 
                 {/* Subtítulo */}
-                <p className="text-white font-montserrat font-semibold text-xs sm:text-sm md:text-base lg:text-lg xl:text-[20px] max-w-4xl leading-normal px-4">
+                <p className="text-white font-montserrat font-semibold text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-lg max-w-4xl leading-snug px-4">
                   {t('events.hero.subtitle')}
                 </p>
               </div>
@@ -253,60 +253,60 @@ export function EventsListPage() {
         </div>
 
         {/* Estadísticas y Exploración de Categorías */}
-        <div className="bg-white py-12 md:py-16">
+        <div className="bg-white py-6 sm:py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4">
           
           {/* Estadísticas */}
-          <div className="flex flex-row gap-4 md:gap-7 justify-center items-center overflow-x-auto mb-12 md:mb-16">
+          <div className="flex flex-row gap-3 sm:gap-4 md:gap-7 justify-center items-center overflow-x-auto mb-6 sm:mb-8 md:mb-12 lg:mb-16">
             
             {/* Usuarios Activos */}
-            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
                 <Users className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 2.500.000 +
               </h3>
-              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
                 {t('events.stats.users')}
               </p>
             </div>
 
             {/* Tickets Vendidos */}
-            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
                 <Ticket className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 500.000 +
               </h3>
-              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
                 {t('events.stats.tickets')}
               </p>
             </div>
 
             {/* Eventos Disponibles */}
-            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
                 <CalendarDays className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 10.000 +
               </h3>
-              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
                 {t('events.stats.events')}
               </p>
             </div>
 
             {/* Calificación Promedio */}
-            <div className="flex flex-col items-center gap-3 min-w-[160px] md:min-w-[200px]">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
                 <Star className="w-full h-full text-[#c61619]" strokeWidth={1.5} fill="#c61619" />
               </div>
-              <h3 className="font-bold text-2xl md:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 4.9
               </h3>
-              <p className="font-montserrat font-semibold text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
                 {t('events.stats.rating')}
               </p>
             </div>
@@ -314,33 +314,33 @@ export function EventsListPage() {
           </div>
 
           {/* Título de Explorar por Categoría */}
-          <div className="text-center mb-8 md:mb-11">
-            <h2 className="font-bold text-4xl md:text-5xl text-black mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+          <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-11">
+            <h2 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-black mb-2 sm:mb-3 md:mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
               {t('home.categories.title')}
             </h2>
-            <p className="font-montserrat font-semibold text-base md:text-lg text-black">
+            <p className="font-montserrat font-semibold text-sm sm:text-base md:text-lg text-black">
               {t('home.categories.subtitle')}
             </p>
           </div>
 
           {/* Cards de Categorías */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
             {/* Conciertos */}
             <div 
               onClick={() => {
                 setSelectedCategory("Concierto");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-700 to-pink-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('nav.category.concerts')}
                 </h3>
-                <Music className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <Music className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   8 {t('events.category.eventsCount')}
                 </p>
               </div>
@@ -352,16 +352,16 @@ export function EventsListPage() {
                 setSelectedCategory("Deportes");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-orange-900 via-orange-700 to-yellow-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('nav.category.sports')}
                 </h3>
-                <Trophy className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <Trophy className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   15 {t('events.category.eventsCount')}
                 </p>
               </div>
@@ -373,16 +373,16 @@ export function EventsListPage() {
                 setSelectedCategory("Teatro");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-red-700 to-orange-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('nav.category.theater')}
                 </h3>
-                <Drama className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <Drama className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   3 {t('events.category.eventsCount')}
                 </p>
               </div>
@@ -394,16 +394,16 @@ export function EventsListPage() {
                 setSelectedCategory("Familia");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-700 to-cyan-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('category.family')}
                 </h3>
-                <UsersRound className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <UsersRound className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   20 {t('events.category.eventsCount')}
                 </p>
               </div>
@@ -415,16 +415,16 @@ export function EventsListPage() {
                 setSelectedCategory("Arte");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-amber-700 to-yellow-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('category.art')}
                 </h3>
-                <Palette className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <Palette className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   10 {t('events.category.eventsCount')}
                 </p>
               </div>
@@ -436,16 +436,16 @@ export function EventsListPage() {
                 setSelectedCategory("Comedia");
                 document.getElementById('eventos-destacados')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="relative w-full h-[220px] md:h-[260px] rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
+              className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[260px] rounded-[10px] sm:rounded-[13px] overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-900 via-yellow-700 to-orange-600"></div>
               <div className="absolute inset-0 bg-black/50"></div>
-              <div className="relative z-10 flex flex-col items-center justify-between h-full p-4">
-                <h3 className="font-bold text-xl md:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <div className="relative z-10 flex flex-col items-center justify-between h-full p-3 sm:p-4">
+                <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-white text-center" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('category.comedy')}
                 </h3>
-                <Smile className="w-16 h-16 md:w-20 md:h-20 text-white" strokeWidth={1.5} />
-                <p className="font-montserrat font-semibold text-sm text-white">
+                <Smile className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-white" strokeWidth={1.5} />
+                <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   5 {t('events.category.eventsCount')}
                 </p>
               </div>
