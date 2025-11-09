@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 
-export type Page = "home" | "events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy";
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy";
 
 interface RouterState {
   currentPage: Page;
