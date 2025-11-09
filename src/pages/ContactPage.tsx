@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "../components/common/Router";
 import { useLanguage } from "../hooks/useLanguage";
+import { ScrollReveal } from "../components/common";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -88,12 +89,16 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#c61619]/10 via-transparent to-transparent"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-              {t("contact.hero.title")}
-            </h1>
-            <p className="text-lg md:text-xl text-white/70 mb-8">
-              {t("contact.hero.subtitle")}
-            </p>
+            <ScrollReveal animation="fade-down" duration={800}>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
+                {t("contact.hero.title")}
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal animation="fade-up" delay={200} duration={800}>
+              <p className="text-lg md:text-xl text-white/70 mb-8">
+                {t("contact.hero.subtitle")}
+              </p>
+            </ScrollReveal>
           </div>
         </div>
       </div>
@@ -106,7 +111,8 @@ export default function ContactPage() {
             {/* Contact Cards */}
             <div className="space-y-4">
               {/* Email */}
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
+              <ScrollReveal animation="fade-right" delay={100}>
+                <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-[#c61619]/20 group-hover:bg-[#c61619]/30 transition-all">
                     <Mail className="h-6 w-6 text-[#c61619]" />
@@ -124,9 +130,11 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+              </ScrollReveal>
 
               {/* Phone */}
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
+              <ScrollReveal animation="fade-right" delay={200}>
+                <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-[#c61619]/20 group-hover:bg-[#c61619]/30 transition-all">
                     <Phone className="h-6 w-6 text-[#c61619]" />
@@ -144,9 +152,11 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+              </ScrollReveal>
 
               {/* Location */}
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
+              <ScrollReveal animation="fade-right" delay={300}>
+                <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-[#c61619]/20 group-hover:bg-[#c61619]/30 transition-all">
                     <MapPin className="h-6 w-6 text-[#c61619]" />
@@ -161,9 +171,11 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+              </ScrollReveal>
 
               {/* Business Hours */}
-              <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
+              <ScrollReveal animation="fade-right" delay={400}>
+                <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:border-[#c61619]/50 transition-all group">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-[#c61619]/20 group-hover:bg-[#c61619]/30 transition-all">
                     <Clock className="h-6 w-6 text-[#c61619]" />
@@ -179,10 +191,12 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+              </ScrollReveal>
             </div>
 
             {/* FAQ Link */}
-            <div className="p-6 rounded-xl bg-gradient-to-br from-[#c61619]/20 to-[#c61619]/5 border border-[#c61619]/30">
+            <ScrollReveal animation="fade-right" delay={500}>
+              <div className="p-6 rounded-xl bg-gradient-to-br from-[#c61619]/20 to-[#c61619]/5 border border-[#c61619]/30">
               <div className="flex items-start gap-4">
                 <MessageSquare className="h-6 w-6 text-[#c61619] flex-shrink-0 mt-1" />
                 <div>
@@ -201,11 +215,13 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
+            </ScrollReveal>
           </div>
 
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="p-6 md:p-8 rounded-xl bg-white/5 border border-white/10">
+            <ScrollReveal animation="fade-left" delay={200}>
+              <div className="p-6 md:p-8 rounded-xl bg-white/5 border border-white/10">
               <div className="mb-6">
                 <h2 className="text-2xl md:text-3xl font-bold mb-2">
                   {t("contact.form.title")}
@@ -339,6 +355,7 @@ export default function ContactPage() {
                 </form>
               )}
             </div>
+            </ScrollReveal>
           </div>
         </div>
       </div>
