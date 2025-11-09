@@ -466,6 +466,7 @@ html {
 .hero-content-front {
   position: relative;
   z-index: 30;
+  margin-top: -500px; /* Ajusta el contenido hacia arriba para centrado correcto */
 }
 
 /* Animaciones personalizadas para efectos */
