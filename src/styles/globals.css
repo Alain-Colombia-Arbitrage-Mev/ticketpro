@@ -144,7 +144,7 @@
     z-index: 10;
   }
   
-  /* Ajustes responsivos - mantener óvalo en todas las resoluciones */
+  /* Ajustes responsivos - óvalo más grande en móviles */
   @media (max-width: 1440px) {
     .video-mask {
       background: radial-gradient(ellipse 50% 45% at 50% 50%, rgba(0, 0, 0, 0.00) 35%, rgba(0, 0, 0, 0.7) 55%, #000 75%);
@@ -153,13 +153,21 @@
   
   @media (max-width: 1024px) {
     .video-mask {
-      background: radial-gradient(ellipse 50% 45% at 50% 50%, rgba(0, 0, 0, 0.00) 35%, rgba(0, 0, 0, 0.7) 55%, #000 75%);
+      background: radial-gradient(ellipse 55% 48% at 50% 50%, rgba(0, 0, 0, 0.00) 30%, rgba(0, 0, 0, 0.7) 52%, #000 72%);
     }
   }
   
   @media (max-width: 768px) {
     .video-mask {
-      background: radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0, 0, 0, 0.00) 30%, rgba(0, 0, 0, 0.8) 50%, #000 70%);
+      /* Óvalo más ancho y alto en móviles para mejor visibilidad */
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0, 0, 0, 0.00) 25%, rgba(0, 0, 0, 0.6) 48%, #000 68%);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .video-mask {
+      /* Óvalo aún más grande en pantallas muy pequeñas */
+      background: radial-gradient(ellipse 65% 52% at 50% 50%, rgba(0, 0, 0, 0.00) 22%, rgba(0, 0, 0, 0.5) 45%, #000 65%);
     }
   }
   

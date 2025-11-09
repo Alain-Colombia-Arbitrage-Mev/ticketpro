@@ -33,7 +33,7 @@ export function HomePage() {
         
         {/* Primera Sección - Hero con Video de Fondo */}
         <section 
-          className="relative w-full min-h-screen h-screen overflow-hidden"
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-black"
         >
           
           {/* Subsección: Video de fondo */}
@@ -107,7 +107,7 @@ export function HomePage() {
         
         {/* Segunda Sección - Sin Logo */}
         <section 
-          className="relative w-full min-h-screen h-screen overflow-hidden"
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-black"
         >
           
           {/* Subsección: Video de fondo */}
@@ -172,7 +172,7 @@ export function HomePage() {
 
         {/* Tercera Sección - Sin Logo */}
         <section 
-          className="relative w-full min-h-screen h-screen overflow-hidden"
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-black"
         >
           
           {/* Subsección: Video de fondo */}
@@ -237,7 +237,7 @@ export function HomePage() {
         
         {/* Cuarta Sección - Sin Logo con Efectos */}
         <section 
-          className="relative w-full min-h-screen h-screen overflow-hidden"
+          className="relative w-full min-h-screen h-screen overflow-hidden bg-black"
         >
           
           {/* Subsección: Video de fondo */}
