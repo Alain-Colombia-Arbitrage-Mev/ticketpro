@@ -19,13 +19,31 @@ export function HomePage() {
   const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
+    // Detectar si es dispositivo táctil
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
     const handleScroll = () => {
+      // En dispositivos táctiles, desactivar las animaciones de scroll para mejor rendimiento
+      if (isTouchDevice) {
+        sectionsRef.current.forEach((section) => {
+          if (section) {
+            section.classList.add('scroll-visible');
+            const content = section.querySelector('.hero-content-front');
+            if (content) {
+              content.classList.add('scroll-fade-in');
+            }
+          }
+        });
+        return;
+      }
+      
+      // Solo en desktop aplicar animaciones de scroll
       sectionsRef.current.forEach((section) => {
         if (section) {
           const rect = section.getBoundingClientRect();
           const windowHeight = window.innerHeight;
           
-          // Animación de aparición al hacer scroll (sin parallax)
+          // Animación de aparición al hacer scroll
           const isVisible = rect.top < windowHeight * 0.8;
           if (isVisible && !section.classList.contains('scroll-visible')) {
             section.classList.add('scroll-visible');
@@ -68,18 +86,16 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo - Solo en tablets y desktop para mejor rendimiento */}
+              {/* Video de fondo */}
               <video 
-                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
-                preload="metadata"
+                preload="auto"
                 src={video1}
               />
-              {/* Fondo degradado para móviles - más liviano */}
-              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-red-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -149,18 +165,16 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo - Solo en tablets y desktop */}
+              {/* Video de fondo */}
               <video 
-                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
-                preload="metadata"
+                preload="auto"
                 src={video2}
               />
-              {/* Fondo degradado para móviles */}
-              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-blue-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -221,18 +235,16 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo - Solo en tablets y desktop */}
+              {/* Video de fondo */}
               <video 
-                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
-                preload="metadata"
+                preload="auto"
                 src={video3}
               />
-              {/* Fondo degradado para móviles */}
-              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-green-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -293,18 +305,16 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo - Solo en tablets y desktop */}
+              {/* Video de fondo */}
               <video 
-                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
-                preload="metadata"
+                preload="auto"
                 src={video4}
               />
-              {/* Fondo degradado para móviles */}
-              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-purple-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
