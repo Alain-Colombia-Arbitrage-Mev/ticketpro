@@ -316,15 +316,15 @@ export function EventsListPage() {
         </div>
 
         {/* Exploración de Categorías */}
-        <div className="bg-white py-6 sm:py-8 md:py-12 lg:py-16">
+        <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4">
 
           {/* Título de Explorar por Categoría */}
           <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-11">
-            <h2 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-black mb-2 sm:mb-3 md:mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
+            <h2 className="font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-white mb-2 sm:mb-3 md:mb-4" style={{ fontFamily: 'Germania One, sans-serif' }}>
               {t('home.categories.title')}
             </h2>
-            <p className="font-montserrat font-semibold text-sm sm:text-base md:text-lg text-black">
+            <p className="font-montserrat font-semibold text-sm sm:text-base md:text-lg text-white/80">
               {t('home.categories.subtitle')}
             </p>
           </div>
@@ -494,13 +494,6 @@ export function EventsListPage() {
             </div>
           </div>
         </div>
-        </div>
-
-        {/* Sección Negra Adicional (separador visual) */}
-        <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
-          <div className="container mx-auto px-4">
-            {/* Contenido de la sección negra si es necesario */}
-          </div>
         </div>
 
         {/* Eventos Destacados */}
