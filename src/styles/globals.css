@@ -41,6 +41,16 @@
   max-width: 100vw; /* Limitar ancho a viewport */
   }
   
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  
   /* Fuentes personalizadas */
   .font-germania {
     font-family: 'Germania One', cursive;
