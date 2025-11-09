@@ -466,7 +466,21 @@ html {
 .hero-content-front {
   position: relative;
   z-index: 30;
-  margin-top: -500px; /* Ajusta el contenido hacia arriba para centrado correcto */
+  margin-top: -200px; /* Móviles: ajuste menor */
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .hero-content-front {
+    margin-top: -350px; /* Ajuste medio para tablets */
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .hero-content-front {
+    margin-top: -500px; /* Ajuste completo para desktop */
+  }
 }
 
 /* Animaciones personalizadas para efectos */
