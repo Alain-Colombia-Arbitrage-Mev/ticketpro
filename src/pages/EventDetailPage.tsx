@@ -103,7 +103,7 @@ export function EventDetailPage() {
       </div>
 
       {/* Hero Image */}
-      <div className="relative h-72 w-full overflow-hidden sm:h-96 lg:h-[32rem]">
+      <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-96 lg:h-[32rem]">
         <ImageWithFallback
           src={pageData.image}
           alt={pageData.title}
@@ -130,53 +130,53 @@ export function EventDetailPage() {
         )}
       </div>
 
-      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-3 lg:gap-12">
+      <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 md:py-8 lg:px-8">
+        <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3 lg:gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <div className="mb-8">
-              <Badge className="mb-4 border-0 !bg-white/20 font-medium !text-white">{t(`category.${pageData.category.toLowerCase()}`)}</Badge>
-              <h1 className="mb-6 text-3xl font-bold leading-tight tracking-tight !text-white sm:text-4xl lg:text-5xl">
+            <div className="mb-4 sm:mb-6 md:mb-8">
+              <Badge className="mb-2 sm:mb-3 md:mb-4 border-0 !bg-white/20 font-medium !text-white text-xs sm:text-sm">{t(`category.${pageData.category.toLowerCase()}`)}</Badge>
+              <h1 className="mb-3 sm:mb-4 md:mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight tracking-tight !text-white">
                 {t(`event.title.${pageData.id}`)}
               </h1>
               
-              <div className="flex flex-wrap gap-5 !text-white/80">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl !bg-white/10">
-                    <Calendar className="h-5 w-5 !text-white" />
+              <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5 !text-white/80">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl !bg-white/10">
+                    <Calendar className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 !text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium !text-white/60">{t('event.detail.date')}</p>
-                    <p className="font-medium !text-white">{pageData.date}</p>
+                    <p className="text-[10px] sm:text-xs font-medium !text-white/60">{t('event.detail.date')}</p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{pageData.date}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl !bg-white/10">
-                    <Clock className="h-5 w-5 !text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl !bg-white/10">
+                    <Clock className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 !text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium !text-white/60">{t('event.detail.time')}</p>
-                    <p className="font-medium !text-white">8:00 PM</p>
+                    <p className="text-[10px] sm:text-xs font-medium !text-white/60">{t('event.detail.time')}</p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">8:00 PM</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl !bg-white/10">
-                    <MapPin className="h-5 w-5 !text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl !bg-white/10">
+                    <MapPin className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 !text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-medium !text-white/60">{t('event.detail.location')}</p>
-                    <p className="font-medium !text-white">{pageData.location}</p>
+                    <p className="text-[10px] sm:text-xs font-medium !text-white/60">{t('event.detail.location')}</p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{pageData.location}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <Separator className="my-8 !bg-white/20" />
+            <Separator className="my-4 sm:my-6 md:my-8 !bg-white/20" />
 
             {/* Description */}
-            <div className="mb-10">
-              <h3 className="mb-4 text-2xl font-bold !text-white">{t('event.detail.description')}</h3>
-              <div className="space-y-4 text-base leading-relaxed !text-white/70">
+            <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-10">
+              <h3 className="mb-2 sm:mb-3 md:mb-4 text-lg sm:text-xl md:text-2xl font-bold !text-white">{t('event.detail.description')}</h3>
+              <div className="space-y-2 sm:space-y-3 md:space-y-4 text-sm sm:text-base leading-relaxed !text-white/70">
                 <p>
                   Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
                   artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
@@ -189,69 +189,70 @@ export function EventDetailPage() {
             </div>
 
             {/* Venue Info */}
-            <Card className="mb-8 p-6 !bg-white/5 border-white/20">
-              <h3 className="mb-4 !text-white">Información del Lugar</h3>
-              <div className="mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
+            <Card className="mb-4 sm:mb-6 md:mb-8 p-3 sm:p-4 md:p-5 lg:p-6 !bg-white/5 border-white/20">
+              <h3 className="mb-2 sm:mb-3 md:mb-4 text-base sm:text-lg md:text-xl !text-white">Información del Lugar</h3>
+              <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
                   src="https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   alt="Venue"
                   className="h-full w-full object-cover"
                 />
               </div>
-              <div className="space-y-2 !text-white/70">
+              <div className="space-y-2 text-xs sm:text-sm md:text-base !text-white/70">
                 <div className="flex items-start gap-2">
-                  <MapPin className="mt-1 h-4 w-4 flex-shrink-0 !text-white" />
+                  <MapPin className="mt-0.5 sm:mt-1 h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 !text-white" />
                   <div>
-                    <p className="!text-white">{pageData.location}</p>
-                    <p className="text-sm">Av. Principal #123, Col. Centro</p>
+                    <p className="text-xs sm:text-sm md:text-base !text-white">{pageData.location}</p>
+                    <p className="text-[11px] sm:text-xs md:text-sm">Av. Principal #123, Col. Centro</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 !text-white" />
-                  <span>Capacidad: 5,000 personas</span>
+                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 !text-white" />
+                  <span className="text-xs sm:text-sm md:text-base">Capacidad: 5,000 personas</span>
                 </div>
               </div>
             </Card>
 
             {/* Reviews */}
-            <Card className="p-6 !bg-white/5 border-white/20">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="!text-white">{t('event.detail.reviews')}</h3>
-                <div className="flex items-center gap-1">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="!text-white">4.8</span>
-                  <span className="!text-white/60">(234 reseñas)</span>
+            <Card className="p-3 sm:p-4 md:p-5 lg:p-6 !bg-white/5 border-white/20">
+              <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
+                <h3 className="text-base sm:text-lg md:text-xl !text-white">{t('event.detail.reviews')}</h3>
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm sm:text-base !text-white">4.8</span>
+                  <span className="text-xs sm:text-sm !text-white/60 hidden sm:inline">(234 reseñas)</span>
+                  <span className="text-xs !text-white/60 sm:hidden">(234)</span>
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <div className="border-b border-white/20 pb-4">
-                  <div className="mb-2 flex items-center gap-2">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="border-b border-white/20 pb-3 sm:pb-4">
+                  <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
-                    <span className="text-sm !text-white/60">hace 2 días</span>
+                    <span className="text-[11px] sm:text-xs md:text-sm !text-white/60">hace 2 días</span>
                   </div>
-                  <p className="mb-1 !text-white">Excelente experiencia</p>
-                  <p className="text-sm !text-white/70">
+                  <p className="mb-1 text-sm sm:text-base !text-white">Excelente experiencia</p>
+                  <p className="text-xs sm:text-sm !text-white/70">
                     El mejor concierto al que he asistido. La organización fue impecable y el ambiente increíble.
                   </p>
                 </div>
                 
-                <div className="pb-4">
-                  <div className="mb-2 flex items-center gap-2">
+                <div className="pb-3 sm:pb-4">
+                  <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4].map((i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 fill-yellow-400 text-yellow-400" />
                       ))}
-                      <Star className="h-4 w-4 !text-white/30" />
+                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 !text-white/30" />
                     </div>
-                    <span className="text-sm !text-white/60">hace 1 semana</span>
+                    <span className="text-[11px] sm:text-xs md:text-sm !text-white/60">hace 1 semana</span>
                   </div>
-                  <p className="mb-1 !text-white">Muy bueno</p>
-                  <p className="text-sm !text-white/70">
+                  <p className="mb-1 text-sm sm:text-base !text-white">Muy bueno</p>
+                  <p className="text-xs sm:text-sm !text-white/70">
                     Gran evento, aunque el estacionamiento estaba un poco lleno. Lo recomiendo totalmente.
                   </p>
                 </div>
@@ -263,37 +264,37 @@ export function EventDetailPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <Card className="overflow-hidden border-white/20 shadow-lg !bg-white/5">
-                <div className="border-b border-white/20 bg-[#c61619] p-6">
-                  <h3 className="text-xl font-bold text-white">{t('event.detail.tickets')}</h3>
+                <div className="border-b border-white/20 bg-[#c61619] p-3 sm:p-4 md:p-5 lg:p-6">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white">{t('event.detail.tickets')}</h3>
                 </div>
                 
-                <div className="p-6">
-                  <div className="mb-6 space-y-3">
+                <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+                  <div className="mb-4 sm:mb-5 md:mb-6 space-y-2 sm:space-y-2.5 md:space-y-3">
                     {ticketTypes.map((ticket) => (
                       <Card 
                         key={ticket.id} 
                         onClick={() => handleTicketSelection(ticket.id)}
-                        className={`cursor-pointer border-2 p-4 transition-all hover:shadow-md ${
+                        className={`cursor-pointer border-2 p-2.5 sm:p-3 md:p-4 transition-all hover:shadow-md ${
                           selectedTicketType === ticket.id 
                             ? '!border-[#c61619] !bg-[#c61619]/20 shadow-lg' 
                             : 'border-white/20 !bg-white/10 hover:!border-white/40 hover:!bg-white/15'
                         }`}
                       >
-                        <div className="mb-3 flex items-start justify-between">
+                        <div className="mb-2 sm:mb-2.5 md:mb-3 flex items-start justify-between">
                           <div>
-                            <p className="font-semibold !text-white">{ticket.name}</p>
-                            <p className="mt-1 text-lg font-bold !text-[#c61619]">${ticket.price} MXN</p>
+                            <p className="text-sm sm:text-base font-semibold !text-white">{ticket.name}</p>
+                            <p className="mt-0.5 sm:mt-1 text-base sm:text-lg font-bold !text-[#c61619]">${ticket.price} MXN</p>
                           </div>
-                          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                          <div className={`flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl ${
                             selectedTicketType === ticket.id ? '!bg-[#c61619]' : '!bg-white/10'
                           }`}>
-                            <Ticket className="h-5 w-5 !text-white" />
+                            <Ticket className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 !text-white" />
                           </div>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className="space-y-1.5 sm:space-y-2">
                           {ticket.benefits.map((benefit, index) => (
-                            <li key={index} className="flex items-start gap-2 text-sm !text-white/70">
-                              <div className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full !bg-[#c61619]" />
+                            <li key={index} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm !text-white/70">
+                              <div className="mt-1 sm:mt-1.5 h-1 w-1 sm:h-1.5 sm:w-1.5 flex-shrink-0 rounded-full !bg-[#c61619]" />
                               {benefit}
                             </li>
                           ))}
@@ -304,18 +305,18 @@ export function EventDetailPage() {
 
                   <Button
                     disabled={!selectedTicketType}
-                    className="h-12 w-full !bg-[#c61619] hover:!bg-[#a01316] font-semibold shadow-lg transition-shadow hover:shadow-xl !text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 sm:h-11 md:h-12 w-full text-sm sm:text-base !bg-[#c61619] hover:!bg-[#a01316] font-semibold shadow-lg transition-shadow hover:shadow-xl !text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleProceedToCheckout}
                   >
-                    <Ticket className="mr-2 h-5 w-5 !text-white" />
+                    <Ticket className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 !text-white" />
                     {selectedTicketType ? t('event.detail.buyTickets') : t('event.detail.selectTicket')}
                   </Button>
 
-                  <div className="mt-4 rounded-xl !bg-white/10 p-4 border border-white/20">
-                    <p className="mb-1 font-semibold !text-white">
+                  <div className="mt-3 sm:mt-4 rounded-lg sm:rounded-xl !bg-white/10 p-3 sm:p-4 border border-white/20">
+                    <p className="mb-0.5 sm:mb-1 text-sm sm:text-base font-semibold !text-white">
                       {t('event.detail.offer')}
                     </p>
-                    <p className="text-sm !text-white/70">
+                    <p className="text-xs sm:text-sm !text-white/70">
                       {t('event.detail.offerText')}
                     </p>
                   </div>
