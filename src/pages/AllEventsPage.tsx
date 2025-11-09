@@ -237,24 +237,28 @@ export function AllEventsPage() {
           {/* Filters */}
           <div className="flex flex-col gap-3">
             {/* Category Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              <Button
-                variant="outline"
-                onClick={() => handleCategoryChange("all")}
-                className={`shrink-0 ${selectedCategory === "all" ? '!bg-white !text-black border-white' : 'border-white/20 !bg-black/50 !text-white hover:!bg-white/10'}`}
-              >
-                {t('allevents.categories.all')}
-              </Button>
-              {mockCategories.slice(1).map((cat) => (
+            <div className="relative">
+              <div className="flex gap-1.5 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory scrollbar-hide">
                 <Button
-                  key={cat.name}
                   variant="outline"
-                  onClick={() => handleCategoryChange(cat.name)}
-                  className={`shrink-0 ${selectedCategory === cat.name ? '!bg-white !text-black border-white' : 'border-white/20 !bg-black/50 !text-white hover:!bg-white/10'}`}
+                  onClick={() => handleCategoryChange("all")}
+                  className={`shrink-0 h-9 px-3 text-xs sm:text-sm snap-start ${selectedCategory === "all" ? '!bg-white !text-black border-white' : 'border-white/20 !bg-black/50 !text-white hover:!bg-white/10'}`}
                 >
-                  {cat.label}
+                  {t('allevents.categories.all')}
                 </Button>
-              ))}
+                {mockCategories.slice(1).map((cat) => (
+                  <Button
+                    key={cat.name}
+                    variant="outline"
+                    onClick={() => handleCategoryChange(cat.name)}
+                    className={`shrink-0 h-9 px-3 text-xs sm:text-sm whitespace-nowrap snap-start ${selectedCategory === cat.name ? '!bg-white !text-black border-white' : 'border-white/20 !bg-black/50 !text-white hover:!bg-white/10'}`}
+                  >
+                    {cat.label}
+                  </Button>
+                ))}
+              </div>
+              {/* Gradient indicators */}
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-black to-transparent"></div>
             </div>
 
             {/* Filters Row */}
@@ -298,9 +302,9 @@ export function AllEventsPage() {
                 <SheetTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className={`gap-2 h-11 px-4 border-white/20 !bg-black/50 !text-white hover:!bg-white/10 ${hasActiveFilters ? 'border-white/40 !bg-white/20' : ''}`}
+                    className={`gap-2 h-11 px-4 border-white/20 !bg-black !text-white hover:!bg-white/10 ${hasActiveFilters ? 'border-white/40' : ''}`}
                   >
-                    <SlidersHorizontal className="h-4 w-4" />
+                    <SlidersHorizontal className="h-4 w-4 !text-white" />
                     <span className="hidden sm:inline">{t('allevents.filters')}</span>
                     {activeFiltersCount > 0 && (
                       <Badge variant="default" className="ml-1 h-5 min-w-[20px] px-1 !bg-white/20 !text-white border-white/30">
