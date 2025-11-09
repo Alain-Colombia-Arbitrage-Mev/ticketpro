@@ -20,25 +20,12 @@ export function HomePage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      sectionsRef.current.forEach((section, index) => {
+      sectionsRef.current.forEach((section) => {
         if (section) {
           const rect = section.getBoundingClientRect();
           const windowHeight = window.innerHeight;
           
-          // Efecto parallax suave
-          if (rect.top < windowHeight && rect.bottom > 0) {
-            const scrollPosition = window.scrollY;
-            const sectionTop = section.offsetTop;
-            const parallaxSpeed = 0.3;
-            const offset = (scrollPosition - sectionTop) * parallaxSpeed;
-            
-            const videoContainer = section.querySelector('.hero-video-background') as HTMLElement;
-            if (videoContainer) {
-              videoContainer.style.transform = `translate(-50%, -50%) translateY(${offset}px)`;
-            }
-          }
-          
-          // Animación de aparición al hacer scroll
+          // Animación de aparición al hacer scroll (sin parallax)
           const isVisible = rect.top < windowHeight * 0.8;
           if (isVisible && !section.classList.contains('scroll-visible')) {
             section.classList.add('scroll-visible');
@@ -75,7 +62,7 @@ export function HomePage() {
         {/* Primera Sección - Hero con Video de Fondo */}
         <section 
           ref={(el) => (sectionsRef.current[0] = el)}
-          className="relative w-full min-h-screen h-screen overflow-hidden parallax-section"
+          className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
           {/* Subsección: Video de fondo */}
@@ -153,7 +140,7 @@ export function HomePage() {
         {/* Segunda Sección - Sin Logo */}
         <section 
           ref={(el) => (sectionsRef.current[1] = el)}
-          className="relative w-full min-h-screen h-screen overflow-hidden parallax-section"
+          className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
           {/* Subsección: Video de fondo */}
@@ -222,7 +209,7 @@ export function HomePage() {
         {/* Tercera Sección - Sin Logo */}
         <section 
           ref={(el) => (sectionsRef.current[2] = el)}
-          className="relative w-full min-h-screen h-screen overflow-hidden parallax-section"
+          className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
           {/* Subsección: Video de fondo */}
@@ -291,7 +278,7 @@ export function HomePage() {
         {/* Cuarta Sección - Sin Logo con Efectos */}
         <section 
           ref={(el) => (sectionsRef.current[3] = el)}
-          className="relative w-full min-h-screen h-screen overflow-hidden parallax-section"
+          className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
           {/* Subsección: Video de fondo */}
