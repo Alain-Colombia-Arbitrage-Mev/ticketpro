@@ -146,15 +146,15 @@ export function EventsListPage() {
         {/* Contenido frontal */}
         <div className="absolute inset-0 flex items-center justify-center z-10 py-3 sm:py-6 md:py-10">
           <div className="container mx-auto px-3 sm:px-4 lg:px-8">
-            <div className="flex flex-col items-center gap-3 sm:gap-5 md:gap-8 lg:gap-[68px]">
+            <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-9 lg:gap-[68px]">
               
               {/* Sección superior: Logo + Título + Subtítulo */}
-              <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-[19px] text-center animate-fade-in-up w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[19px] text-center animate-fade-in-up w-full">
                 {/* Logo VELTLIX */}
                 <img 
                   src={logohome} 
                   alt="VELTLIX" 
-                  className="h-10 sm:h-14 md:h-18 lg:h-22 xl:h-[75px] w-auto"
+                  className="h-16 sm:h-18 md:h-20 lg:h-24 xl:h-[75px] w-auto"
                 />
 
                 {/* Título principal */}
@@ -228,7 +228,7 @@ export function EventsListPage() {
               </div>
 
               {/* Categorías rápidas */}
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
                 {mockCategories.slice(1, 5).map((cat) => (
                   <button
                     key={cat.name}
