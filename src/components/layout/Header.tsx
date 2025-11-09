@@ -83,7 +83,7 @@ export function Header() {
             {t('nav.events')}
           </button>
           <button 
-            onClick={() => handleNavigation("home")}
+            onClick={() => handleNavigation("contact")}
             className="rounded-lg px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-[20px] font-semibold text-white transition-all duration-300 hover:text-white/80 focus-visible-ring"
           >
             {t('nav.contact')}
@@ -219,7 +219,7 @@ export function Header() {
               {t('nav.events')}
             </button>
             <button 
-              onClick={() => handleNavigation("home")}
+              onClick={() => handleNavigation("contact")}
               className="text-left text-white/70 transition-colors hover:text-white focus-visible-ring"
             >
               {t('nav.contact')}

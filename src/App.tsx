@@ -14,6 +14,7 @@ import { WalletPage } from "./pages/WalletPage";
 import { TermsPage } from "./pages/TermsPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { RefundPolicyPage } from "./pages/RefundPolicyPage";
+import ContactPage from "./pages/ContactPage";
 
 function AppContent() {
   const { currentPage } = useRouter();
@@ -35,6 +36,7 @@ function AppContent() {
       {currentPage === "terms" && <TermsPage />}
       {currentPage === "privacy" && <PrivacyPage />}
       {currentPage === "refund-policy" && <RefundPolicyPage />}
+      {currentPage === "contact" && <ContactPage />}
       
       <Footer />
     </div>

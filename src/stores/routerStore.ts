@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 
-export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy";
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact";
 
 interface RouterState {
   currentPage: Page;
@@ -30,7 +30,7 @@ export const useRouterStore = create<RouterState>((set) => ({
     
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as Page;
-      const validPages: Page[] = ["home", "events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy"];
+      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact"];
       
       if (hash && validPages.includes(hash)) {
         set({ currentPage: hash });
