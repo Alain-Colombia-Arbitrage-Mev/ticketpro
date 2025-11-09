@@ -497,16 +497,16 @@ export function EventsListPage() {
         </div>
 
         {/* Eventos Destacados */}
-        <div id="eventos-destacados" className="bg-white py-12 md:py-16">
+        <div id="eventos-destacados" className="bg-black py-12 md:py-16">
           <div className="container mx-auto px-4">
             {/* Título de la sección */}
             <div className="flex items-center gap-4 mb-8 md:mb-11">
               <Ticket className="w-12 h-12 md:w-16 md:h-16 text-[#c61619]" strokeWidth={1.5} />
               <div>
-                <h2 className="font-bold text-3xl md:text-5xl text-black" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                <h2 className="font-bold text-3xl md:text-5xl text-white" style={{ fontFamily: 'Germania One, sans-serif' }}>
                   {t('events.featured.title')}
                 </h2>
-                <p className="font-montserrat font-semibold text-sm md:text-lg text-black">
+                <p className="font-montserrat font-semibold text-sm md:text-lg text-white/80">
                   {t('home.featured.subtitle')}
                 </p>
               </div>
