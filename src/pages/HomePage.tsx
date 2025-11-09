@@ -7,7 +7,6 @@ import video1 from "../assets/backgrounds/video1.mp4";
 import video2 from "../assets/backgrounds/video2.mp4";
 import video3 from "../assets/backgrounds/video3.mp4";
 import video4 from "../assets/backgrounds/video4.mp4";
-import { useEffect, useRef } from "react";
 
 /**
  * HomePage Component - Página principal basada en el diseño de Figma
@@ -16,51 +15,6 @@ import { useEffect, useRef } from "react";
 export function HomePage() {
   const { navigate } = useRouter();
   const { t } = useLanguage();
-  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
-
-  useEffect(() => {
-    // Detectar si es dispositivo táctil
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    const handleScroll = () => {
-      // En dispositivos táctiles, desactivar las animaciones de scroll para mejor rendimiento
-      if (isTouchDevice) {
-        sectionsRef.current.forEach((section) => {
-          if (section) {
-            section.classList.add('scroll-visible');
-            const content = section.querySelector('.hero-content-front');
-            if (content) {
-              content.classList.add('scroll-fade-in');
-            }
-          }
-        });
-        return;
-      }
-      
-      // Solo en desktop aplicar animaciones de scroll
-      sectionsRef.current.forEach((section) => {
-        if (section) {
-          const rect = section.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          
-          // Animación de aparición al hacer scroll
-          const isVisible = rect.top < windowHeight * 0.8;
-          if (isVisible && !section.classList.contains('scroll-visible')) {
-            section.classList.add('scroll-visible');
-            const content = section.querySelector('.hero-content-front');
-            if (content) {
-              content.classList.add('scroll-fade-in');
-            }
-          }
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Llamar una vez al montar
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <>
@@ -79,7 +33,6 @@ export function HomePage() {
         
         {/* Primera Sección - Hero con Video de Fondo */}
         <section 
-          ref={(el) => (sectionsRef.current[0] = el)}
           className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
@@ -158,7 +111,6 @@ export function HomePage() {
         
         {/* Segunda Sección - Sin Logo */}
         <section 
-          ref={(el) => (sectionsRef.current[1] = el)}
           className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
@@ -228,7 +180,6 @@ export function HomePage() {
 
         {/* Tercera Sección - Sin Logo */}
         <section 
-          ref={(el) => (sectionsRef.current[2] = el)}
           className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
@@ -298,7 +249,6 @@ export function HomePage() {
         
         {/* Cuarta Sección - Sin Logo con Efectos */}
         <section 
-          ref={(el) => (sectionsRef.current[3] = el)}
           className="relative w-full min-h-screen h-screen overflow-hidden"
         >
           
