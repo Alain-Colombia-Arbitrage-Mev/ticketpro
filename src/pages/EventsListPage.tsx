@@ -257,56 +257,56 @@ export function EventsListPage() {
         <div className="container mx-auto px-4">
           
           {/* Estadísticas */}
-          <div className="flex flex-row gap-3 sm:gap-4 md:gap-7 justify-center items-center overflow-x-auto mb-6 sm:mb-8 md:mb-12 lg:mb-16">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 md:gap-7 mb-6 sm:mb-8 md:mb-12 lg:mb-16">
             
             {/* Usuarios Activos */}
-            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Users className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
-                2.500.000 +
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                2.5M +
               </h3>
-              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.users')}
               </p>
             </div>
 
             {/* Tickets Vendidos */}
-            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Ticket className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
-                500.000 +
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                500K +
               </h3>
-              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.tickets')}
               </p>
             </div>
 
             {/* Eventos Disponibles */}
-            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <CalendarDays className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
-                10.000 +
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                10K +
               </h3>
-              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.events')}
               </p>
             </div>
 
             {/* Calificación Promedio */}
-            <div className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3 min-w-[90px] sm:min-w-[120px] md:min-w-[160px] lg:min-w-[200px]">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Star className="w-full h-full text-[#c61619]" strokeWidth={1.5} fill="#c61619" />
               </div>
-              <h3 className="font-bold text-base sm:text-lg md:text-2xl lg:text-3xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 4.9
               </h3>
-              <p className="font-montserrat font-semibold text-[10px] sm:text-xs md:text-sm text-black text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.rating')}
               </p>
             </div>
@@ -471,11 +471,11 @@ export function EventsListPage() {
             </div>
 
             {/* Grid de Eventos Destacados */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-9">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div key={event.id} className="relative flex flex-col w-full">
                   {/* Imagen del evento */}
-                  <div className="h-[544px] rounded-t-[13px] overflow-hidden relative">
+                  <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                     <img 
                       src={event.image} 
                       alt={event.title}
@@ -483,32 +483,32 @@ export function EventsListPage() {
                     />
                     
                     {/* Badges superiores */}
-                    <div className="absolute top-3 left-[23px] flex flex-col gap-[12px] z-10">
+                    <div className="absolute top-1.5 sm:top-2 md:top-3 left-2 sm:left-3 md:left-[23px] flex flex-col gap-1.5 sm:gap-2 md:gap-[12px] z-10">
                       {/* Badge de categoría */}
-                      <div className="bg-white h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                        <p className="font-montserrat font-bold text-[14px] text-black">
+                      <div className="bg-white h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                        <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-black">
                           {t(`category.${event.category.toLowerCase()}`)}
                         </p>
                       </div>
                       
                       {/* Badge de estado (Últimos/Próximos/Futuros) */}
                       {event.lastTickets && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.lastTickets')}
                           </p>
                         </div>
                       )}
                       {!event.lastTickets && index % 2 === 0 && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.upcoming')}
                           </p>
                         </div>
                       )}
                       {!event.lastTickets && index % 2 !== 0 && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.future')}
                           </p>
                         </div>
@@ -517,18 +517,18 @@ export function EventsListPage() {
 
                     {/* Badge de Destacado/Imperdible */}
                     {event.featured && (
-                      <div className="absolute top-3 right-[17px] z-10">
-                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                      <div className="absolute top-1.5 sm:top-2 md:top-3 right-2 sm:right-3 md:right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.featured')}
                           </p>
                         </div>
                       </div>
                     )}
                     {!event.featured && event.trending && (
-                      <div className="absolute top-3 right-[17px] z-10">
-                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                      <div className="absolute top-1.5 sm:top-2 md:top-3 right-2 sm:right-3 md:right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.recommended')}
                           </p>
                         </div>
@@ -536,12 +536,12 @@ export function EventsListPage() {
                     )}
 
                     {/* Badge de precio */}
-                    <div className="absolute bottom-[15px] left-[23px] z-10">
-                      <div className="bg-white h-[67px] rounded-[20px] px-4 flex flex-col items-start justify-center">
-                        <p className="font-montserrat font-medium text-[14px] text-black">
+                    <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                      <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
                           {t('events.card.from')}
                         </p>
-                        <p className="font-bold text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                        <p className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                           {event.price}
                         </p>
                       </div>
@@ -549,25 +549,25 @@ export function EventsListPage() {
                   </div>
 
                   {/* Información del evento - FONDO GRIS #e3e0e0 */}
-                  <div className="bg-[#e3e0e0] h-[258px] rounded-b-[13px] p-[27px] flex flex-col">
+                  <div className="bg-[#e3e0e0] h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                     {/* Título */}
-                    <h3 className="font-bold text-[30px] text-black mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                    <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
                       {t(`event.title.${event.id}`)}
                     </h3>
 
                     {/* Fecha */}
-                    <p className="font-montserrat font-black text-[14px] text-black mb-4">
+                    <p className="font-montserrat font-black text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4">
                       {event.date}
                     </p>
 
                     {/* Ubicación */}
-                    <p className="font-montserrat font-semibold text-[14px] text-black mb-6">
+                    <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-2 sm:mb-3 md:mb-4 lg:mb-6 line-clamp-1">
                       {event.location}
                     </p>
 
                     {/* Botón de acción */}
                     <button 
-                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full transition-colors"
+                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
                       onClick={() => {
                         navigate("event-detail", {
                           id: event.id,
@@ -581,7 +581,7 @@ export function EventsListPage() {
                         });
                       }}
                     >
-                    <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                    <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
                       {t('events.button.buy')}
                     </p>
                     </button>
@@ -606,11 +606,11 @@ export function EventsListPage() {
             </div>
 
             {/* Grid de Próximos Eventos */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-9 mt-12 md:mt-[51px]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9 mt-12 md:mt-[51px]">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div key={event.id} className="relative flex flex-col w-full">
                   {/* Imagen del evento */}
-                  <div className="h-[544px] rounded-t-[13px] overflow-hidden relative">
+                  <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                     <img 
                       src={event.image} 
                       alt={event.title}
@@ -618,32 +618,32 @@ export function EventsListPage() {
                     />
                     
                     {/* Badges superiores */}
-                    <div className="absolute top-3 left-[23px] flex flex-col gap-[12px] z-10">
+                    <div className="absolute top-1.5 sm:top-2 md:top-3 left-2 sm:left-3 md:left-[23px] flex flex-col gap-1.5 sm:gap-2 md:gap-[12px] z-10">
                       {/* Badge de categoría */}
-                      <div className="bg-white h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                        <p className="font-montserrat font-bold text-[14px] text-black">
+                      <div className="bg-white h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                        <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-black">
                           {t(`category.${event.category.toLowerCase()}`)}
                         </p>
                       </div>
                       
                       {/* Badge de estado (Últimos/Próximos/Actuales) */}
                       {event.lastTickets && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.lastTickets')}
                           </p>
                         </div>
                       )}
                       {!event.lastTickets && index % 2 === 0 && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.upcoming')}
                           </p>
                         </div>
                       )}
                       {!event.lastTickets && index % 2 !== 0 && (
-                        <div className="bg-[#f9487f] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                        <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.current')}
                           </p>
                         </div>
@@ -652,9 +652,9 @@ export function EventsListPage() {
 
                     {/* Badge de Destacado */}
                     {event.featured && (
-                      <div className="absolute top-3 right-[17px] z-10">
-                        <div className="bg-[#f55d09] h-[27px] rounded-[20px] px-4 flex items-center justify-center">
-                          <p className="font-montserrat font-bold text-[14px] text-white">
+                      <div className="absolute top-1.5 sm:top-2 md:top-3 right-2 sm:right-3 md:right-[17px] z-10">
+                        <div className="bg-[#f55d09] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
+                          <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                             {t('events.card.featuredAlt')}
                           </p>
                         </div>
@@ -662,12 +662,12 @@ export function EventsListPage() {
                     )}
 
                     {/* Badge de precio */}
-                    <div className="absolute bottom-[15px] left-[23px] z-10">
-                      <div className="bg-white h-[67px] rounded-[20px] px-4 flex flex-col items-start justify-center">
-                        <p className="font-montserrat font-medium text-[14px] text-black">
+                    <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                      <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
                           {t('events.card.from')}
                         </p>
-                        <p className="font-bold text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                        <p className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                           {event.price}
                         </p>
                       </div>
@@ -675,25 +675,25 @@ export function EventsListPage() {
                   </div>
 
                   {/* Información del evento */}
-                  <div className="bg-white h-[258px] rounded-b-[13px] p-[27px] flex flex-col">
+                  <div className="bg-white h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                     {/* Título */}
-                    <h3 className="font-bold text-[30px] text-black mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                    <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
                       {t(`event.title.${event.id}`)}
                     </h3>
 
                     {/* Fecha */}
-                    <p className="font-montserrat font-black text-[14px] text-black mb-4">
+                    <p className="font-montserrat font-black text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4">
                       {event.date}
                     </p>
 
                     {/* Ubicación */}
-                    <p className="font-montserrat font-semibold text-[14px] text-black mb-6">
+                    <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-2 sm:mb-3 md:mb-4 lg:mb-6 line-clamp-1">
                       {event.location}
                     </p>
 
                     {/* Botón de acción */}
                     <button 
-                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full transition-colors"
+                      className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
                       onClick={() => {
                         navigate("event-detail", {
                           id: event.id,
@@ -707,7 +707,7 @@ export function EventsListPage() {
                         });
                       }}
                     >
-                    <p className="font-montserrat font-bold text-[14px] !text-white text-center">
+                    <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
                       {t('events.button.buy')}
                     </p>
                     </button>
@@ -721,7 +721,7 @@ export function EventsListPage() {
               <button 
                 className="bg-[#c61619] hover:bg-[#a01316] h-[40px] rounded-[7px] w-full max-w-[338px] transition-colors"
                 onClick={() => {
-                  navigate("all-events");
+                  navigate("all-events" as any);
                 }}
               >
                 <p className="font-montserrat font-bold text-[14px] !text-white text-center">
