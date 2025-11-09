@@ -456,19 +456,13 @@ html {
   transform: scale(1.04);
 }
 
-/* Hero Section - Posicionamiento controlado */
+/* Hero Section - Posicionamiento limpio sin offsets problemáticos */
 .hero-video-background {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  margin-top: 50px; /* Ajusta el video ligeramente hacia abajo */
+  /* Sin estilos de posicionamiento forzados */
 }
 
 .hero-content-front {
-  position: relative;
-  z-index: 20;
-  margin-top: -500px; /* Ajusta el contenido más hacia arriba */
+  /* Sin estilos de posicionamiento forzados */
 }
 
 /* Animaciones personalizadas para efectos */
@@ -567,32 +561,5 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Animación de aparición al hacer scroll */
-@keyframes scroll-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.scroll-fade-in {
-  animation: scroll-fade-in 0.8s ease-out forwards;
-  opacity: 0;
-}
-
-/* Delay para animaciones secuenciales */
-.scroll-delay-1 {
-  animation-delay: 0.1s;
-}
-
-.scroll-delay-2 {
-  animation-delay: 0.2s;
-}
-
-.scroll-delay-3 {
-  animation-delay: 0.3s;
-}
+/* Animaciones de scroll desactivadas - causaban problemas de duplicación */
+/* Las secciones ahora usan animaciones CSS simples sin JavaScript */
