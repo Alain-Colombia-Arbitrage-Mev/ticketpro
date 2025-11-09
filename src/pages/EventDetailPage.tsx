@@ -135,7 +135,9 @@ export function EventDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <div className="mb-4 sm:mb-6 md:mb-8">
-              <Badge className="mb-2 sm:mb-3 md:mb-4 border-0 !bg-white/20 font-medium !text-white text-xs sm:text-sm">{t(`category.${pageData.category.toLowerCase()}`)}</Badge>
+              <Badge className="mb-2 sm:mb-3 md:mb-4 border-0 !bg-[#c61619] hover:!bg-[#a01316] font-bold !text-white text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 shadow-md transition-all uppercase tracking-wider">
+                {t(`category.${pageData.category.toLowerCase()}`)}
+              </Badge>
               <h1 className="mb-3 sm:mb-4 md:mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight tracking-tight !text-white">
                 {t(`event.title.${pageData.id}`)}
               </h1>
@@ -171,20 +173,22 @@ export function EventDetailPage() {
               </div>
             </div>
 
-            <Separator className="my-4 sm:my-6 md:my-8 !bg-white/20" />
+            <Separator className="my-4 sm:my-6 md:my-8 !bg-white/10" />
 
             {/* Description */}
             <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-10">
-              <h3 className="mb-2 sm:mb-3 md:mb-4 text-lg sm:text-xl md:text-2xl font-bold !text-white">{t('event.detail.description')}</h3>
-              <div className="space-y-2 sm:space-y-3 md:space-y-4 text-sm sm:text-base leading-relaxed !text-white/70">
-                <p>
-                  Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
-                  artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
-                </p>
-                <p>
-                  No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados 
-                  del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
-                </p>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold !text-white mb-3 sm:mb-4">{t('event.detail.description')}</h3>
+              <div className="rounded-lg sm:rounded-xl border border-white/20 !bg-white/5 p-4 sm:p-5 md:p-6">
+                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed !text-white/90">
+                  <p>
+                    Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
+                    artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
+                  </p>
+                  <p>
+                    No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados 
+                    del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -276,25 +280,33 @@ export function EventDetailPage() {
                         onClick={() => handleTicketSelection(ticket.id)}
                         className={`cursor-pointer border-2 p-2.5 sm:p-3 md:p-4 transition-all hover:shadow-md ${
                           selectedTicketType === ticket.id 
-                            ? '!border-[#c61619] !bg-[#c61619]/20 shadow-lg' 
-                            : 'border-white/20 !bg-white/10 hover:!border-white/40 hover:!bg-white/15'
+                            ? '!border-[#c61619] !bg-gradient-to-br !from-[#c61619]/25 !to-[#c61619]/10 shadow-lg shadow-[#c61619]/20' 
+                            : 'border-white/30 !bg-gradient-to-br !from-white/15 !to-white/5 hover:!border-[#c61619]/50 hover:!from-white/20 hover:!to-white/10'
                         }`}
                       >
                         <div className="mb-2 sm:mb-2.5 md:mb-3 flex items-start justify-between">
                           <div>
                             <p className="text-sm sm:text-base font-semibold !text-white">{ticket.name}</p>
-                            <p className="mt-0.5 sm:mt-1 text-base sm:text-lg font-bold !text-[#c61619]">${ticket.price} MXN</p>
+                            <p className={`mt-0.5 sm:mt-1 text-base sm:text-lg font-bold ${
+                              selectedTicketType === ticket.id ? '!text-[#ff4d4d]' : '!text-[#c61619]'
+                            }`}>${ticket.price} MXN</p>
                           </div>
-                          <div className={`flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl ${
-                            selectedTicketType === ticket.id ? '!bg-[#c61619]' : '!bg-white/10'
+                          <div className={`flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl transition-all ${
+                            selectedTicketType === ticket.id 
+                              ? '!bg-gradient-to-br !from-[#c61619] !to-[#a01316] shadow-lg shadow-[#c61619]/30' 
+                              : '!bg-white/15 hover:!bg-white/20'
                           }`}>
                             <Ticket className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5 !text-white" />
                           </div>
                         </div>
                         <ul className="space-y-1.5 sm:space-y-2">
                           {ticket.benefits.map((benefit, index) => (
-                            <li key={index} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm !text-white/70">
-                              <div className="mt-1 sm:mt-1.5 h-1 w-1 sm:h-1.5 sm:w-1.5 flex-shrink-0 rounded-full !bg-[#c61619]" />
+                            <li key={index} className={`flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm transition-colors ${
+                              selectedTicketType === ticket.id ? '!text-white/90' : '!text-white/70'
+                            }`}>
+                              <div className={`mt-1 sm:mt-1.5 h-1 w-1 sm:h-1.5 sm:w-1.5 flex-shrink-0 rounded-full ${
+                                selectedTicketType === ticket.id ? '!bg-[#ff4d4d]' : '!bg-[#c61619]'
+                              }`} />
                               {benefit}
                             </li>
                           ))}
