@@ -68,15 +68,18 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
+              {/* Video de fondo - Solo en tablets y desktop para mejor rendimiento */}
               <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
+                preload="metadata"
                 src={video1}
               />
+              {/* Fondo degradado para móviles - más liviano */}
+              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-red-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -146,15 +149,18 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
+              {/* Video de fondo - Solo en tablets y desktop */}
               <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
+                preload="metadata"
                 src={video2}
               />
+              {/* Fondo degradado para móviles */}
+              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-blue-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -215,15 +221,18 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
+              {/* Video de fondo - Solo en tablets y desktop */}
               <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
+                preload="metadata"
                 src={video3}
               />
+              {/* Fondo degradado para móviles */}
+              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-green-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
@@ -284,15 +293,18 @@ export function HomePage() {
           {/* Subsección: Video de fondo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
+              {/* Video de fondo - Solo en tablets y desktop */}
               <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
+                className="hidden sm:block w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px] animate-pulse-slow"
                 autoPlay 
                 loop 
                 muted 
                 playsInline
+                preload="metadata"
                 src={video4}
               />
+              {/* Fondo degradado para móviles */}
+              <div className="block sm:hidden w-full h-full rounded-[10px] bg-gradient-to-br from-purple-900/20 via-black to-gray-900"></div>
             </div>
             
             {/* Máscara con viñeta oscura */}
