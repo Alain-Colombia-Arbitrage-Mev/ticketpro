@@ -252,22 +252,22 @@ export function EventsListPage() {
         </div>
         </div>
 
-        {/* Estadísticas y Exploración de Categorías */}
-        <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
+        {/* Estadísticas */}
+        <div className="bg-white py-6 sm:py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4">
           
-          {/* Estadísticas */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 md:gap-7 mb-6 sm:mb-8 md:mb-12 lg:mb-16">
+          {/* Grid de Estadísticas */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 md:gap-7">
             
             {/* Usuarios Activos */}
             <div className="flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Users className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-white text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 2.5M +
               </h3>
-              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-white/80 text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.users')}
               </p>
             </div>
@@ -277,10 +277,10 @@ export function EventsListPage() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Ticket className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-white text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 500K +
               </h3>
-              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-white/80 text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.tickets')}
               </p>
             </div>
@@ -290,10 +290,10 @@ export function EventsListPage() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <CalendarDays className="w-full h-full text-[#c61619]" strokeWidth={1.5} />
               </div>
-              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-white text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 10K +
               </h3>
-              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-white/80 text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.events')}
               </p>
             </div>
@@ -303,15 +303,21 @@ export function EventsListPage() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
                 <Star className="w-full h-full text-[#c61619]" strokeWidth={1.5} fill="#c61619" />
               </div>
-              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-white text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+              <h3 className="font-bold text-sm sm:text-base md:text-xl lg:text-2xl text-black text-center leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
                 4.9
               </h3>
-              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-white/80 text-center">
+              <p className="font-montserrat font-semibold text-[9px] sm:text-[10px] md:text-xs text-black text-center">
                 {t('events.stats.rating')}
               </p>
             </div>
 
           </div>
+        </div>
+        </div>
+
+        {/* Exploración de Categorías */}
+        <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4">
 
           {/* Título de Explorar por Categoría */}
           <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-11">
