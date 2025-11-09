@@ -37,29 +37,25 @@ export function HomePage() {
         >
           
           {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
-              <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                preload="auto"
-                src={video1}
-              />
-            </div>
+          <div className="absolute inset-0">
+            {/* Video de fondo - ocupa toda la pantalla */}
+            <video 
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              src={video1}
+            />
             
-            {/* Máscara con viñeta oscura */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="video-mask-container">
-                <div className="video-mask"></div>
-              </div>
+            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
+            <div className="video-mask-container">
+              <div className="video-mask"></div>
             </div>
             
             {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
               <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
               <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
               <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
@@ -67,8 +63,8 @@ export function HomePage() {
             </div>
           </div>
           
-          {/* Subsección: Contenido frontal - movido más abajo */}
-          <div className="relative z-20 h-full flex items-center justify-center pt-20 sm:pt-24 md:pt-32 lg:pt-40">
+          {/* Subsección: Contenido frontal */}
+          <div className="relative z-30 h-full flex items-center justify-center">
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Logo - responsive */}
@@ -115,29 +111,25 @@ export function HomePage() {
         >
           
           {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
-              <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                preload="auto"
-                src={video2}
-              />
-            </div>
+          <div className="absolute inset-0">
+            {/* Video de fondo - ocupa toda la pantalla */}
+            <video 
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              src={video2}
+            />
             
-            {/* Máscara con viñeta oscura */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="video-mask-container">
-                <div className="video-mask"></div>
-              </div>
+            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
+            <div className="video-mask-container">
+              <div className="video-mask"></div>
             </div>
             
             {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
               <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
               <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
               <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
@@ -146,7 +138,7 @@ export function HomePage() {
           </div>
           
           {/* Subsección: Contenido frontal (sin logo) */}
-          <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="relative z-30 h-full flex items-center justify-center">
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Grupo de textos con efectos - responsive */}
@@ -184,29 +176,25 @@ export function HomePage() {
         >
           
           {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
-              <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                preload="auto"
-                src={video3}
-              />
-            </div>
+          <div className="absolute inset-0">
+            {/* Video de fondo - ocupa toda la pantalla */}
+            <video 
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              src={video3}
+            />
             
-            {/* Máscara con viñeta oscura */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="video-mask-container">
-                <div className="video-mask"></div>
-              </div>
+            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
+            <div className="video-mask-container">
+              <div className="video-mask"></div>
             </div>
             
             {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
               <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
               <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
               <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
@@ -215,7 +203,7 @@ export function HomePage() {
           </div>
           
           {/* Subsección: Contenido frontal (sin logo) */}
-          <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="relative z-30 h-full flex items-center justify-center">
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Grupo de textos con efectos - responsive */}
@@ -253,29 +241,25 @@ export function HomePage() {
         >
           
           {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="hero-video-background w-full max-w-[1576px] h-[400px] sm:h-[500px] md:h-[600px] lg:h-[754px] shrink-0">
-              {/* Video de fondo */}
-              <video 
-                className="w-full h-full object-cover rounded-[10px] sm:rounded-[15px] md:rounded-[20px]"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                preload="auto"
-                src={video4}
-              />
-            </div>
+          <div className="absolute inset-0">
+            {/* Video de fondo - ocupa toda la pantalla */}
+            <video 
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              src={video4}
+            />
             
-            {/* Máscara con viñeta oscura */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="video-mask-container">
-                <div className="video-mask"></div>
-              </div>
+            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
+            <div className="video-mask-container">
+              <div className="video-mask"></div>
             </div>
             
             {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
               <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
               <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
               <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
@@ -284,7 +268,7 @@ export function HomePage() {
           </div>
           
           {/* Subsección: Contenido frontal (sin logo) con efectos */}
-          <div className="relative z-20 h-full flex items-center justify-center">
+          <div className="relative z-30 h-full flex items-center justify-center">
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Grupo de textos con efectos - responsive */}
