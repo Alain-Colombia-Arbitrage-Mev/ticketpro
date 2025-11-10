@@ -35,15 +35,175 @@ export function HosterValidatePage() {
     }
   }, [user, navigate]);
 
-  // Limpiar escáner al desmontar
+  // Limpiar escáner al desmontar o cuando scanMode cambia
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
         scannerRef.current.clear().catch(console.error);
         scannerRef.current = null;
       }
+      // Limpiar el elemento del DOM
+      const element = document.getElementById(qrCodeRegionId);
+      if (element) {
+        element.innerHTML = '';
+      }
     };
   }, []);
+
+  // Función para manejar QR detectado
+  const handleQRCodeDetected = (qrData: string) => {
+    // Detener el escáner inmediatamente
+    stopScanning();
+
+    // Mostrar mensaje de confirmación
+    const confirmMessage = `Código QR detectado:\n${qrData}\n\n¿Deseas validar este ticket?`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setValidating(true);
+    setValidationResult(null);
+    setTicket(null);
+
+    // Extraer ticket ID o código de la URL o del texto
+    let extractedTicketId = '';
+    let extractedTicketCode = '';
+
+    // Si es una URL, extraer el ID o código
+    if (qrData.includes('/validate-ticket')) {
+      const urlParams = new URLSearchParams(qrData.split('?')[1]);
+      extractedTicketId = urlParams.get('ticketId') || '';
+      extractedTicketCode = urlParams.get('code') || '';
+    } else if (qrData.includes('ticketId=')) {
+      const match = qrData.match(/ticketId=([^&]+)/);
+      if (match) extractedTicketId = match[1];
+    } else if (qrData.includes('code=')) {
+      const match = qrData.match(/code=([^&]+)/);
+      if (match) extractedTicketCode = match[1];
+    } else {
+      // Asumir que es directamente el ID o código
+      if (qrData.length === 36) {
+        // Probablemente un UUID
+        extractedTicketId = qrData;
+      } else {
+        extractedTicketCode = qrData;
+      }
+    }
+
+    // Validar el ticket
+    handleManualValidationWithData(extractedTicketId || extractedTicketCode, extractedTicketId ? 'id' : 'code');
+  };
+
+  // Función auxiliar para validar con datos
+  const handleManualValidationWithData = async (value: string, type: 'id' | 'code') => {
+    try {
+      const result = await validateTicketByHoster(
+        type === 'id' ? value : undefined,
+        type === 'code' ? value : undefined,
+        user?.id || ''
+      );
+
+      if (result.success) {
+        setValidationResult({
+          success: true,
+          validated: result.validated || false,
+          message: result.message
+        });
+        setTicket(result.ticket || null);
+      } else {
+        setValidationResult({
+          success: false,
+          validated: false,
+          message: result.message
+        });
+        setTicket(null);
+      }
+    } catch (error) {
+      console.error('Error validating ticket:', error);
+      setValidationResult({
+        success: false,
+        validated: false,
+        message: error instanceof Error ? error.message : 'Error desconocido al validar el ticket'
+      });
+      setTicket(null);
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  // Inicializar escáner cuando scanMode se activa
+  useEffect(() => {
+    if (scanMode && !scannerRef.current) {
+      // Esperar a que el DOM se actualice
+      const timer = setTimeout(() => {
+        const element = document.getElementById(qrCodeRegionId);
+        if (!element) {
+          console.error('QR scanner element not found');
+          setScanMode(false);
+          return;
+        }
+
+        try {
+          // Limpiar cualquier contenido previo
+          element.innerHTML = '';
+
+          const scanner = new Html5QrcodeScanner(
+            qrCodeRegionId,
+            {
+              qrbox: {
+                width: 250,
+                height: 250
+              },
+              fps: 10,
+              aspectRatio: 1.0,
+              disableFlip: false,
+              rememberLastUsedCamera: true,
+              supportedScanTypes: []
+            },
+            true // verbose para debugging
+          );
+
+          scannerRef.current = scanner;
+
+          scanner.render(
+            (decodedText, decodedResult) => {
+              // QR code detectado
+              console.log('QR Code detected:', decodedText);
+              handleQRCodeDetected(decodedText);
+            },
+            (errorMessage) => {
+              // Ignorar errores normales de escaneo (cuando no encuentra QR)
+              // Solo loguear errores importantes
+              if (!errorMessage.includes('NotFoundException')) {
+                console.log('QR Code scan info:', errorMessage);
+              }
+            }
+          );
+        } catch (error) {
+          console.error('Error initializing QR scanner:', error);
+          alert(`Error al iniciar el escáner: ${error instanceof Error ? error.message : 'Error desconocido'}. Por favor, intenta de nuevo.`);
+          setScanMode(false);
+        }
+      }, 300);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanMode]);
+
+  // Limpiar cuando scanMode se desactiva
+  useEffect(() => {
+    if (!scanMode && scannerRef.current) {
+      scannerRef.current.clear().catch(console.error);
+      scannerRef.current = null;
+      const element = document.getElementById(qrCodeRegionId);
+      if (element) {
+        element.innerHTML = '';
+      }
+    }
+  }, [scanMode]);
 
   const handleManualValidation = async () => {
     if (!ticketId && !ticketCode) {
@@ -104,106 +264,28 @@ export function HosterValidatePage() {
     setScanMode(true);
     setValidationResult(null);
     setTicket(null);
-
-    // Esperar un momento para que el DOM se actualice
-    setTimeout(() => {
-      try {
-        const scanner = new Html5QrcodeScanner(
-          qrCodeRegionId,
-          {
-            qrbox: {
-              width: 300,
-              height: 300
-            },
-            fps: 10,
-            aspectRatio: 1.0,
-            supportedScanTypes: []
-          },
-          false // verbose
-        );
-
-        scannerRef.current = scanner;
-
-        scanner.render(
-          (decodedText, decodedResult) => {
-            // QR code detectado
-            handleQRCodeDetected(decodedText);
-          },
-          (errorMessage) => {
-            // Ignorar errores de escaneo (solo mostrar cuando no encuentra QR)
-            // console.log('QR Code scan error:', errorMessage);
-          }
-        );
-      } catch (error) {
-        console.error('Error initializing QR scanner:', error);
-        alert('Error al iniciar el escáner. Por favor, intenta de nuevo.');
-        setScanMode(false);
-      }
-    }, 100);
+    // La inicialización del escáner se maneja en el useEffect
   };
 
   const stopScanning = () => {
     if (scannerRef.current) {
-      scannerRef.current.clear().catch(console.error);
+      scannerRef.current.clear()
+        .then(() => {
+          console.log('QR scanner stopped successfully');
+        })
+        .catch((error) => {
+          console.error('Error stopping QR scanner:', error);
+        });
       scannerRef.current = null;
     }
-    setScanMode(false);
-  };
-
-  const handleQRCodeDetected = (qrData: string) => {
-    // Detener el escáner inmediatamente
-    stopScanning();
-
-    // Mostrar mensaje de que se detectó el QR
-    setValidationResult({
-      success: false,
-      validated: false,
-      message: 'QR Code detectado, validando ticket...'
-    });
-    setLoading(true);
-
-    // Parsear URL del QR code
-    try {
-      // Si es una URL completa, extraer los parámetros
-      let url: URL;
-      if (qrData.startsWith('http://') || qrData.startsWith('https://')) {
-        url = new URL(qrData);
-      } else if (qrData.includes('validate-ticket')) {
-        url = new URL(qrData.startsWith('http') ? qrData : `https://example.com/${qrData}`);
-      } else {
-        // Si no es una URL, tratar como código directo
-        setTicketCode(qrData.toUpperCase());
-        setTicketId("");
-        // Validar automáticamente después de un momento
-        setTimeout(() => {
-          handleManualValidation();
-        }, 300);
-        return;
-      }
-
-      const params = new URLSearchParams(url.search);
-      const extractedTicketId = params.get('ticketId');
-      const extractedCode = params.get('code');
-
-      if (extractedTicketId) {
-        setTicketId(extractedTicketId);
-      }
-      if (extractedCode) {
-        setTicketCode(extractedCode.toUpperCase());
-      }
-
-      // Validar automáticamente
-      setTimeout(() => {
-        handleManualValidation();
-      }, 300);
-    } catch (error) {
-      // Si no es una URL válida, tratar como código directo
-      setTicketCode(qrData.toUpperCase());
-      setTicketId("");
-      setTimeout(() => {
-        handleManualValidation();
-      }, 300);
+    
+    // Limpiar el elemento del DOM
+    const element = document.getElementById(qrCodeRegionId);
+    if (element) {
+      element.innerHTML = '';
     }
+    
+    setScanMode(false);
   };
 
   if (!user || (user.role !== 'hoster' && user.role !== 'admin')) {
