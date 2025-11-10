@@ -48,16 +48,22 @@ export const useAuthStore = create<AuthState>()(
           try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
+              // Extraer rol de user_metadata, asegurándose de que sea válido
+              const metadataRole = session.user.user_metadata?.role;
+              const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+                ? metadataRole 
+                : 'user';
+              
               const basicUser: User = {
                 id: session.user.id,
                 email: session.user.email || '',
                 name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
                 balance: 0,
                 createdAt: session.user.created_at || new Date().toISOString(),
-                role: (session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
+                role: validRole,
               };
               set({ user: basicUser });
-              console.log('✅ Usuario refrescado desde sesión de Supabase');
+              console.log('✅ Usuario refrescado desde sesión de Supabase. Rol:', validRole);
             } else {
               set({ user: null });
             }
@@ -113,14 +119,22 @@ export const useAuthStore = create<AuthState>()(
               
               // Si el perfil no existe (404), crear un usuario básico desde la sesión de Supabase
               // Esto es común cuando el usuario se crea directamente en Supabase sin pasar por el signup del backend
+              // Extraer rol de user_metadata, asegurándose de que sea válido
+              const metadataRole = data.session.user.user_metadata?.role;
+              const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+                ? metadataRole 
+                : 'user';
+              
               const basicUser: User = {
                 id: data.session.user.id,
                 email: data.session.user.email || email,
                 name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
                 balance: 0,
                 createdAt: data.session.user.created_at || new Date().toISOString(),
-                role: (data.session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
+                role: validRole,
               };
+              
+              console.log('🔍 Rol extraído de metadata:', metadataRole, 'Rol asignado:', validRole);
               
               console.log('✅ Usuario básico creado desde sesión:', basicUser.email, 'Rol:', basicUser.role);
               set({ user: basicUser });
