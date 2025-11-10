@@ -1,7 +1,10 @@
 import { useRouter } from "../hooks/useRouter";
+import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { SEOHead } from "../components/common";
 import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Shield } from "lucide-react";
 import logohome from "../assets/images/logohome.svg";
 import video1 from "../assets/backgrounds/video1.mp4";
 import video2 from "../assets/backgrounds/video2.mp4";
@@ -14,10 +17,37 @@ import video4 from "../assets/backgrounds/video4.mp4";
  */
 export function HomePage() {
   const { navigate } = useRouter();
+  const { user } = useAuth();
   const { t } = useLanguage();
 
   return (
     <>
+      {/* Banner informativo para usuarios hoster/admin */}
+      {user && (user.role === 'hoster' || user.role === 'admin') && (
+        <div className="fixed top-24 left-4 right-4 z-50 animate-in slide-in-from-top-2 duration-500">
+          <Card className="!bg-red-900/20 border-red-500/50 backdrop-blur-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-5 w-5 text-red-400 animate-pulse" />
+                  <div>
+                    <p className="font-medium text-red-300">Panel de Validación Disponible</p>
+                    <p className="text-sm text-red-400/80">Como {user.role}, puedes validar entradas rápidamente</p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => navigate("hoster-validate")}
+                  className="bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-red-500/25"
+                >
+                  Validar Ahora ⚡
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <SEOHead
         seo={{
           title: "vetlix.com - Tu plataforma de eventos y boletos",
