@@ -223,11 +223,17 @@ export function CheckoutPageSimple() {
                         <Label htmlFor="cardCVV" className="!text-white/80">CVV *</Label>
                         <Input
                           id="cardCVV"
-                          type="text"
+                          type="password"
+                          inputMode="numeric"
+                          autoComplete="new-password"
                           value={formData.cardCVV}
                           onChange={(e) => handleCVVChange(e.target.value)}
-                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
-                          placeholder="123"
+                          onCopy={(e) => e.preventDefault()}
+                          onPaste={(e) => e.preventDefault()}
+                          onCut={(e) => e.preventDefault()}
+                          onContextMenu={(e) => e.preventDefault()}
+                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 font-mono tracking-widest"
+                          placeholder="•••"
                           maxLength={4}
                           required
                         />

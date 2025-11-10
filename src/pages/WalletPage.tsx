@@ -91,47 +91,52 @@ export function WalletPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-12">
-      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("home")}
-              className="rounded-full"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Mi Billetera</h1>
-              <p className="text-gray-600">Gestiona tu saldo y transacciones</p>
+    <div className="min-h-screen bg-black pb-12">
+      {/* Header */}
+      <div className="border-b border-white/20 bg-black sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("home")}
+                className="rounded-lg !text-white hover:!bg-white/10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold !text-white">{t('wallet.title')}</h1>
+                <p className="text-sm !text-white/70">{t('wallet.info_desc')}</p>
+              </div>
             </div>
+            <Button
+              className="bg-[#c61619] hover:bg-[#a01316] text-white shadow-lg hover:shadow-xl transition-all"
+              onClick={() => navigate("add-balance")}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t('wallet.add_balance')}
+            </Button>
           </div>
-          <Button
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg hover:shadow-xl transition-shadow"
-            onClick={() => navigate("add-balance")}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Agregar Saldo
-          </Button>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Left Column - Balance & Stats */}
           <div className="space-y-6 lg:col-span-2">
             {/* Main Balance Card */}
-            <Card className="overflow-hidden">
-              <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-8 text-white">
+            <Card className="overflow-hidden !bg-black border-white/20">
+              <div className="bg-gradient-to-br from-[#c61619] via-[#a01316] to-[#8a0f12] p-8 text-white">
                 <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
                       <Wallet className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-blue-100">Saldo Total</p>
-                      <p className="text-xs text-blue-200">Balance disponible</p>
+                      <p className="text-sm font-medium text-white/90">{t('wallet.total_balance')}</p>
+                      <p className="text-xs text-white/70">Balance disponible</p>
                     </div>
                   </div>
                   <Button
@@ -145,10 +150,10 @@ export function WalletPage() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="mb-2 text-5xl font-bold tracking-tight">
+                  <div className="mb-2 text-4xl md:text-5xl font-bold tracking-tight">
                     {formatCurrency(user.balance, selectedCurrency)}
                   </div>
-                  <div className="flex items-center gap-2 text-blue-100">
+                  <div className="flex items-center gap-2 text-white/80">
                     <TrendingUp className="h-4 w-4" />
                     <span className="text-sm">
                       En {CURRENCIES[selectedCurrency].name}
@@ -158,25 +163,25 @@ export function WalletPage() {
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+                  <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm border border-white/20">
                     <div className="mb-2 flex items-center gap-2">
-                      <div className="rounded-full bg-green-400/20 p-1.5">
+                      <div className="rounded-full bg-green-400/30 p-1.5">
                         <ArrowDownLeft className="h-4 w-4 text-green-300" />
                       </div>
-                      <span className="text-sm text-blue-100">Ingresos</span>
+                      <span className="text-sm text-white/90 font-medium">Ingresos</span>
                     </div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-2xl font-bold text-white">
                       {formatCurrency(income, selectedCurrency)}
                     </p>
                   </div>
-                  <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+                  <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm border border-white/20">
                     <div className="mb-2 flex items-center gap-2">
-                      <div className="rounded-full bg-red-400/20 p-1.5">
+                      <div className="rounded-full bg-red-400/30 p-1.5">
                         <ArrowUpRight className="h-4 w-4 text-red-300" />
                       </div>
-                      <span className="text-sm text-blue-100">Gastos</span>
+                      <span className="text-sm text-white/90 font-medium">Gastos</span>
                     </div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-2xl font-bold text-white">
                       {formatCurrency(expenses, selectedCurrency)}
                     </p>
                   </div>
@@ -184,9 +189,9 @@ export function WalletPage() {
               </div>
 
               {/* Multi-Currency Display */}
-              <div className="p-6">
+              <div className="p-6 !bg-black">
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900">Saldo en Diferentes Monedas</h3>
+                  <h3 className="font-semibold !text-white">{t('wallet.multi_currency')}</h3>
                 </div>
                 <MultiCurrencyBalance
                   balance={user.balance}
@@ -197,30 +202,30 @@ export function WalletPage() {
             </Card>
 
             {/* Transactions */}
-            <Card className="p-6">
+            <Card className="p-6 !bg-black border-white/20">
               <Tabs defaultValue="recent" className="w-full">
-                <TabsList className="mb-6 grid w-full grid-cols-2">
-                  <TabsTrigger value="recent">Recientes</TabsTrigger>
-                  <TabsTrigger value="all">Todas</TabsTrigger>
+                <TabsList className="mb-6 grid w-full grid-cols-2 !bg-black/50 border border-white/20">
+                  <TabsTrigger value="recent" className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white">Recientes</TabsTrigger>
+                  <TabsTrigger value="all" className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white">Todas</TabsTrigger>
                 </TabsList>
 
                 {/* Recent Transactions */}
                 <TabsContent value="recent">
                   <div className="space-y-1">
-                    <h3 className="mb-4 font-semibold text-gray-900">
-                      Últimas Transacciones
+                    <h3 className="mb-4 font-semibold !text-white">
+                      {t('wallet.recent_transactions')}
                     </h3>
                     {loading ? (
                       <div className="py-12 text-center">
-                        <p className="text-gray-500">Cargando transacciones...</p>
+                        <p className="!text-white/70">Cargando transacciones...</p>
                       </div>
                     ) : recentTransactions.length === 0 ? (
                       <div className="py-12 text-center">
-                        <Wallet className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                        <p className="mb-2 font-medium text-gray-900">
+                        <Wallet className="mx-auto mb-4 h-12 w-12 !text-white/40" />
+                        <p className="mb-2 font-medium !text-white">
                           No hay transacciones aún
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm !text-white/70">
                           Tus transacciones aparecerán aquí
                         </p>
                       </div>
@@ -229,14 +234,14 @@ export function WalletPage() {
                         {recentTransactions.map((transaction) => (
                           <div
                             key={transaction.id}
-                            className="flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50"
+                            className="flex items-center justify-between rounded-lg border border-white/20 bg-white/5 p-4 transition-colors hover:bg-white/10 hover:border-white/30"
                           >
                             <div className="flex items-center gap-4">
                               <div
-                                className={`rounded-full p-2 ${
+                                className={`rounded-full p-2.5 ${
                                   transaction.amount >= 0
-                                    ? "bg-green-100 text-green-600"
-                                    : "bg-red-100 text-red-600"
+                                    ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                    : "bg-red-500/20 text-red-400 border border-red-500/30"
                                 }`}
                               >
                                 {transaction.amount >= 0 ? (
@@ -246,10 +251,10 @@ export function WalletPage() {
                                 )}
                               </div>
                               <div>
-                                <p className="font-medium text-gray-900">
+                                <p className="font-medium !text-white">
                                   {transaction.description}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm !text-white/60">
                                   {new Date(transaction.date).toLocaleDateString('es-MX', {
                                     year: 'numeric',
                                     month: 'short',
@@ -262,16 +267,16 @@ export function WalletPage() {
                             </div>
                             <div className="text-right">
                               <p
-                                className={`font-semibold ${
+                                className={`font-semibold text-lg ${
                                   transaction.amount >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
+                                    ? "text-green-400"
+                                    : "text-red-400"
                                 }`}
                               >
                                 {transaction.amount >= 0 ? "+" : ""}
                                 {formatCurrency(Math.abs(transaction.amount), selectedCurrency)}
                               </p>
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="secondary" className="text-xs !bg-white/10 !text-white border-white/20 mt-1">
                                 {transaction.type}
                               </Badge>
                             </div>
@@ -285,20 +290,20 @@ export function WalletPage() {
                 {/* All Transactions */}
                 <TabsContent value="all">
                   <div className="space-y-6">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold !text-white">
                       Historial Completo
                     </h3>
                     {loading ? (
                       <div className="py-12 text-center">
-                        <p className="text-gray-500">Cargando transacciones...</p>
+                        <p className="!text-white/70">Cargando transacciones...</p>
                       </div>
                     ) : transactions.length === 0 ? (
                       <div className="py-12 text-center">
-                        <Wallet className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                        <p className="mb-2 font-medium text-gray-900">
+                        <Wallet className="mx-auto mb-4 h-12 w-12 !text-white/40" />
+                        <p className="mb-2 font-medium !text-white">
                           No hay transacciones aún
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm !text-white/70">
                           Tus transacciones aparecerán aquí
                         </p>
                       </div>
@@ -307,21 +312,21 @@ export function WalletPage() {
                         .sort(([a], [b]) => b.localeCompare(a))
                         .map(([monthKey, monthTransactions]) => (
                           <div key={monthKey}>
-                            <h4 className="mb-3 text-sm font-medium text-gray-500">
+                            <h4 className="mb-3 text-sm font-medium !text-white/70 border-b border-white/20 pb-2">
                               {getMonthName(monthKey)}
                             </h4>
-                            <div className="space-y-3">
+                            <div className="space-y-3 mt-3">
                               {monthTransactions.map((transaction) => (
                                 <div
                                   key={transaction.id}
-                                  className="flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50"
+                                  className="flex items-center justify-between rounded-lg border border-white/20 bg-white/5 p-4 transition-colors hover:bg-white/10 hover:border-white/30"
                                 >
                                   <div className="flex items-center gap-4">
                                     <div
-                                      className={`rounded-full p-2 ${
+                                      className={`rounded-full p-2.5 ${
                                         transaction.amount >= 0
-                                          ? "bg-green-100 text-green-600"
-                                          : "bg-red-100 text-red-600"
+                                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                          : "bg-red-500/20 text-red-400 border border-red-500/30"
                                       }`}
                                     >
                                       {transaction.amount >= 0 ? (
@@ -331,10 +336,10 @@ export function WalletPage() {
                                       )}
                                     </div>
                                     <div>
-                                      <p className="font-medium text-gray-900">
+                                      <p className="font-medium !text-white">
                                         {transaction.description}
                                       </p>
-                                      <p className="text-sm text-gray-500">
+                                      <p className="text-sm !text-white/60">
                                         {new Date(transaction.date).toLocaleDateString('es-MX', {
                                           day: 'numeric',
                                           month: 'short',
@@ -346,16 +351,16 @@ export function WalletPage() {
                                   </div>
                                   <div className="text-right">
                                     <p
-                                      className={`font-semibold ${
+                                      className={`font-semibold text-lg ${
                                         transaction.amount >= 0
-                                          ? "text-green-600"
-                                          : "text-red-600"
+                                          ? "text-green-400"
+                                          : "text-red-400"
                                       }`}
                                     >
                                       {transaction.amount >= 0 ? "+" : ""}
                                       {formatCurrency(Math.abs(transaction.amount), selectedCurrency)}
                                     </p>
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge variant="secondary" className="text-xs !bg-white/10 !text-white border-white/20 mt-1">
                                       {transaction.type}
                                     </Badge>
                                   </div>
@@ -374,19 +379,19 @@ export function WalletPage() {
           {/* Right Column - Actions & Currency */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card className="p-6">
-              <h3 className="mb-4 font-semibold text-gray-900">Acciones Rápidas</h3>
+            <Card className="p-6 !bg-black border-white/20">
+              <h3 className="mb-4 font-semibold !text-white">Acciones Rápidas</h3>
               <div className="space-y-3">
                 <Button
-                  className="w-full justify-start bg-gradient-to-r from-blue-600 to-indigo-600"
+                  className="w-full justify-start bg-[#c61619] hover:bg-[#a01316] text-white"
                   onClick={() => navigate("add-balance")}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Agregar Saldo
+                  {t('wallet.add_balance')}
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start"
+                  className="w-full justify-start border-white/20 !text-white hover:!bg-white/10"
                   onClick={() => navigate("profile")}
                 >
                   <Wallet className="mr-2 h-4 w-4" />
@@ -394,7 +399,7 @@ export function WalletPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full justify-start"
+                  className="w-full justify-start border-white/20 !text-white hover:!bg-white/10"
                   onClick={() => navigate("events")}
                 >
                   <ArrowRight className="mr-2 h-4 w-4" />
@@ -404,25 +409,25 @@ export function WalletPage() {
             </Card>
 
             {/* Currency Selector */}
-            <Card className="p-6">
-              <h3 className="mb-4 font-semibold text-gray-900">Moneda de Visualización</h3>
+            <Card className="p-6 !bg-black border-white/20">
+              <h3 className="mb-4 font-semibold !text-white">Moneda de Visualización</h3>
               <CurrencySelector
                 selectedCurrency={selectedCurrency}
                 onCurrencyChange={handleCurrencyChange}
                 showLabel={false}
               />
-              <Separator className="my-4" />
+              <Separator className="my-4 bg-white/20" />
               <div className="space-y-2">
-                <p className="text-sm text-gray-600">Tasas de Cambio</p>
+                <p className="text-sm !text-white/70">Tasas de Cambio</p>
                 {(Object.keys(EXCHANGE_RATES[selectedCurrency]) as Currency[]).map((currency) => {
                   if (currency === selectedCurrency) return null;
                   const rate = EXCHANGE_RATES[selectedCurrency][currency];
                   return (
                     <div key={currency} className="flex justify-between text-sm">
-                      <span className="text-gray-600">
+                      <span className="!text-white/70">
                         1 {selectedCurrency} =
                       </span>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium !text-white">
                         {rate.toFixed(4)} {currency}
                       </span>
                     </div>
@@ -432,14 +437,13 @@ export function WalletPage() {
             </Card>
 
             {/* Info Card */}
-            <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-6">
-              <div className="mb-3 flex items-center gap-2 text-blue-700 dark:text-blue-300">
+            <Card className="border-[#c61619]/30 bg-[#c61619]/10 p-6">
+              <div className="mb-3 flex items-center gap-2 !text-[#c61619]">
                 <DollarSign className="h-5 w-5" />
-                <h3 className="font-semibold dark:text-blue-200">Información</h3>
+                <h3 className="font-semibold !text-white">{t('wallet.info')}</h3>
               </div>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                Tu saldo está protegido y disponible en todo momento para comprar tickets. 
-                Agrega saldo cuando lo necesites y disfruta de eventos increíbles.
+              <p className="text-sm !text-white/90">
+                {t('wallet.info_desc')}
               </p>
             </Card>
           </div>

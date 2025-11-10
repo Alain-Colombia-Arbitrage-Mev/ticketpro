@@ -31,6 +31,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.sports': 'Deportes',
     'category.theater': 'Teatro',
     'category.family': 'Familia',
+    'category.familia': 'Familia',
     
     // Event Card
     'event.from': 'Desde',
@@ -313,6 +314,9 @@ export const translations: Record<Language, Record<string, string>> = {
     // Profile
     'profile.back': 'Volver al inicio',
     'profile.my_tickets': 'Mis Tickets',
+    'profile.my_tickets_page': 'Mis Boletas',
+    'profile.my_tickets_desc': 'Ver y descargar todas tus boletas de eventos',
+    'profile.view_my_tickets': 'Ver Mis Boletas',
     'profile.transactions': 'Historial de Transacciones',
     'profile.loading_tickets': 'Cargando tickets...',
     'profile.no_tickets': 'No tienes tickets',
@@ -342,6 +346,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'wallet.add_balance': 'Agregar Saldo',
     'wallet.info': 'Información',
     'wallet.info_desc': 'Tu saldo está protegido y disponible en todo momento para comprar tickets.',
+    
+    // Cart
+    'cart.title': 'Mi Carrito',
+    'cart.empty': 'Carrito vacío',
+    'cart.empty_title': 'Tu carrito está vacío',
+    'cart.empty_desc': 'Agrega tickets de eventos increíbles a tu carrito para comenzar.',
+    'cart.item': 'artículo',
+    'cart.items': 'artículos',
+    'cart.quantity': 'Cantidad',
+    'cart.each': 'cada uno',
+    'cart.summary': 'Resumen del Pedido',
+    'cart.subtotal': 'Subtotal',
+    'cart.service_fee': 'Cargo por Servicio',
+    'cart.total': 'Total',
+    'cart.checkout': 'Proceder al Pago',
+    'cart.clear': 'Limpiar Carrito',
+    'cart.browse_events': 'Explorar Eventos',
+    'cart.login_required': 'Inicia sesión para ver tu carrito',
+    'cart.login_required_desc': 'Necesitas iniciar sesión para agregar tickets a tu carrito.',
+    'cart.secure_checkout': 'Pago seguro y protegido',
     
     // Confirmation
     'confirmation.success': '¡Compra Exitosa!',
@@ -513,6 +537,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.teatro': 'Theater',
     'category.danza': 'Dance',
     'category.comedia': 'Comedy',
+    'category.familia': 'Family',
     
     // Event Titles (dynamic translations)
     'event.title.1': 'Rock Fest 2025 - The Best Rock Artists',
@@ -725,6 +750,9 @@ export const translations: Record<Language, Record<string, string>> = {
     // Profile
     'profile.back': 'Back to home',
     'profile.my_tickets': 'My Tickets',
+    'profile.my_tickets_page': 'My Tickets',
+    'profile.my_tickets_desc': 'View and download all your event tickets',
+    'profile.view_my_tickets': 'View My Tickets',
     'profile.transactions': 'Transaction History',
     'profile.loading_tickets': 'Loading tickets...',
     'profile.no_tickets': 'You don\'t have tickets',
@@ -754,6 +782,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'wallet.add_balance': 'Add Balance',
     'wallet.info': 'Information',
     'wallet.info_desc': 'Your balance is protected and available at all times to purchase tickets.',
+    
+    // Cart
+    'cart.title': 'My Cart',
+    'cart.empty': 'Cart is empty',
+    'cart.empty_title': 'Your cart is empty',
+    'cart.empty_desc': 'Add tickets to amazing events to your cart to get started.',
+    'cart.item': 'item',
+    'cart.items': 'items',
+    'cart.quantity': 'Quantity',
+    'cart.each': 'each',
+    'cart.summary': 'Order Summary',
+    'cart.subtotal': 'Subtotal',
+    'cart.service_fee': 'Service Fee',
+    'cart.total': 'Total',
+    'cart.checkout': 'Proceed to Checkout',
+    'cart.clear': 'Clear Cart',
+    'cart.browse_events': 'Browse Events',
+    'cart.login_required': 'Sign in to view your cart',
+    'cart.login_required_desc': 'You need to sign in to add tickets to your cart.',
+    'cart.secure_checkout': 'Secure and protected payment',
     
     // Confirmation
     'confirmation.success': 'Successful Purchase!',
@@ -855,6 +903,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'category.sports': 'Esportes',
     'category.theater': 'Teatro',
     'category.family': 'Família',
+    'category.familia': 'Família',
     
     // Event Card
     'event.from': 'A partir de',
@@ -1137,6 +1186,9 @@ export const translations: Record<Language, Record<string, string>> = {
     // Profile
     'profile.back': 'Voltar ao início',
     'profile.my_tickets': 'Meus Ingressos',
+    'profile.my_tickets_page': 'Meus Ingressos',
+    'profile.my_tickets_desc': 'Ver e baixar todos os seus ingressos de eventos',
+    'profile.view_my_tickets': 'Ver Meus Ingressos',
     'profile.transactions': 'Histórico de Transações',
     'profile.loading_tickets': 'Carregando ingressos...',
     'profile.no_tickets': 'Você não tem ingressos',
@@ -1166,6 +1218,26 @@ export const translations: Record<Language, Record<string, string>> = {
     'wallet.add_balance': 'Adicionar Saldo',
     'wallet.info': 'Informação',
     'wallet.info_desc': 'Seu saldo está protegido e disponível a qualquer momento para comprar ingressos.',
+    
+    // Cart
+    'cart.title': 'Meu Carrinho',
+    'cart.empty': 'Carrinho vazio',
+    'cart.empty_title': 'Seu carrinho está vazio',
+    'cart.empty_desc': 'Adicione ingressos de eventos incríveis ao seu carrinho para começar.',
+    'cart.item': 'item',
+    'cart.items': 'itens',
+    'cart.quantity': 'Quantidade',
+    'cart.each': 'cada',
+    'cart.summary': 'Resumo do Pedido',
+    'cart.subtotal': 'Subtotal',
+    'cart.service_fee': 'Taxa de Serviço',
+    'cart.total': 'Total',
+    'cart.checkout': 'Finalizar Compra',
+    'cart.clear': 'Limpar Carrinho',
+    'cart.browse_events': 'Explorar Eventos',
+    'cart.login_required': 'Faça login para ver seu carrinho',
+    'cart.login_required_desc': 'Você precisa fazer login para adicionar ingressos ao seu carrinho.',
+    'cart.secure_checkout': 'Pagamento seguro e protegido',
     
     // Confirmation
     'confirmation.success': 'Compra Bem-sucedida!',

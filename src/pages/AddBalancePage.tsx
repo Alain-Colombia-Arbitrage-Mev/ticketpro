@@ -1,68 +1,40 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Wallet, CreditCard, DollarSign, TrendingUp, Check, AlertCircle, Sparkles } from "lucide-react";
+import { ChevronLeft, Wallet, CreditCard, Building2, Bitcoin, Lock, CheckCircle2, Gift } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { Separator } from "../components/ui/separator";
-import { Badge } from "../components/ui/badge";
-import { Alert, AlertDescription } from "../components/ui/alert";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../utils/api";
-import { CurrencySelector, MultiCurrencyBalance } from "../components/payment";
-import { Currency, formatCurrency, CURRENCIES } from "../utils/currency";
 import { toast } from "sonner";
+import { useLanguage } from "../hooks/useLanguage";
 
-// Montos sugeridos por moneda
-const SUGGESTED_AMOUNTS: Record<Currency, number[]> = {
-  USD: [10, 25, 50, 100, 250, 500],
-  MXN: [200, 500, 1000, 2000, 5000, 10000],
-  BRL: [50, 100, 250, 500, 1000, 2000],
-  EUR: [10, 25, 50, 100, 250, 500],
-};
-
-// Métodos de pago simulados
-const PAYMENT_METHODS = [
-  {
-    id: "card",
-    name: "Tarjeta de Crédito/Débito",
-    icon: CreditCard,
-    description: "Visa, Mastercard, American Express",
-    popular: true,
-  },
-  {
-    id: "paypal",
-    name: "PayPal",
-    icon: Wallet,
-    description: "Pago seguro con PayPal",
-  },
-  {
-    id: "transfer",
-    name: "Transferencia Bancaria",
-    icon: DollarSign,
-    description: "SPEI, ACH, o transferencia local",
-  },
-];
+type PaymentMethod = "card" | "ach" | "crypto" | "free";
 
 export function AddBalancePage() {
   const { navigate } = useRouter();
   const { user, refreshUser } = useAuth();
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
-  const [customAmount, setCustomAmount] = useState("");
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
+  const { t } = useLanguage();
+  const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  // Sync with user's preferred currency
-  useEffect(() => {
-    if (user?.preferredCurrency) {
-      setSelectedCurrency(user.preferredCurrency);
-    }
-  }, [user?.preferredCurrency]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  
+  // Formulario de pago
+  const [formData, setFormData] = useState({
+    // Tarjeta
+    cardNumber: "",
+    cardExpiry: "",
+    cardCVV: "",
+    // ACH
+    routingNumber: "",
+    accountNumber: "",
+    accountType: "checking",
+    // Crypto
+    walletAddress: "",
+    cryptoType: "bitcoin",
+  });
 
   useEffect(() => {
     if (!user) {
@@ -74,72 +46,121 @@ export function AddBalancePage() {
     return null;
   }
 
-  const handleAmountSelect = (amount: number) => {
-    setSelectedAmount(amount);
-    setCustomAmount("");
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value);
-    setSelectedAmount(null);
+  const handleCardNumberChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    const formatted = cleaned.replace(/(\d{4})(?=\d)/g, "$1 ");
+    handleInputChange("cardNumber", formatted);
   };
 
-  const getFinalAmount = (): number => {
-    if (selectedAmount) return selectedAmount;
-    const custom = parseFloat(customAmount);
-    return isNaN(custom) ? 0 : custom;
+  const handleExpiryChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "");
+    let formatted = cleaned;
+    if (cleaned.length >= 2) {
+      formatted = cleaned.slice(0, 2) + "/" + cleaned.slice(2, 4);
+    }
+    handleInputChange("cardExpiry", formatted);
   };
 
-  const finalAmount = getFinalAmount();
-  const processingFee = finalAmount * 0.03; // 3% fee
-  const totalAmount = finalAmount + processingFee;
+  const handleCVVChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, 4);
+    handleInputChange("cardCVV", cleaned);
+  };
 
-  const handleAddBalance = async () => {
-    if (finalAmount <= 0) {
-      setError("Por favor ingresa un monto válido");
+  const amountValue = parseFloat(amount) || 0;
+  const serviceFee = Math.round(amountValue * 0.03 * 100) / 100; // 3% fee
+  const total = amountValue + serviceFee;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (amountValue <= 0) {
+      toast.error("Por favor ingresa un monto válido");
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess(false);
-
+    
     try {
-      // Simular procesamiento de pago
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Agregar balance
-      await api.addBalance(finalAmount, selectedCurrency);
+      // Método gratuito: procesar inmediatamente sin simular pago
+      if (paymentMethod !== "free") {
+        // Simular procesamiento de pago para otros métodos
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      
+      // Agregar balance en USD
+      await api.addBalance(amountValue, 'USD');
       await refreshUser();
-
-      setSuccess(true);
-      toast.success(`¡Saldo agregado! ${formatCurrency(finalAmount, selectedCurrency)} añadidos a tu cuenta`);
-
+      
+      setShowSuccessModal(true);
+      toast.success(`¡Saldo agregado! $${amountValue.toFixed(2)} USD añadidos a tu cuenta`);
+      
       // Resetear formulario
-      setTimeout(() => {
-        setSelectedAmount(null);
-        setCustomAmount("");
-        setSuccess(false);
-      }, 3000);
-    } catch (err: any) {
-      setError(err.message || "Error al procesar el pago");
-      toast.error("Error al agregar saldo");
+      setAmount("");
+      setFormData({
+        cardNumber: "",
+        cardExpiry: "",
+        cardCVV: "",
+        routingNumber: "",
+        accountNumber: "",
+        accountType: "checking",
+        walletAddress: "",
+        cryptoType: "bitcoin",
+      });
+    } catch (error) {
+      console.error('Error adding balance:', error);
+      toast.error('Error al procesar el pago. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
-  const suggestedAmounts = SUGGESTED_AMOUNTS[selectedCurrency];
+  const handleCloseSuccess = () => {
+    setShowSuccessModal(false);
+    navigate("profile");
+  };
+
+  const paymentMethodOptions = [
+    {
+      id: "free" as PaymentMethod,
+      name: "Gratis (Prueba)",
+      icon: <Gift className="h-5 w-5" />,
+      description: "Método de prueba sin costo",
+    },
+    {
+      id: "card" as PaymentMethod,
+      name: "Tarjeta de Crédito/Débito",
+      icon: <CreditCard className="h-5 w-5" />,
+      description: "Visa, Mastercard, American Express",
+    },
+    {
+      id: "ach" as PaymentMethod,
+      name: "Transferencia ACH",
+      icon: <Building2 className="h-5 w-5" />,
+      description: "Transferencia bancaria en EE.UU.",
+    },
+    {
+      id: "crypto" as PaymentMethod,
+      name: "Criptomonedas",
+      icon: <Bitcoin className="h-5 w-5" />,
+      description: "Bitcoin, Ethereum, USDT",
+    },
+  ];
+
+  const suggestedAmounts = [10, 25, 50, 100, 250, 500];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <div className="border-b border-white/20 bg-black sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             onClick={() => navigate("profile")}
-            className="gap-2"
+            className="gap-2 !text-white hover:!bg-white/10"
           >
             <ChevronLeft className="h-4 w-4" />
             Volver al Perfil
@@ -147,270 +168,349 @@ export function AddBalancePage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-5xl">
-          {/* Page Title */}
-          <div className="mb-8 text-center">
-            <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-full">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-medium">Recarga Rápida y Segura</span>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Agregar Saldo
-            </h1>
-            <p className="text-gray-600">
-              Recarga tu cuenta para comprar tickets de tus eventos favoritos
-            </p>
-          </div>
+      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="mb-8 text-3xl font-bold !text-white">Agregar Saldo</h1>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Left Column - Payment Form */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Currency Selection */}
-              <Card className="p-6 bg-white shadow-lg">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-1">
-                      Selecciona la Moneda
-                    </h2>
-                    <p className="text-sm text-gray-600">
-                      Elige la moneda en la que deseas agregar saldo
-                    </p>
-                  </div>
-                  <CurrencySelector
-                    selectedCurrency={selectedCurrency}
-                    onCurrencyChange={setSelectedCurrency}
-                    showLabel={false}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Monto */}
+            <Card className="p-6 !bg-black border-white/20">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
+                <Wallet className="h-5 w-5" />
+                Monto a Agregar (USD)
+              </h2>
+              
+              {/* Montos sugeridos */}
+              <div className="mb-4">
+                <Label className="!text-white mb-3 block font-medium">Montos Sugeridos</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {suggestedAmounts.map((suggestedAmount) => (
+                    <button
+                      key={suggestedAmount}
+                      type="button"
+                      onClick={() => setAmount(suggestedAmount.toString())}
+                      className={`p-4 rounded-lg border-2 transition-all font-semibold ${
+                        amount === suggestedAmount.toString()
+                          ? "border-[#c61619] bg-[#c61619]/30 !text-white shadow-lg shadow-[#c61619]/20"
+                          : "border-white/30 bg-white/5 hover:border-white/50 hover:bg-white/10 !text-white"
+                      }`}
+                    >
+                      ${suggestedAmount}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Monto personalizado */}
+              <div>
+                <Label htmlFor="amount" className="!text-white mb-2 block font-medium">O ingresa un monto personalizado</Label>
+                <div className="relative mt-1">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold !text-white z-10">
+                    $
+                  </span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="pl-8 pr-16 py-3 !bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                    step="0.01"
+                    min="0"
+                    required
                   />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium !text-white/80">
+                    USD
+                  </span>
                 </div>
+              </div>
+            </Card>
 
-                <Separator className="my-6" />
+            {/* Método de Pago */}
+            <Card className="p-6 !bg-black border-white/20">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
+                <Lock className="h-5 w-5" />
+                Selecciona tu Método de Pago
+              </h2>
+              
+              <div className="grid gap-4 sm:grid-cols-3 mb-6">
+                {paymentMethodOptions.map((method) => (
+                  <div
+                    key={method.id}
+                    className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 cursor-pointer transition-all hover:scale-105 ${
+                      paymentMethod === method.id
+                        ? "border-[#c61619] !bg-[#c61619]/30 shadow-lg shadow-[#c61619]/20"
+                        : "border-white/30 !bg-white/5 hover:border-white/50 hover:!bg-white/10"
+                    }`}
+                    onClick={() => {
+                      console.log("Cambiando método de pago a:", method.id);
+                      setPaymentMethod(method.id);
+                    }}
+                  >
+                    {paymentMethod === method.id && (
+                      <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c61619] shadow-lg">
+                        <CheckCircle2 className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                    <div className={`mb-3 p-3 rounded-full ${
+                      paymentMethod === method.id ? "bg-[#c61619]/20" : "bg-white/10"
+                    }`}>
+                      <div className="!text-white">
+                        {method.icon}
+                      </div>
+                    </div>
+                    <h3 className="mb-1 text-center font-semibold !text-white text-sm">{method.name}</h3>
+                    <p className="text-center text-xs !text-white/70">{method.description}</p>
+                  </div>
+                ))}
+              </div>
 
-                {/* Suggested Amounts */}
-                <div className="mb-6">
-                  <Label className="mb-3 block text-base font-semibold">
-                    Montos Sugeridos
-                  </Label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {suggestedAmounts.map((amount) => (
-                      <button
-                        key={amount}
-                        onClick={() => handleAmountSelect(amount)}
-                        className={`p-4 rounded-xl border-2 transition-all ${
-                          selectedAmount === amount
-                            ? "border-blue-600 bg-blue-50 shadow-md"
-                            : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div
-                            className={`text-lg font-bold ${
-                              selectedAmount === amount
-                                ? "text-blue-600"
-                                : "text-gray-900"
-                            }`}
-                          >
-                            {formatCurrency(amount, selectedCurrency)}
-                          </div>
+              {/* Formularios de pago según método seleccionado */}
+              {paymentMethod === "free" && (
+                <div key="free-form" className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-white/20">
+                  <div className="rounded-lg !bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-6 border border-green-500/30 backdrop-blur">
+                    <div className="flex items-start gap-3 mb-4">
+                      <Gift className="h-6 w-6 !text-green-300 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-lg !text-green-300 font-bold mb-2">
+                          Método de Pago Gratuito (Prueba)
+                        </p>
+                        <p className="text-sm !text-green-200/80 mb-3">
+                          Este método está disponible solo para pruebas. No se realizará ningún cargo y el saldo se agregará inmediatamente.
+                        </p>
+                        <div className="flex items-center gap-2 text-xs !text-green-200/70 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/20">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>Ideal para probar la funcionalidad de agregar saldo</span>
                         </div>
-                      </button>
-                    ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* Custom Amount */}
-                <div className="mb-6">
-                  <Label htmlFor="custom-amount" className="mb-2 block text-base font-semibold">
-                    O ingresa un monto personalizado
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-gray-500">
-                      {CURRENCIES[selectedCurrency].symbol}
-                    </span>
+              {paymentMethod === "card" && (
+                <div key="card-form" className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-white/20">
+                  <div>
+                    <Label htmlFor="cardNumber" className="!text-white mb-2 block font-medium">Número de Tarjeta *</Label>
                     <Input
-                      id="custom-amount"
-                      type="number"
-                      placeholder="0.00"
-                      value={customAmount}
-                      onChange={(e) => handleCustomAmountChange(e.target.value)}
-                      className="pl-12 pr-16 py-6 text-2xl font-semibold border-2 focus:border-blue-500"
-                      step="0.01"
-                      min="0"
+                      id="cardNumber"
+                      type="text"
+                      value={formData.cardNumber}
+                      onChange={(e) => handleCardNumberChange(e.target.value)}
+                      className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                      placeholder="1234 5678 9012 3456"
+                      maxLength={19}
+                      required
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-medium text-gray-400">
-                      {selectedCurrency}
-                    </span>
                   </div>
-                  {finalAmount > 0 && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      Monto a recargar: <span className="font-semibold">{formatCurrency(finalAmount, selectedCurrency)}</span>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="cardExpiry" className="!text-white mb-2 block font-medium">Vencimiento *</Label>
+                      <Input
+                        id="cardExpiry"
+                        type="text"
+                        value={formData.cardExpiry}
+                        onChange={(e) => handleExpiryChange(e.target.value)}
+                        className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                        placeholder="MM/AA"
+                        maxLength={5}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="cardCVV" className="!text-white mb-2 block font-medium">CVV *</Label>
+                      <Input
+                        id="cardCVV"
+                        type="password"
+                        inputMode="numeric"
+                        autoComplete="new-password"
+                        value={formData.cardCVV}
+                        onChange={(e) => handleCVVChange(e.target.value)}
+                        onCopy={(e) => e.preventDefault()}
+                        onPaste={(e) => e.preventDefault()}
+                        onCut={(e) => e.preventDefault()}
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619] font-mono tracking-widest"
+                        placeholder="•••"
+                        maxLength={4}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === "ach" && (
+                <div key="ach-form" className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-white/20">
+                  <div className="rounded-lg border border-white/30 bg-white/10 p-4 mb-4">
+                    <p className="text-sm !text-white">
+                      <strong className="font-semibold">Instrucciones ACH:</strong> Proporciona los datos de tu cuenta bancaria. 
+                      La transferencia se procesará en 1-3 días hábiles.
                     </p>
-                  )}
-                </div>
-
-                <Separator className="my-6" />
-
-                {/* Payment Method */}
-                <div>
-                  <Label className="mb-4 block text-base font-semibold">
-                    Método de Pago
-                  </Label>
-                  <RadioGroup
-                    value={selectedPaymentMethod}
-                    onValueChange={setSelectedPaymentMethod}
-                  >
-                    <div className="space-y-3">
-                      {PAYMENT_METHODS.map((method) => {
-                        const Icon = method.icon;
-                        return (
-                          <label
-                            key={method.id}
-                            className="flex cursor-pointer items-center justify-between rounded-xl border-2 border-gray-200 p-4 transition-all hover:border-blue-300 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50"
-                          >
-                            <div className="flex items-center gap-4">
-                              <RadioGroupItem value={method.id} id={method.id} />
-                              <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gray-100 p-2">
-                                  <Icon className="h-5 w-5 text-gray-700" />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <Label
-                                      htmlFor={method.id}
-                                      className="cursor-pointer font-semibold text-gray-900"
-                                    >
-                                      {method.name}
-                                    </Label>
-                                    {method.popular && (
-                                      <Badge variant="secondary" className="text-xs">
-                                        Popular
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <p className="text-sm text-gray-500">
-                                    {method.description}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </RadioGroup>
-                </div>
-              </Card>
-
-              {/* Error/Success Messages */}
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {success && (
-                <Alert className="border-green-200 bg-green-50">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    ¡Saldo agregado exitosamente! Ya puedes comprar tus tickets.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-
-            {/* Right Column - Summary */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 space-y-6">
-                {/* Current Balance */}
-                <MultiCurrencyBalance
-                  balance={user.balance}
-                  selectedCurrency={selectedCurrency}
-                  showAllCurrencies={true}
-                />
-
-                {/* Payment Summary */}
-                <Card className="p-6 bg-white shadow-lg">
-                  <h3 className="mb-4 flex items-center gap-2 font-semibold text-gray-900">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                    Resumen de Recarga
-                  </h3>
-
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Monto a recargar</span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(finalAmount, selectedCurrency)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Comisión (3%)</span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(processingFee, selectedCurrency)}
-                      </span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between">
-                      <span className="font-semibold text-gray-900">Total a pagar</span>
-                      <span className="text-xl font-bold text-blue-600">
-                        {formatCurrency(totalAmount, selectedCurrency)}
-                      </span>
-                    </div>
                   </div>
+                  <div>
+                    <Label htmlFor="routingNumber" className="!text-white mb-2 block font-medium">Número de Ruta (Routing Number) *</Label>
+                    <Input
+                      id="routingNumber"
+                      type="text"
+                      value={formData.routingNumber}
+                      onChange={(e) => handleInputChange("routingNumber", e.target.value.replace(/\D/g, ""))}
+                      className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                      placeholder="123456789"
+                      maxLength={9}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="accountNumber" className="!text-white mb-2 block font-medium">Número de Cuenta *</Label>
+                    <Input
+                      id="accountNumber"
+                      type="text"
+                      value={formData.accountNumber}
+                      onChange={(e) => handleInputChange("accountNumber", e.target.value)}
+                      className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                      placeholder="0000000000"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="accountType" className="!text-white mb-2 block font-medium">Tipo de Cuenta *</Label>
+                    <select
+                      id="accountType"
+                      value={formData.accountType}
+                      onChange={(e) => handleInputChange("accountType", e.target.value)}
+                      className="w-full rounded-md border border-white/30 bg-white/10 px-3 py-2 !text-white focus:border-[#c61619] focus:outline-none focus:ring-1 focus:ring-[#c61619]"
+                      required
+                    >
+                      <option value="checking" className="bg-black">Checking</option>
+                      <option value="savings" className="bg-black">Savings</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
-                  <Button
-                    onClick={handleAddBalance}
-                    disabled={loading || finalAmount <= 0}
-                    className="w-full py-6 text-lg"
-                    size="lg"
-                  >
-                    {loading ? (
+              {paymentMethod === "crypto" && (
+                <div key="crypto-form" className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-white/20">
+                  <div className="rounded-lg border border-white/30 bg-white/10 p-4 mb-4">
+                    <p className="text-sm !text-white">
+                      <strong className="font-semibold">Pago con Criptomonedas:</strong> Envía el monto exacto a la dirección 
+                      que se mostrará después de confirmar. El saldo se acreditará una vez confirmada la transacción en la blockchain.
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="cryptoType" className="!text-white mb-2 block font-medium">Tipo de Criptomoneda *</Label>
+                    <select
+                      id="cryptoType"
+                      value={formData.cryptoType}
+                      onChange={(e) => handleInputChange("cryptoType", e.target.value)}
+                      className="w-full rounded-md border border-white/30 bg-white/10 px-3 py-2 !text-white focus:border-[#c61619] focus:outline-none focus:ring-1 focus:ring-[#c61619]"
+                      required
+                    >
+                      <option value="bitcoin" className="bg-black">Bitcoin (BTC)</option>
+                      <option value="ethereum" className="bg-black">Ethereum (ETH)</option>
+                      <option value="usdt" className="bg-black">USDT</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="walletAddress" className="!text-white mb-2 block font-medium">Dirección de Wallet *</Label>
+                    <Input
+                      id="walletAddress"
+                      type="text"
+                      value={formData.walletAddress}
+                      onChange={(e) => handleInputChange("walletAddress", e.target.value)}
+                      className="!bg-white/10 border-white/30 !text-white placeholder:!text-white/50 focus:border-[#c61619] focus:ring-1 focus:ring-[#c61619]"
+                      placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* Resumen */}
+            <Card className="p-6 !bg-black border-white/20">
+              <h2 className="mb-4 text-xl font-bold !text-white">Resumen</h2>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="!text-white/90">Monto a agregar</span>
+                  <span className="font-semibold !text-white">${amountValue.toFixed(2)} USD</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="!text-white/90">Comisión (3%)</span>
+                  <span className="font-semibold !text-white">${serviceFee.toFixed(2)} USD</span>
+                </div>
+                <div className="border-t border-white/30 pt-3 flex justify-between">
+                  <span className="font-semibold !text-white text-base">
+                    {paymentMethod === "free" ? "Total" : "Total a pagar"}
+                  </span>
+                  <span className={`text-xl font-bold ${
+                    paymentMethod === "free" ? "!text-green-400" : "!text-[#c61619]"
+                  }`}>
+                    {paymentMethod === "free" ? "GRATIS" : `$${total.toFixed(2)} USD`}
+                  </span>
+                </div>
+                {paymentMethod === "free" && (
+                  <div className="mt-3 rounded-lg bg-green-500/10 border border-green-500/30 p-2">
+                    <p className="text-xs !text-green-300 text-center">
+                      🎁 Método de prueba - Sin cargo
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading || amountValue <= 0}
+                className="mt-6 w-full bg-[#c61619] hover:bg-[#a01316] text-white py-6 text-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    {paymentMethod === "free" ? (
                       <>
-                        <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        Procesando...
+                        <Gift className="mr-2 h-5 w-5" />
+                        Agregar ${amountValue.toFixed(2)} USD Gratis (Prueba)
                       </>
                     ) : (
                       <>
-                        <Wallet className="mr-2 h-5 w-5" />
-                        Agregar {formatCurrency(finalAmount, selectedCurrency)}
+                        <Lock className="mr-2 h-5 w-5" />
+                        Agregar ${amountValue.toFixed(2)} USD
                       </>
                     )}
-                  </Button>
-
-                  <p className="mt-4 text-center text-xs text-gray-500">
-                    🔒 Pago 100% seguro y encriptado
-                  </p>
-                </Card>
-
-                {/* Benefits */}
-                <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200">
-                  <h4 className="mb-3 font-semibold text-gray-900">
-                    ✨ Beneficios de Recargar
-                  </h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>Compra instantánea de tickets</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>Sin necesidad de ingresar tarjeta cada vez</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>Transacciones seguras y rápidas</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>Soporte para múltiples monedas</span>
-                    </li>
-                  </ul>
-                </Card>
-              </div>
-            </div>
-          </div>
+                  </>
+                )}
+              </Button>
+            </Card>
+          </form>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <Card className="p-8 max-w-md mx-4 !bg-black border-white/20">
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
+                <CheckCircle2 className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="mb-2 text-2xl font-bold !text-white">¡Pago Exitoso!</h3>
+              <p className="mb-6 !text-white/70">
+                Se han agregado ${amountValue.toFixed(2)} USD a tu cuenta.
+              </p>
+              <Button
+                onClick={handleCloseSuccess}
+                className="w-full bg-[#c61619] hover:bg-[#a01316] text-white"
+              >
+                Volver al Perfil
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

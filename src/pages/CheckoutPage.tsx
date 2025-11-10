@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ChevronLeft, CreditCard, Lock, Ticket, Calendar, MapPin, User, Mail, Phone, CheckCircle2, Shield, Building2, Bitcoin, Wallet } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, CreditCard, Lock, Ticket, Calendar, MapPin, User, Mail, Phone, CheckCircle2, Shield, Building2, Bitcoin, Wallet, Gift } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
@@ -12,25 +12,46 @@ import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { SEOHead } from "../components/common";
-import { createTicket, TicketData } from "../utils/tickets/ticketService";
+import { createTicket, TicketData, getTicketCategories, getPaymentMethods } from "../utils/tickets/ticketService";
+import { useCartStore } from "../stores/cartStore";
 
-type PaymentMethod = "card" | "ach" | "crypto";
+type PaymentMethod = "card" | "ach" | "crypto" | "free";
 
 export function CheckoutPage() {
   const { navigate, pageData } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { clearCart } = useCartStore();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [createdTickets, setCreatedTickets] = useState<any[]>([]);
+  const [ticketCategories, setTicketCategories] = useState<any[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+  
+  // Verificar si hay items del carrito
+  const cartItems = (pageData as any)?.cartItems || null;
+
+  // Cargar categorías y métodos de pago al montar
+  useEffect(() => {
+    const loadData = async () => {
+      const [categories, methods] = await Promise.all([
+        getTicketCategories(),
+        getPaymentMethods()
+      ]);
+      setTicketCategories(categories);
+      setPaymentMethods(methods);
+    };
+    loadData();
+  }, []);
   
   // Formulario
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
     email: user?.email || "",
     phone: "",
+    address: user?.address || "",
     // Tarjeta
     cardNumber: "",
     cardExpiry: "",
@@ -43,6 +64,13 @@ export function CheckoutPage() {
     walletAddress: "",
     cryptoType: "bitcoin",
   });
+
+  // Actualizar dirección cuando el usuario cambie
+  useEffect(() => {
+    if (user?.address) {
+      setFormData(prev => ({ ...prev, address: user.address || "" }));
+    }
+  }, [user?.address]);
 
   if (!pageData) {
     navigate("home");
@@ -96,9 +124,14 @@ export function CheckoutPage() {
   };
 
   const validateForm = (): boolean => {
-    if (!formData.fullName || !formData.email || !formData.phone) {
-      alert("Por favor completa todos los campos de contacto");
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.address) {
+      alert("Por favor completa todos los campos de contacto, incluyendo la dirección");
       return false;
+    }
+
+    // Método gratuito no requiere validación de pago
+    if (paymentMethod === "free") {
+      return true;
     }
 
     if (paymentMethod === "card") {
@@ -131,35 +164,114 @@ export function CheckoutPage() {
     setLoading(true);
     
     try {
-      // Simular procesamiento de pago
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Método gratuito: procesar inmediatamente sin simular pago
+      if (paymentMethod !== "free") {
+        // Simular procesamiento de pago para otros métodos
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       
+      // Obtener IDs de categoría y método de pago
+      const ticketCategory = ticketCategories.find(cat => 
+        cat.name === (pageData.ticketClass?.toUpperCase() || 'GENERAL')
+      ) || ticketCategories.find(cat => cat.name === 'GENERAL');
+      
+      // Para método gratuito, usar un método de pago especial o crear uno temporal
+      const paymentMethodObj = paymentMethod === "free" 
+        ? { id: null, name: 'free' } // Método gratuito no requiere ID real
+        : paymentMethods.find(method => method.name === paymentMethod)
+          || paymentMethods.find(method => method.name === 'balance');
+
       // Crear boletas para cada ticket comprado
       const tickets: any[] = [];
       const purchaseId = crypto.randomUUID();
       
-      for (let i = 0; i < quantity; i++) {
-        const ticketData: TicketData = {
-          eventId: pageData.id || 1,
-          eventName: pageData.title || 'Evento',
-          eventDate: pageData.date || new Date().toISOString().split('T')[0],
-          eventTime: pageData.time,
-          eventLocation: pageData.location,
-          buyerId: user?.id,
-          buyerEmail: formData.email,
-          buyerFullName: formData.fullName,
-          buyerAddress: '', // Se puede agregar campo de dirección si es necesario
-          ticketType: pageData.ticketType || 'General',
-          seatNumber: pageData.seatNumber || undefined,
-          gateNumber: pageData.gateNumber || undefined,
-          ticketClass: pageData.ticketClass || 'VIP',
-          price: ticketPrice,
-          purchaseId: purchaseId,
-        };
-        
-        const ticket = await createTicket(ticketData);
-        tickets.push(ticket);
+      // Si hay items del carrito, procesar todos los items
+      if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
+        // Procesar todos los items del carrito
+        for (const cartItem of cartItems) {
+          const itemTicketCategory = ticketCategories.find(cat => 
+            cat.name === (cartItem.ticketType?.toUpperCase() || 'GENERAL')
+          ) || ticketCategories.find(cat => cat.name === 'GENERAL');
+          
+          // Crear tickets para cada cantidad del item
+          for (let i = 0; i < cartItem.quantity; i++) {
+            const ticketData: TicketData = {
+              eventId: cartItem.eventId,
+              eventName: cartItem.eventName,
+              eventDate: cartItem.eventDate || new Date().toISOString().split('T')[0],
+              eventTime: cartItem.eventTime,
+              eventLocation: cartItem.eventLocation,
+              eventCategory: cartItem.eventCategory,
+              buyerId: user?.id,
+              buyerEmail: formData.email,
+              buyerFullName: formData.fullName,
+              buyerAddress: formData.address,
+              ticketType: cartItem.ticketType || 'General',
+              seatNumber: cartItem.seatNumber || undefined,
+              seatType: cartItem.seatType || 'numerado',
+              gateNumber: undefined,
+              ticketClass: cartItem.ticketType || 'General',
+              ticketCategoryId: itemTicketCategory?.id,
+              price: cartItem.ticketPrice,
+              pricePaid: cartItem.total / cartItem.quantity, // Precio por ticket
+              paymentMethodId: paymentMethodObj?.id,
+              purchaseId: purchaseId,
+              purchaseSummary: {
+                subtotal: cartItem.subtotal,
+                serviceFee: cartItem.serviceFee,
+                total: cartItem.total,
+                quantity: cartItem.quantity,
+                paymentMethod: paymentMethod,
+                purchaseDate: new Date().toISOString()
+              },
+            };
+            
+            const ticket = await createTicket(ticketData);
+            tickets.push(ticket);
+          }
+        }
+      } else {
+        // Procesar un solo item (compatibilidad con checkout directo)
+        for (let i = 0; i < quantity; i++) {
+          const ticketData: TicketData = {
+            eventId: pageData.id || 1,
+            eventName: pageData.title || 'Evento',
+            eventDate: pageData.date || new Date().toISOString().split('T')[0],
+            eventTime: pageData.time,
+            eventLocation: pageData.location,
+            eventCategory: pageData.category || pageData.eventCategory || undefined,
+            buyerId: user?.id,
+            buyerEmail: formData.email,
+            buyerFullName: formData.fullName,
+            buyerAddress: '', // Se puede agregar campo de dirección si es necesario
+            ticketType: pageData.ticketType || 'General',
+            seatNumber: pageData.seatNumber || undefined,
+            seatType: pageData.seatType || 'numerado', // numerado, general, preferencial
+            gateNumber: pageData.gateNumber || undefined,
+            ticketClass: pageData.ticketClass || 'VIP',
+            ticketCategoryId: ticketCategory?.id,
+            price: ticketPrice,
+            pricePaid: total, // Precio total pagado (incluye fees)
+            paymentMethodId: paymentMethodObj?.id,
+            purchaseId: purchaseId,
+            purchaseSummary: {
+              subtotal: subtotal,
+              serviceFee: serviceFee,
+              total: total,
+              quantity: quantity,
+              paymentMethod: paymentMethod,
+              purchaseDate: new Date().toISOString()
+            },
+          };
+          
+          const ticket = await createTicket(ticketData);
+          tickets.push(ticket);
+        }
       }
+      
+      // Limpiar el carrito después de una compra exitosa
+      // Esto asegura que el carrito se restaure completamente después de cualquier compra
+      clearCart();
       
       setCreatedTickets(tickets);
       setLoading(false);
@@ -182,7 +294,13 @@ export function CheckoutPage() {
     });
   };
 
-  const paymentMethods = [
+  const paymentMethodOptions = [
+    {
+      id: "free" as PaymentMethod,
+      name: "Gratis (Prueba)",
+      icon: <Gift className="h-5 w-5" />,
+      description: "Método de prueba sin costo",
+    },
     {
       id: "card" as PaymentMethod,
       name: "Tarjeta de Crédito/Débito",
@@ -282,6 +400,27 @@ export function CheckoutPage() {
                         />
                       </div>
                     </div>
+
+                    <div>
+                      <Label htmlFor="address" className="!text-white/80 flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Dirección *
+                      </Label>
+                      <Input
+                        id="address"
+                        type="text"
+                        value={formData.address}
+                        onChange={(e) => handleInputChange("address", e.target.value)}
+                        className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
+                        placeholder="Calle, número, ciudad, estado, código postal"
+                        required
+                      />
+                      {user?.address && (
+                        <p className="mt-1 text-xs !text-white/60">
+                          Usando tu dirección guardada. Puedes editarla si es necesario.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </Card>
 
@@ -293,7 +432,7 @@ export function CheckoutPage() {
                   </h2>
                   
                   <div className="grid gap-4 sm:grid-cols-3">
-                    {paymentMethods.map((method) => (
+                    {paymentMethodOptions.map((method) => (
                       <div
                         key={method.id}
                         className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 cursor-pointer transition-all hover:scale-105 ${
@@ -399,14 +538,20 @@ export function CheckoutPage() {
                         <div>
                           <Label htmlFor="cardCVV" className="!text-white/80 mb-2 block">CVV *</Label>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 !text-white/40" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 !text-white/40 z-10" />
                             <Input
                               id="cardCVV"
-                              type="text"
+                              type="password"
+                              inputMode="numeric"
+                              autoComplete="new-password"
                               value={formData.cardCVV}
                               onChange={(e) => handleCVVChange(e.target.value)}
-                              className="pl-10 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
-                              placeholder="123"
+                              onCopy={(e) => e.preventDefault()}
+                              onPaste={(e) => e.preventDefault()}
+                              onCut={(e) => e.preventDefault()}
+                              onContextMenu={(e) => e.preventDefault()}
+                              className="pl-10 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono tracking-widest"
+                              placeholder="•••"
                               maxLength={4}
                               required
                             />
@@ -498,6 +643,29 @@ export function CheckoutPage() {
                             </div>
                           </div>
                         </RadioGroup>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Método Gratuito */}
+                  {paymentMethod === "free" && (
+                    <div key="free-form" className="space-y-4 animate-fade-in-up">
+                      <div className="rounded-lg !bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-6 border border-green-500/30 backdrop-blur">
+                        <div className="flex items-start gap-3 mb-4">
+                          <Gift className="h-6 w-6 !text-green-300 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-lg !text-green-300 font-bold mb-2">
+                              Método de Pago Gratuito (Prueba)
+                            </p>
+                            <p className="text-sm !text-green-200/80 mb-3">
+                              Este método está disponible solo para pruebas. No se realizará ningún cargo y los tickets se generarán inmediatamente.
+                            </p>
+                            <div className="flex items-center gap-2 text-xs !text-green-200/70 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/20">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span>Ideal para probar la generación de boletas y el sistema de tickets</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -633,8 +801,17 @@ export function CheckoutPage() {
                     <>Procesando...</>
                   ) : (
                     <>
-                      <Shield className="mr-2 h-5 w-5" />
-                      {paymentMethod === "ach" ? "Autorizar Transferencia" : "Pagar"} ${total.toLocaleString()} MXN
+                      {paymentMethod === "free" ? (
+                        <>
+                          <Gift className="mr-2 h-5 w-5" />
+                          Obtener Tickets Gratis (Prueba)
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="mr-2 h-5 w-5" />
+                          {paymentMethod === "ach" ? "Autorizar Transferencia" : "Pagar"} ${total.toLocaleString()} MXN
+                        </>
+                      )}
                     </>
                   )}
                 </Button>
@@ -661,70 +838,134 @@ export function CheckoutPage() {
 
                     {/* Detalles del Evento */}
                     <div>
-                      <h4 className="font-bold !text-white mb-2">{pageData.title}</h4>
-                      <div className="space-y-2 text-sm !text-white/70">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
+                      <h4 className="font-bold !text-white mb-3 text-lg">{pageData.title}</h4>
+                      <div className="space-y-2.5 text-sm">
+                        <div className="flex items-center gap-2 !text-white/90">
+                          <Calendar className="h-4 w-4 !text-white/70" />
                           <span>{pageData.date}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
+                        <div className="flex items-center gap-2 !text-white/90">
+                          <MapPin className="h-4 w-4 !text-white/70" />
                           <span>{pageData.location}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Ticket className="h-4 w-4" />
-                          <span className="capitalize">{pageData.selectedTicketType || "General"}</span>
+                          <Ticket className="h-4 w-4 !text-white/70" />
+                          <span className="capitalize !text-white/90 font-medium">{pageData.selectedTicketType || "General"}</span>
                         </div>
                       </div>
                     </div>
 
                     <Separator className="!bg-white/20" />
 
-                    {/* Cantidad */}
+                    {/* Cantidad - Mejorado */}
                     <div>
-                      <Label className="!text-white/80 mb-2 block">Cantidad de Tickets</Label>
-                      <div className="flex items-center gap-3">
+                      <Label className="!text-white mb-3 block font-semibold text-base">Cantidad de Entradas</Label>
+                      
+                      {/* Selector principal con botones +/- */}
+                      <div className="flex items-center gap-3 mb-4">
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => handleQuantityChange(-1)}
                           disabled={quantity <= 1}
-                          className="h-10 w-10 !bg-white/10 border-white/20 !text-white hover:!bg-white/20"
+                          className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
                         >
-                          -
+                          <span className="text-xl font-bold">−</span>
                         </Button>
-                        <span className="flex-1 text-center text-xl font-bold !text-white">{quantity}</span>
+                        <div className="flex-1 text-center">
+                          <div className="text-3xl font-bold !text-white mb-1">{quantity}</div>
+                          <div className="text-xs !text-white/60">
+                            {quantity === 1 ? 'entrada' : 'entradas'}
+                          </div>
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => handleQuantityChange(1)}
                           disabled={quantity >= 10}
-                          className="h-10 w-10 !bg-white/10 border-white/20 !text-white hover:!bg-white/20"
+                          className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
                         >
-                          +
+                          <span className="text-xl font-bold">+</span>
                         </Button>
+                      </div>
+
+                      {/* Opciones rápidas de cantidad */}
+                      <div className="mb-4">
+                        <Label className="!text-white/70 mb-2 block text-xs">O selecciona rápidamente:</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[2, 4, 6, 8].map((quickQty) => (
+                            <button
+                              key={quickQty}
+                              type="button"
+                              onClick={() => setQuantity(quickQty)}
+                              className={`px-3 py-2 rounded-lg border-2 transition-all text-sm font-semibold ${
+                                quantity === quickQty
+                                  ? "border-[#c61619] bg-[#c61619]/30 !text-white shadow-md"
+                                  : "border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 !text-white"
+                              }`}
+                            >
+                              {quickQty}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Precio por entrada */}
+                      <div className="rounded-lg border border-white/20 bg-white/5 p-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="!text-white/80">Precio por entrada</span>
+                          <span className="font-semibold !text-white">${ticketPrice.toLocaleString()} MXN</span>
+                        </div>
                       </div>
                     </div>
 
                     <Separator className="!bg-white/20" />
 
-                    {/* Desglose de Precios */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between !text-white/70">
-                        <span>Subtotal ({quantity} {quantity === 1 ? 'ticket' : 'tickets'})</span>
-                        <span>${subtotal.toLocaleString()} MXN</span>
+                    {/* Desglose de Precios - Mejorado */}
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="!text-white font-medium">Subtotal</div>
+                          <div className="text-xs !text-white/60">
+                            {quantity} {quantity === 1 ? 'entrada' : 'entradas'} × ${ticketPrice.toLocaleString()}
+                          </div>
+                        </div>
+                        <span className="font-semibold !text-white">${subtotal.toLocaleString()} MXN</span>
                       </div>
-                      <div className="flex justify-between !text-white/70">
-                        <span>Cargo por servicio</span>
-                        <span>${serviceFee.toLocaleString()} MXN</span>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="!text-white/80 font-medium text-sm">Cargo por servicio</div>
+                          <div className="text-xs !text-white/50">10% del subtotal</div>
+                        </div>
+                        <span className="font-semibold !text-white/80">${serviceFee.toLocaleString()} MXN</span>
                       </div>
-                      <Separator className="!bg-white/20" />
-                      <div className="flex justify-between text-lg font-bold !text-white">
-                        <span>Total</span>
-                        <span>${total.toLocaleString()} MXN</span>
+                      <Separator className="!bg-white/30" />
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-lg font-bold !text-white">
+                          {paymentMethod === "free" ? "Total" : "Total a pagar"}
+                        </span>
+                        <span className={`text-2xl font-bold ${
+                          paymentMethod === "free" ? "!text-green-400" : "!text-[#c61619]"
+                        }`}>
+                          {paymentMethod === "free" ? "GRATIS" : `$${total.toLocaleString()} MXN`}
+                        </span>
                       </div>
+                      {paymentMethod === "free" && (
+                        <div className="mt-2 rounded-lg bg-green-500/10 border border-green-500/30 p-2">
+                          <p className="text-xs !text-green-300 text-center">
+                            🎁 Método de prueba - Sin cargo
+                          </p>
+                        </div>
+                      )}
+                      {quantity > 1 && (
+                        <div className="mt-2 rounded-lg bg-[#c61619]/10 border border-[#c61619]/30 p-2">
+                          <p className="text-xs !text-white/90 text-center">
+                            🎟️ Comprando {quantity} entradas juntas
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -745,7 +986,9 @@ export function CheckoutPage() {
               ¡Compra Exitosa!
             </DialogTitle>
             <DialogDescription className="text-center !text-white/70">
-              {paymentMethod === "ach" 
+              {paymentMethod === "free"
+                ? "¡Tickets generados exitosamente! Este fue un método de prueba gratuito. Los tickets han sido creados y están disponibles en tu cuenta."
+                : paymentMethod === "ach" 
                 ? "Tu transferencia ha sido autorizada. Recibirás una confirmación por email en 1-3 días hábiles."
                 : paymentMethod === "crypto"
                 ? "Tu pago en criptomonedas ha sido recibido. Los tickets se enviarán a tu email una vez confirmada la transacción."
@@ -760,11 +1003,14 @@ export function CheckoutPage() {
                 <p className="!text-white"><strong>Evento:</strong> {pageData.title}</p>
                 <p className="!text-white"><strong>Cantidad:</strong> {quantity} {quantity === 1 ? 'ticket' : 'tickets'}</p>
                 <p className="!text-white"><strong>Método de pago:</strong> {
+                  paymentMethod === "free" ? "Gratis (Prueba)" :
                   paymentMethod === "card" ? "Tarjeta" :
                   paymentMethod === "ach" ? "ACH Transfer" :
                   "Criptomonedas"
                 }</p>
-                <p className="!text-white"><strong>Total:</strong> ${total.toLocaleString()} MXN</p>
+                <p className="!text-white"><strong>Total:</strong> {
+                  paymentMethod === "free" ? "GRATIS" : `$${total.toLocaleString()} MXN`
+                }</p>
               </div>
             </Card>
           </div>

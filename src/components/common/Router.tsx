@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 // Tipos de páginas disponibles en la aplicación
-export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact";
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact" | "validate-ticket" | "my-tickets" | "cart" | "hoster-validate";
 
 interface RouterContextType {
   currentPage: Page;
@@ -26,7 +26,7 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as Page;
-      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket"];
+      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate"];
       
       // Verificar si hay parámetros de validación de ticket en la URL
       const urlParams = new URLSearchParams(window.location.search);
