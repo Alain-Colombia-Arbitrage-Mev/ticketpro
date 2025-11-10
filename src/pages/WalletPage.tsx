@@ -92,31 +92,31 @@ export function WalletPage() {
 
   return (
     <div className="min-h-screen bg-black pb-12">
-      {/* Header */}
+        {/* Header */}
       <div className="border-b border-white/20 bg-black sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate("home")}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("home")}
                 className="rounded-lg !text-white hover:!bg-white/10"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <div>
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div>
                 <h1 className="text-2xl md:text-3xl font-bold !text-white">{t('wallet.title')}</h1>
                 <p className="text-sm !text-white/70">{t('wallet.info_desc')}</p>
-              </div>
             </div>
-            <Button
+          </div>
+          <Button
               className="bg-[#c61619] hover:bg-[#a01316] text-white shadow-lg hover:shadow-xl transition-all"
-              onClick={() => navigate("add-balance")}
-            >
-              <Plus className="mr-2 h-4 w-4" />
+            onClick={() => navigate("add-balance")}
+          >
+            <Plus className="mr-2 h-4 w-4" />
               {t('wallet.add_balance')}
-            </Button>
+          </Button>
           </div>
         </div>
       </div>

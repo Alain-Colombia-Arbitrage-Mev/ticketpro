@@ -50,7 +50,9 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           console.log('🔐 Intentando iniciar sesión con:', email);
-          
+          console.log('🔗 URL de Supabase:', projectUrl);
+          console.log('🔑 Anon Key configurada:', publicAnonKey ? 'SI' : 'NO');
+
           const { data, error } = await supabase.auth.signInWithPassword({
             email: email.trim().toLowerCase(),
             password,
@@ -58,7 +60,9 @@ export const useAuthStore = create<AuthState>()(
 
           if (error) {
             console.error('❌ Error de autenticación:', error);
-            
+            console.error('❌ Código de error:', error.status);
+            console.error('❌ Mensaje completo:', error.message);
+
             // Proporcionar mensajes de error más descriptivos
             if (error.message.includes('Invalid login credentials')) {
               throw new Error('Credenciales inválidas. Verifica tu email y contraseña.');
@@ -67,7 +71,7 @@ export const useAuthStore = create<AuthState>()(
             } else if (error.message.includes('Too many requests')) {
               throw new Error('Demasiados intentos. Por favor, espera unos minutos.');
             } else {
-              throw new Error(error.message || 'Error al iniciar sesión');
+              throw new Error(`Error de autenticación: ${error.message}`);
             }
           }
 

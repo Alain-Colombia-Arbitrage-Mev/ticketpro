@@ -34,6 +34,29 @@ if (!projectId || !publicAnonKey) {
   console.error('  - VITE_supabase_project_id');
   console.error('  - VITE_supabase_anon_key');
   console.error('  - VITE_supabase_project_url (opcional)');
+  console.error('');
+  console.error('🔧 Creando archivo .env con valores por defecto...');
+  // En desarrollo, crear .env si no existe
+  if (typeof window === 'undefined' && import.meta.env.DEV) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const envPath = path.join(process.cwd(), '.env');
+      if (!fs.existsSync(envPath)) {
+        const envContent = `# Variables de entorno para desarrollo
+VITE_supabase_project_id=${defaultProjectId}
+VITE_supabase_anon_key=${defaultAnonKey}
+VITE_supabase_project_url=https://${defaultProjectId}.supabase.co
+VITE_SITE_URL=https://tiquetera.com
+`;
+        fs.writeFileSync(envPath, envContent);
+        console.log('✅ Archivo .env creado con valores por defecto');
+        console.log('🔄 Reinicia el servidor de desarrollo para cargar las nuevas variables');
+      }
+    } catch (err) {
+      console.warn('⚠️ No se pudo crear archivo .env automáticamente:', err.message);
+    }
+  }
 }
 
 // Advertencia en producción si se usan valores por defecto
