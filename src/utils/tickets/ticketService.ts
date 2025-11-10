@@ -117,7 +117,14 @@ export async function createTicket(ticketData: TicketData): Promise<Ticket> {
     }
     
     // Actualizar con la URL final usando el ID real
-    const finalValidationUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/#validate-ticket?ticketId=${data.id}&code=${ticketCode}`;
+    let finalValidationUrl: string;
+    if (typeof window !== 'undefined') {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+      finalValidationUrl = `${cleanBaseUrl}/#validate-ticket?ticketId=${encodeURIComponent(data.id)}&code=${encodeURIComponent(ticketCode)}`;
+    } else {
+      finalValidationUrl = `/#validate-ticket?ticketId=${encodeURIComponent(data.id)}&code=${encodeURIComponent(ticketCode)}`;
+    }
     
     const { data: updatedData, error: updateError } = await supabase
       .from('tickets')

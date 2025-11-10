@@ -8,7 +8,20 @@ import QRCode from 'qrcode';
  */
 export async function generateQRCode(ticketId: string, ticketCode: string): Promise<string> {
   // URL que se escaneará para validar el ticket
-  const validationUrl = `${window.location.origin}/#validate-ticket?ticketId=${ticketId}&code=${ticketCode}`;
+  // Usar la URL guardada en el ticket si está disponible, o generar una nueva
+  let validationUrl: string;
+  
+  // Si estamos en el navegador, usar la URL actual
+  if (typeof window !== 'undefined') {
+    // Obtener la URL base (sin hash)
+    const baseUrl = window.location.origin + window.location.pathname;
+    // Asegurar que no termine con /
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    validationUrl = `${cleanBaseUrl}/#validate-ticket?ticketId=${encodeURIComponent(ticketId)}&code=${encodeURIComponent(ticketCode)}`;
+  } else {
+    // Fallback para SSR
+    validationUrl = `/#validate-ticket?ticketId=${encodeURIComponent(ticketId)}&code=${encodeURIComponent(ticketCode)}`;
+  }
   
   try {
     // Generar QR code como data URL (base64)
@@ -16,7 +29,7 @@ export async function generateQRCode(ticketId: string, ticketCode: string): Prom
       errorCorrectionLevel: 'H', // Alto nivel de corrección de errores
       type: 'image/png',
       quality: 0.92,
-      margin: 1,
+      margin: 2,
       color: {
         dark: '#000000',
         light: '#FFFFFF'
