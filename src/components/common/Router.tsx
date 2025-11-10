@@ -26,7 +26,15 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '') as Page;
-      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact"];
+      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket"];
+      
+      // Verificar si hay parámetros de validación de ticket en la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('ticketId') || urlParams.has('code')) {
+        setCurrentPage("validate-ticket");
+        return;
+      }
+      
       if (hash && validPages.includes(hash)) {
         setCurrentPage(hash);
       }
@@ -37,9 +45,11 @@ export function RouterProvider({ children }: { children: ReactNode }) {
 
     // Escuchar cambios en el hash
     window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
 
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
     };
   }, []);
 
