@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "../hooks/useRouter";
-import { validateTicket, markTicketAsUsed, Ticket } from "../utils/tickets/ticketService";
+import { useAuth } from "../hooks/useAuth";
+import { validateTicket, validateTicketByHoster, Ticket } from "../utils/tickets/ticketService";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { CheckCircle2, XCircle, Loader2, QrCode } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, QrCode, Shield, LogIn } from "lucide-react";
 import { TicketComponent } from "../components/tickets/TicketComponent";
 
 export function ValidateTicketPage() {
   const { navigate } = useRouter();
+  const { user } = useAuth();
+  const isAuthenticated = !!user && !!user.id && !!user.email;
   const [loading, setLoading] = useState(true);
   const [validating, setValidating] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -70,6 +73,23 @@ export function ValidateTicketPage() {
   const handleMarkAsUsed = async () => {
     if (!ticket) return;
 
+    // Verificar autenticación y rol
+    if (!isAuthenticated || !user) {
+      const shouldLogin = confirm(
+        'Debes iniciar sesión con una cuenta de hoster o admin para validar tickets.\n\n¿Deseas iniciar sesión?'
+      );
+      if (shouldLogin) {
+        navigate("login");
+      }
+      return;
+    }
+
+    // Verificar rol
+    if (user.role !== 'hoster' && user.role !== 'admin') {
+      alert('Solo los usuarios con rol de hoster o admin pueden validar tickets.');
+      return;
+    }
+
     // Confirmar antes de marcar como usado
     const confirmMessage = `¿Estás seguro de que deseas marcar este ticket como usado?\n\n` +
       `Evento: ${ticket.event_name}\n` +
@@ -83,15 +103,40 @@ export function ValidateTicketPage() {
 
     setValidating(true);
     try {
-      const result = await markTicketAsUsed(ticket.id);
-      if (result.success) {
+      // Obtener el token de acceso de Supabase si está disponible
+      // Esto requiere que el usuario esté autenticado con Supabase
+      let accessToken: string | undefined;
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const { projectId, publicAnonKey } = await import('../utils/supabase/info');
+        const supabaseClient = createClient(
+          `https://${projectId}.supabase.co`,
+          publicAnonKey
+        );
+        
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        accessToken = session?.access_token;
+      } catch (err) {
+        console.warn('Could not get Supabase session token:', err);
+      }
+      
+      // Usar validateTicketByHoster que requiere autenticación
+      const result = await validateTicketByHoster(
+        ticket.id,
+        ticket.ticket_code,
+        user.id,
+        user.email || '',
+        accessToken
+      );
+      
+      if (result.success && result.validated) {
         setTicket(result.ticket || null);
         setValidationResult({
           valid: true,
-          message: '✅ Ticket marcado como usado exitosamente'
+          message: '✅ Ticket validado y marcado como usado exitosamente'
         });
       } else {
-        alert(result.message);
+        alert(result.message || 'Error al validar el ticket');
       }
     } catch (error) {
       console.error('Error marking ticket as used:', error);
@@ -199,29 +244,46 @@ export function ValidateTicketPage() {
                   <p className="text-white/90 mb-2 font-semibold">
                     Este ticket está sin usar
                   </p>
-                  <p className="text-sm text-white/70">
-                    Haz clic en el botón para marcarlo como usado
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <Button
-                    onClick={handleMarkAsUsed}
-                    disabled={validating}
-                    className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold"
-                    size="lg"
-                  >
-                    {validating ? (
-                      <>
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Procesando...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="h-5 w-5 mr-2" />
-                        Marcar como Usado
-                      </>
-                    )}
-                  </Button>
+                  {!isAuthenticated || (user && user.role !== 'hoster' && user.role !== 'admin') ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-white/70">
+                        Debes iniciar sesión con una cuenta de hoster o admin para validar este ticket
+                      </p>
+                      <Button
+                        onClick={() => navigate("login")}
+                        className="bg-[#c61619] hover:bg-[#a01316] text-white"
+                      >
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Iniciar Sesión
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-white/70 mb-4">
+                        Haz clic en el botón para marcarlo como usado
+                      </p>
+                      <div className="flex justify-center">
+                        <Button
+                          onClick={handleMarkAsUsed}
+                          disabled={validating}
+                          className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold"
+                          size="lg"
+                        >
+                          {validating ? (
+                            <>
+                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                              Procesando...
+                            </>
+                          ) : (
+                            <>
+                              <Shield className="h-5 w-5 mr-2" />
+                              Validar y Marcar como Usado
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </Card>
             )}
