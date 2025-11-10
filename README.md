@@ -48,8 +48,12 @@ Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 VITE_SUPABASE_PROJECT_ID=tu_project_id
 VITE_SUPABASE_ANON_KEY=tu_anon_key
 
-# URL del sitio (opcional)
+# URL del sitio (opcional, para SEO)
 VITE_SITE_URL=https://tiquetera.com
+
+# Supabase Edge Function (opcional, si usas una función personalizada)
+# VITE_SUPABASE_API_FUNCTION_NAME=make-server-97d4f7c5
+# VITE_SUPABASE_API_URL=https://tu-project-id.supabase.co/functions/v1/tu-function-name
 ```
 
 ### 2. Obtener credenciales de Supabase
