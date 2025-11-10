@@ -297,12 +297,14 @@ export async function markTicketAsUsed(
 /**
  * Valida y marca un ticket como usado por un hoster del evento
  * Esta función verifica que el usuario tenga el rol de hoster antes de validar
+ * REQUIERE: autenticación de Supabase con token de acceso
  */
 export async function validateTicketByHoster(
-  ticketId: string,
-  ticketCode: string,
-  hosterId: string,
-  hosterEmail: string
+  ticketId?: string,
+  ticketCode?: string,
+  hosterId?: string,
+  hosterEmail?: string,
+  accessToken?: string
 ): Promise<{ 
   success: boolean; 
   ticket?: Ticket; 
@@ -310,7 +312,24 @@ export async function validateTicketByHoster(
   validated: boolean;
 }> {
   try {
-    // Primero validar el ticket
+    // Validar parámetros requeridos
+    if (!ticketId && !ticketCode) {
+      return {
+        success: false,
+        validated: false,
+        message: 'Se requiere ticketId o ticketCode'
+      };
+    }
+
+    if (!hosterId) {
+      return {
+        success: false,
+        validated: false,
+        message: 'Se requiere hosterId para validar el ticket'
+      };
+    }
+
+    // Primero validar el ticket (sin autenticación, solo lectura)
     const validation = await validateTicket(ticketId, ticketCode);
     
     if (!validation.valid || !validation.ticket) {
@@ -333,8 +352,39 @@ export async function validateTicketByHoster(
       };
     }
     
-    // Marcar como usado con información del hoster
-    const { data, error } = await supabase
+    // Si hay accessToken, usar cliente autenticado
+    const client = accessToken ? getAuthenticatedSupabase(accessToken) : supabase;
+    
+    // Intentar usar la función RPC de Supabase para validar el ticket de forma segura
+    try {
+      const { data: rpcData, error: rpcError } = await client.rpc('validate_ticket', {
+        p_ticket_id: ticketId || null,
+        p_ticket_code: ticketCode || null,
+        p_hoster_id: hosterId,
+        p_hoster_email: hosterEmail || null
+      });
+      
+      // Si la función RPC existe y funciona, usarla
+      if (!rpcError && rpcData && Array.isArray(rpcData) && rpcData.length > 0) {
+        return {
+          success: true,
+          validated: true,
+          ticket: rpcData[0] as Ticket,
+          message: 'Ticket validado y marcado como usado exitosamente'
+        };
+      }
+      
+      // Si la función RPC no existe o falla, continuar con el método alternativo
+      if (rpcError) {
+        console.warn('RPC function not available, using fallback method:', rpcError.message);
+      }
+    } catch (rpcErr) {
+      console.warn('Error calling RPC function, using fallback method:', rpcErr);
+    }
+    
+    // Fallback: usar update directo (menos seguro, pero funcional)
+    // NOTA: Esto debería protegerse con RLS (Row Level Security) en Supabase
+    const { data, error } = await client
       .from('tickets')
       .update({
         status: 'issued_used',
@@ -351,7 +401,7 @@ export async function validateTicketByHoster(
           }
         }
       })
-      .eq('id', ticketId)
+      .eq('id', ticket.id)
       .select()
       .single();
     
@@ -370,7 +420,7 @@ export async function validateTicketByHoster(
     return {
       success: false,
       validated: false,
-      message: 'Error al validar el ticket'
+      message: error instanceof Error ? error.message : 'Error al validar el ticket'
     };
   }
 }
