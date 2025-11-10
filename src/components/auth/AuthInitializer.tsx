@@ -30,16 +30,22 @@ export function AuthInitializer() {
               // Si hay error al refrescar, crear usuario básico desde sesión
               if (session.user) {
                 const { User } = await import('../../utils/api');
+                // Extraer rol de user_metadata, asegurándose de que sea válido
+                const metadataRole = session.user.user_metadata?.role;
+                const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+                  ? metadataRole 
+                  : 'user';
+                
                 const basicUser: User = {
                   id: session.user.id,
                   email: session.user.email || '',
                   name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
                   balance: 0,
                   createdAt: session.user.created_at || new Date().toISOString(),
-                  role: (session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
+                  role: validRole,
                 };
                 setUser(basicUser);
-                console.log('✅ Usuario básico establecido desde sesión');
+                console.log('✅ Usuario básico establecido desde sesión. Rol:', validRole);
               }
             }
           } else {
@@ -67,16 +73,22 @@ export function AuthInitializer() {
             // Si hay error al refrescar, crear usuario básico desde sesión
             if (session.user) {
               const { User } = await import('../../utils/api');
+              // Extraer rol de user_metadata, asegurándose de que sea válido
+              const metadataRole = session.user.user_metadata?.role;
+              const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+                ? metadataRole 
+                : 'user';
+              
               const basicUser: User = {
                 id: session.user.id,
                 email: session.user.email || '',
                 name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
                 balance: 0,
                 createdAt: session.user.created_at || new Date().toISOString(),
-                role: (session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
+                role: validRole,
               };
               setUser(basicUser);
-              console.log('✅ Usuario básico establecido desde auth state change');
+              console.log('✅ Usuario básico establecido desde auth state change. Rol:', validRole);
             }
           }
         } else {

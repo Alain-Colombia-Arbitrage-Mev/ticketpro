@@ -20,10 +20,21 @@ export function HomePage() {
   const { user } = useAuth();
   const { t } = useLanguage();
 
+  // Verificación estricta del rol para mostrar el banner
+  const isHosterOrAdmin = user && 
+    user.role && 
+    typeof user.role === 'string' && 
+    (user.role === 'hoster' || user.role === 'admin');
+
+  // Debug: solo loguear en desarrollo
+  if (import.meta.env.DEV && user) {
+    console.log('🔍 HomePage - Usuario:', user.email, 'Rol:', user.role, 'isHosterOrAdmin:', isHosterOrAdmin);
+  }
+
   return (
     <>
       {/* Banner informativo para usuarios hoster/admin */}
-      {user && user.role && (user.role === 'hoster' || user.role === 'admin') && (
+      {isHosterOrAdmin && (
         <div className="fixed top-24 left-4 right-4 z-50 animate-in slide-in-from-top-2 duration-500">
           <Card className="!bg-red-900/20 border-red-500/50 backdrop-blur-sm">
             <CardContent className="p-4">
