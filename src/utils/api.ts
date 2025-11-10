@@ -1,9 +1,9 @@
-import { projectId, publicAnonKey } from './supabase/info';
+import { projectId, publicAnonKey, projectUrl } from './supabase/info';
 import { Currency, MultiCurrencyBalance } from './currency';
 
-// URL de la API - usar variable de entorno o construir desde projectId
+// URL de la API - usar variable de entorno o construir desde projectUrl
 const API_FUNCTION_NAME = import.meta.env.VITE_SUPABASE_API_FUNCTION_NAME || 'make-server-97d4f7c5';
-const API_URL = import.meta.env.VITE_SUPABASE_API_URL || `https://${projectId}.supabase.co/functions/v1/${API_FUNCTION_NAME}`;
+const API_URL = import.meta.env.VITE_SUPABASE_API_URL || `${projectUrl}/functions/v1/${API_FUNCTION_NAME}`;
 
 export interface User {
   id: string;

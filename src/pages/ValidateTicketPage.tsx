@@ -108,9 +108,9 @@ export function ValidateTicketPage() {
       let accessToken: string | undefined;
       try {
         const { createClient } = await import('@supabase/supabase-js');
-        const { projectId, publicAnonKey } = await import('../utils/supabase/info');
+        const { projectId, publicAnonKey, projectUrl } = await import('../utils/supabase/info');
         const supabaseClient = createClient(
-          `https://${projectId}.supabase.co`,
+          projectUrl,
           publicAnonKey
         );
         

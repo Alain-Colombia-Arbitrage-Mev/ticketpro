@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { projectUrl } from '../supabase/info';
 
 /**
  * Genera un código QR para un ticket
@@ -6,6 +7,7 @@ import QRCode from 'qrcode';
  * @param ticketCode - Código del ticket
  * @returns URL del QR code como string base64
  */
+
 export async function generateQRCode(ticketId: string, ticketCode: string): Promise<string> {
   // URL que se escaneará para validar el ticket
   // Usar la URL guardada en el ticket si está disponible, o generar una nueva
@@ -19,8 +21,9 @@ export async function generateQRCode(ticketId: string, ticketCode: string): Prom
     const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     validationUrl = `${cleanBaseUrl}/#validate-ticket?ticketId=${encodeURIComponent(ticketId)}&code=${encodeURIComponent(ticketCode)}`;
   } else {
-    // Fallback para SSR
-    validationUrl = `/#validate-ticket?ticketId=${encodeURIComponent(ticketId)}&code=${encodeURIComponent(ticketCode)}`;
+    // Fallback para SSR - usar una URL base desde variables de entorno o projectUrl
+    const baseUrl = import.meta.env.VITE_SITE_URL || projectUrl.replace('.supabase.co', '');
+    validationUrl = `${baseUrl}/#validate-ticket?ticketId=${encodeURIComponent(ticketId)}&code=${encodeURIComponent(ticketCode)}`;
   }
   
   try {

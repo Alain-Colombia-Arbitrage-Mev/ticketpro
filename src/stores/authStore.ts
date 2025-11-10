@@ -5,12 +5,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { projectUrl, publicAnonKey } from '../utils/supabase/info';
 import { api, User } from '../utils/api';
 
 // Cliente de Supabase para acciones de autenticación
 const supabase = createClient(
-  `https://${projectId}.supabase.co`,
+  projectUrl,
   publicAnonKey
 );
 

@@ -1,17 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey } from '../supabase/info';
+import { projectId, publicAnonKey, projectUrl } from '../supabase/info';
 import { generateQRCode, generateTicketCode } from './qrGenerator';
 
 // Cliente público (sin autenticación)
 const supabase = createClient(
-  `https://${projectId}.supabase.co`,
+  projectUrl,
   publicAnonKey
 );
 
 // Función para obtener cliente autenticado
 export function getAuthenticatedSupabase(accessToken: string) {
   return createClient(
-    `https://${projectId}.supabase.co`,
+    projectUrl,
     publicAnonKey,
     {
       global: {
@@ -94,7 +94,8 @@ export async function createTicket(ticketData: TicketData): Promise<Ticket> {
     const tempId = crypto.randomUUID();
     
     // Crear URL de validación (el QR se generará cuando se necesite)
-    const validationUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/#validate-ticket?ticketId=${tempId}&code=${ticketCode}`;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const validationUrl = `${baseUrl}/#validate-ticket?ticketId=${tempId}&code=${ticketCode}`;
     
     // Insertar ticket en Supabase
     const { data, error } = await supabase
@@ -139,7 +140,9 @@ export async function createTicket(ticketData: TicketData): Promise<Ticket> {
       const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
       finalValidationUrl = `${cleanBaseUrl}/#validate-ticket?ticketId=${encodeURIComponent(data.id)}&code=${encodeURIComponent(ticketCode)}`;
     } else {
-      finalValidationUrl = `/#validate-ticket?ticketId=${encodeURIComponent(data.id)}&code=${encodeURIComponent(ticketCode)}`;
+      // En SSR, usar la URL del proyecto de Supabase o una URL por defecto
+      const defaultBaseUrl = projectUrl.replace('.supabase.co', '');
+      finalValidationUrl = `${defaultBaseUrl}/#validate-ticket?ticketId=${encodeURIComponent(data.id)}&code=${encodeURIComponent(ticketCode)}`;
     }
     
     const { data: updatedData, error: updateError } = await supabase
