@@ -203,14 +203,14 @@ export function EventDetailPage() {
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold !text-white mb-3 sm:mb-4">{t('event.detail.description')}</h3>
               <div className="rounded-lg sm:rounded-xl border border-white/20 !bg-white/5 p-4 sm:p-5 md:p-6">
                 <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed !text-white/90">
-                  <p>
-                    Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
-                    artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
-                  </p>
-                  <p>
-                    No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados 
-                    del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
-                  </p>
+                <p>
+                  Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
+                  artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
+                </p>
+                <p>
+                  No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados 
+                  del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
+                </p>
                 </div>
               </div>
             </div>

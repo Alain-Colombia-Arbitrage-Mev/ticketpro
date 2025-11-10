@@ -36,7 +36,7 @@ export function LoginPage() {
     try {
       // Normalizar email (trim y lowercase)
       const normalizedEmail = loginEmail.trim().toLowerCase();
-      
+
       if (!normalizedEmail || !loginPassword) {
         setError("Por favor, completa todos los campos");
         setLoading(false);
@@ -45,9 +45,16 @@ export function LoginPage() {
 
       console.log('🔐 Iniciando sesión con:', normalizedEmail);
       await signIn(normalizedEmail, loginPassword);
-      
+
       console.log('✅ Login exitoso, redirigiendo...');
-      navigate("home");
+
+      // Redirigir según el rol del usuario
+      // Si es hoster o admin, ir directamente a validación de tickets
+      // Si es usuario regular, ir al home
+      setTimeout(() => {
+        // La redirección se maneja en el authStore después de obtener el perfil
+        navigate("home");
+      }, 100);
     } catch (err: any) {
       console.error('❌ Error en handleLogin:', err);
       // Mostrar mensaje de error más descriptivo
