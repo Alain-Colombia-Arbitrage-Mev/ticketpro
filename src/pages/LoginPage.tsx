@@ -34,10 +34,25 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      await signIn(loginEmail, loginPassword);
+      // Normalizar email (trim y lowercase)
+      const normalizedEmail = loginEmail.trim().toLowerCase();
+      
+      if (!normalizedEmail || !loginPassword) {
+        setError("Por favor, completa todos los campos");
+        setLoading(false);
+        return;
+      }
+
+      console.log('🔐 Iniciando sesión con:', normalizedEmail);
+      await signIn(normalizedEmail, loginPassword);
+      
+      console.log('✅ Login exitoso, redirigiendo...');
       navigate("home");
     } catch (err: any) {
-      setError(err.message || "Error al iniciar sesión");
+      console.error('❌ Error en handleLogin:', err);
+      // Mostrar mensaje de error más descriptivo
+      const errorMessage = err.message || err.error?.message || "Error al iniciar sesión";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

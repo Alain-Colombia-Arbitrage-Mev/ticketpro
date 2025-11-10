@@ -48,17 +48,60 @@ export const useAuthStore = create<AuthState>()(
       },
 
       signIn: async (email: string, password: string) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        try {
+          console.log('🔐 Intentando iniciar sesión con:', email);
+          
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password,
+          });
 
-        if (error) throw error;
+          if (error) {
+            console.error('❌ Error de autenticación:', error);
+            
+            // Proporcionar mensajes de error más descriptivos
+            if (error.message.includes('Invalid login credentials')) {
+              throw new Error('Credenciales inválidas. Verifica tu email y contraseña.');
+            } else if (error.message.includes('Email not confirmed')) {
+              throw new Error('Por favor, confirma tu email antes de iniciar sesión.');
+            } else if (error.message.includes('Too many requests')) {
+              throw new Error('Demasiados intentos. Por favor, espera unos minutos.');
+            } else {
+              throw new Error(error.message || 'Error al iniciar sesión');
+            }
+          }
 
-        if (data.session?.access_token) {
-          api.setAccessToken(data.session.access_token);
-          const { user: userProfile } = await api.getProfile();
-          set({ user: userProfile });
+          if (!data.session) {
+            throw new Error('No se pudo crear la sesión. Por favor, intenta de nuevo.');
+          }
+
+          if (data.session?.access_token) {
+            console.log('✅ Sesión creada exitosamente');
+            api.setAccessToken(data.session.access_token);
+            
+            try {
+              const { user: userProfile } = await api.getProfile();
+              console.log('✅ Perfil de usuario obtenido:', userProfile?.email, 'Rol:', userProfile?.role);
+              set({ user: userProfile });
+            } catch (profileError) {
+              console.error('⚠️ Error al obtener perfil, pero la sesión es válida:', profileError);
+              // Si hay error al obtener el perfil, crear un usuario básico desde la sesión
+              const basicUser: User = {
+                id: data.session.user.id,
+                email: data.session.user.email || email,
+                name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
+                balance: 0,
+                createdAt: data.session.user.created_at || new Date().toISOString(),
+                role: data.session.user.user_metadata?.role || 'user',
+              };
+              set({ user: basicUser });
+            }
+          } else {
+            throw new Error('No se recibió un token de acceso válido.');
+          }
+        } catch (error) {
+          console.error('❌ Error completo en signIn:', error);
+          throw error;
         }
       },
 
