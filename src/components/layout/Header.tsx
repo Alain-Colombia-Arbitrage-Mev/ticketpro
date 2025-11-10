@@ -106,17 +106,17 @@ export function Header() {
         <div className="flex items-center gap-2 z-10">
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-2">
-            {/* Language Selector - Compact */}
-            <LanguageSelector variant="compact" />
-            
-            <Button 
-              variant="ghost"
-              size="icon"
+          {/* Language Selector - Compact */}
+          <LanguageSelector variant="compact" />
+          
+          <Button 
+            variant="ghost"
+            size="icon"
               className="rounded-lg focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-10 w-10"
               onClick={() => handleNavigation("all-events")}
-            >
+          >
               <Search className="h-6 w-6 !text-white" />
-            </Button>
+          </Button>
 
             {/* Solo mostrar carrito si el usuario está autenticado */}
             {isAuthenticated && (
@@ -139,29 +139,29 @@ export function Header() {
             {/* Botones según estado de autenticación - Mutuamente excluyentes */}
             {isAuthenticated ? (
               // USUARIO AUTENTICADO: Mostrar billetera, perfil y logout
-              <>
+            <>
                 {/* Balance Display - Reduced size */}
-                <button
+              <button
                   onClick={() => handleNavigation("wallet")}
                   className="flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/20 backdrop-blur-sm px-3 py-2 transition-all duration-300 hover:border-white/40 hover:bg-black/30 hover:text-white hover:shadow-md hover:scale-105 focus-visible-ring"
-                  aria-label="Ver billetera"
-                >
+                aria-label="Ver billetera"
+              >
                   <Wallet className="h-4 w-4 !text-white" />
                   <span className="text-sm font-medium text-white">
                     ${user?.balance?.toLocaleString() || '0'}
-                  </span>
-                </button>
+                </span>
+              </button>
 
                 {/* Botón de Perfil - Icono User */}
-                <Button 
-                  variant="ghost"
-                  size="icon"
+              <Button 
+                variant="ghost"
+                size="icon"
                   className="rounded-lg focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-10 w-10"
-                  onClick={() => handleNavigation("profile")}
-                  aria-label="Ir a perfil"
-                >
+                onClick={() => handleNavigation("profile")}
+                aria-label="Ir a perfil"
+              >
                   <User className="h-6 w-6 !text-white" />
-                </Button>
+              </Button>
 
                 {/* Botón de Logout */}
                 <Button
@@ -193,26 +193,26 @@ export function Header() {
             <LanguageSelector variant="compact" />
             
             {!isAuthenticated && (
-              <Button 
+              <Button
                 variant="ghost"
                 size="icon"
                 className="rounded-lg focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-10 w-10"
                 onClick={() => handleNavigation("login")}
-                aria-label="Ingresar"
-              >
-                <LogIn className="h-5 w-5 !text-white" />
-              </Button>
-            )}
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-lg focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-10 w-10"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Abrir menú"
+              aria-label="Ingresar"
             >
-              <Menu className="h-5 w-5 !text-white" />
+                <LogIn className="h-5 w-5 !text-white" />
             </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            size="icon"
+              className="rounded-lg focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-10 w-10"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Abrir menú"
+          >
+              <Menu className="h-5 w-5 !text-white" />
+          </Button>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HelmetProvider>
       <RouterProvider>
-        <App />
+    <App />
       </RouterProvider>
     </HelmetProvider>
   </React.StrictMode>

@@ -69,33 +69,33 @@ export function HomePage() {
               
               {/* Logo - responsive */}
               <div className="w-[180px] h-[86px] sm:w-[220px] sm:h-[105px] md:w-[260px] md:h-[125px] lg:w-[296px] lg:h-[142px] shrink-0 animate-fade-in-up">
-                <img 
-                  src={logohome} 
-                  alt="vetlix.com" 
+              <img 
+                src={logohome} 
+                alt="vetlix.com" 
                   className="w-full h-full object-contain"
-                />
-              </div>
-              
+              />
+            </div>
+            
               {/* Grupo de textos con efectos - responsive */}
               <div className="text-center text-white shrink-0 animate-fade-in-up px-4">
                 {/* Título con efecto de brillo */}
                 <h1 className="font-germania text-[28px] sm:text-[36px] md:text-[42px] lg:text-[48px] font-normal leading-tight sm:leading-normal mb-2 sm:mb-0 hover:scale-105 transition-transform duration-500 hover:text-shadow-glow">
                   {t('home.hero.title')}
-                </h1>
+              </h1>
                 
                 {/* Subtítulo con efecto sutil */}
                 <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
                   {t('home.hero.subtitle')}
-                </p>
-              </div>
+              </p>
+            </div>
             
               {/* Botón Ver más con efecto de pulso - responsive */}
               <div className="shrink-0 animate-pulse-button">
                 <Button
                   variant="glass"
                   className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
+              onClick={() => navigate("events")}
+            >
                   {t('home.hero.button')}
                 </Button>
               </div>
@@ -152,7 +152,7 @@ export function HomePage() {
                 <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
                   {t('home.section2.subtitle')}
                 </p>
-              </div>
+                </div>
               
               {/* Botón Ver más con efecto de pulso - responsive */}
               <div className="shrink-0 animate-pulse-button">
@@ -217,7 +217,7 @@ export function HomePage() {
                 <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
                   {t('home.section3.subtitle')}
                 </p>
-              </div>
+                </div>
               
               {/* Botón Ver más con efecto de pulso - responsive */}
               <div className="shrink-0 animate-pulse-button">
@@ -234,7 +234,7 @@ export function HomePage() {
           </div>
           
         </section>
-        
+            
         {/* Cuarta Sección - Sin Logo con Efectos */}
         <section 
           className="relative w-full min-h-screen h-screen overflow-hidden bg-black"
@@ -289,8 +289,8 @@ export function HomePage() {
                 <Button
                   variant="glass"
                   className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
+                onClick={() => navigate("events")}
+              >
                   {t('home.hero.button')}
                 </Button>
               </div>
@@ -298,7 +298,7 @@ export function HomePage() {
             </div>
           </div>
           
-        </section>
+          </section>
         
       </div>
     </>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { projectUrl, publicAnonKey } from '../utils/supabase/info';
 import { api, User } from '../utils/api';
 
 interface AuthContextType {
@@ -17,7 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const supabase = createClient(
-  `https://${projectId}.supabase.co`,
+  projectUrl,
   publicAnonKey
 );
 

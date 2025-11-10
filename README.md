@@ -45,8 +45,13 @@ Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
 ```env
 # Supabase Configuration
-VITE_SUPABASE_PROJECT_ID=tu_project_id
-VITE_SUPABASE_ANON_KEY=tu_anon_key
+# Nota: En Vite, las variables de entorno deben tener el prefijo VITE_
+VITE_supabase_project_id=tu_project_id
+VITE_supabase_anon_key=tu_anon_key
+VITE_supabase_project_url=https://tu-project-id.supabase.co
+
+# Service Role Key (opcional, solo para backend - NUNCA exponer en frontend)
+# VITE_supabase_service_role=tu_service_role_key
 
 # URL del sitio (opcional, para SEO)
 VITE_SITE_URL=https://tiquetera.com
