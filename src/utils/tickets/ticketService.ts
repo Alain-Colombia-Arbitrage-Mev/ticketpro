@@ -358,9 +358,9 @@ export async function validateTicketByHoster(
     // Intentar usar la función RPC de Supabase para validar el ticket de forma segura
     try {
       const { data: rpcData, error: rpcError } = await client.rpc('validate_ticket', {
+        p_hoster_id: hosterId,
         p_ticket_id: ticketId || null,
         p_ticket_code: ticketCode || null,
-        p_hoster_id: hosterId,
         p_hoster_email: hosterEmail || null
       });
       
