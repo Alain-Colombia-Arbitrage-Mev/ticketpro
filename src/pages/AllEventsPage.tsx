@@ -13,6 +13,8 @@ import { Card } from "../components/ui/card";
 import { CityAutocomplete } from "../components/search";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
+import { useAuth } from "../hooks/useAuth";
+import { useCartStore } from "../stores/cartStore";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
 
@@ -21,6 +23,8 @@ const ITEMS_PER_PAGE = 12;
 export function AllEventsPage() {
   const { navigate, pageData } = useRouter();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { addItem } = useCartStore();
   
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>(pageData?.category || "all");
@@ -51,6 +55,53 @@ export function AllEventsPage() {
   // Extract price from string
   const extractPrice = (priceStr: string): number => {
     return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+  };
+
+  // Helper function to parse date
+  const parseDate = (dateStr: string): string => {
+    const months: Record<string, string> = {
+      'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+      'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+      'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+    };
+    const parts = dateStr.toLowerCase().split(',');
+    if (parts.length === 2) {
+      const year = parts[1].trim();
+      const dayMonth = parts[0].split('de');
+      if (dayMonth.length === 2) {
+        const day = dayMonth[0].trim();
+        const month = dayMonth[1].trim();
+        const monthNum = months[month] || '01';
+        return `${year}-${monthNum}-${day.padStart(2, '0')}`;
+      }
+    }
+    return new Date().toISOString().split('T')[0];
+  };
+
+  const handleAddToCart = (event: any) => {
+    if (!user) {
+      navigate("login");
+      return;
+    }
+
+    const ticketPrice = parseInt(event.price.replace(/[^0-9]/g, "") || "800");
+    
+    addItem({
+      eventId: event.id,
+      eventName: event.title,
+      eventDate: parseDate(event.date),
+      eventTime: undefined,
+      eventLocation: event.location,
+      eventImage: event.image,
+      ticketType: "General",
+      ticketPrice: ticketPrice,
+      quantity: 1,
+      seatNumber: undefined,
+      seatType: undefined,
+      ticketCategoryId: undefined,
+    });
+
+    navigate("cart");
   };
 
   // Filter and sort events
@@ -612,16 +663,7 @@ export function AllEventsPage() {
                         className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate("event-detail", {
-                            id: event.id,
-                            title: event.title,
-                            date: event.date,
-                            location: event.location,
-                            price: event.price,
-                            image: event.image,
-                            category: event.category,
-                            featured: event.featured,
-                          });
+                          handleAddToCart(event);
                         }}
                       >
                         <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">

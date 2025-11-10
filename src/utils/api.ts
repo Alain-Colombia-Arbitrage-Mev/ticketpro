@@ -7,8 +7,10 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  address?: string; // Dirección del usuario
   balance: MultiCurrencyBalance | number; // Support both old and new format
   preferredCurrency?: Currency;
+  role?: 'user' | 'hoster' | 'admin'; // Rol del usuario
   createdAt: string;
 }
 
@@ -120,6 +122,13 @@ class ApiClient {
     return this.request('/user/currency', {
       method: 'POST',
       body: JSON.stringify({ currency }),
+    });
+  }
+
+  async updateAddress(address: string): Promise<{ message: string; address: string }> {
+    return this.request('/user/address', {
+      method: 'POST',
+      body: JSON.stringify({ address }),
     });
   }
 

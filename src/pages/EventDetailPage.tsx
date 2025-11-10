@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Star, Ticket } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Star, Ticket, ShoppingCart } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
@@ -7,11 +7,15 @@ import { Separator } from "../components/ui/separator";
 import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
+import { useAuth } from "../hooks/useAuth";
+import { useCartStore } from "../stores/cartStore";
 import { SEOHead } from "../components/common";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { addItem } = useCartStore();
 
   if (!pageData) {
     navigate("home");
@@ -55,14 +59,33 @@ export function EventDetailPage() {
     setSelectedTicketType(ticketId);
   };
 
-  const handleProceedToCheckout = () => {
+  const handleAddToCart = () => {
+    if (!user) {
+      navigate("login");
+      return;
+    }
+
     const selectedTicket = ticketTypes.find(t => t.id === selectedTicketType);
     if (selectedTicket) {
-      navigate("checkout", {
-        ...pageData,
-        selectedTicketType: selectedTicket.name.toLowerCase(),
-        ticketPrice: selectedTicket.price,
+      const ticketPrice = parseInt(selectedTicket.price.replace(/[^0-9]/g, ""));
+      
+      addItem({
+        eventId: pageData.id || 1,
+        eventName: pageData.title,
+        eventDate: eventDateISO.split('T')[0],
+        eventTime: pageData.time,
+        eventLocation: pageData.location,
+        eventImage: pageData.image,
+        ticketType: selectedTicket.name,
+        ticketPrice: ticketPrice,
+        quantity: 1,
+        seatNumber: undefined,
+        seatType: undefined,
+        ticketCategoryId: undefined,
       });
+
+      // Opcional: Mostrar notificación o navegar al carrito
+      navigate("cart");
     }
   };
 
@@ -318,9 +341,9 @@ export function EventDetailPage() {
                   <Button
                     disabled={!selectedTicketType}
                     className="h-10 sm:h-11 md:h-12 w-full text-sm sm:text-base !bg-[#c61619] hover:!bg-[#a01316] font-semibold shadow-lg transition-shadow hover:shadow-xl !text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={handleProceedToCheckout}
+                    onClick={handleAddToCart}
                   >
-                    <Ticket className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 !text-white" />
+                    <ShoppingCart className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 !text-white" />
                     {selectedTicketType ? t('event.detail.buyTickets') : t('event.detail.selectTicket')}
                   </Button>
 

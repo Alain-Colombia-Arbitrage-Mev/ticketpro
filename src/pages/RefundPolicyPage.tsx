@@ -26,14 +26,14 @@ export function RefundPolicyPage() {
         {/* Hero Section */}
         <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-900 border-b border-white/10">
           <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 max-w-6xl">
-            <Button
-              variant="ghost"
-              onClick={() => navigate("home")}
+        <Button
+          variant="ghost"
+          onClick={() => navigate("home")}
               className="mb-6 text-white hover:text-white/80"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Button>
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
 
             <div className="text-center max-w-3xl mx-auto">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
@@ -46,8 +46,8 @@ export function RefundPolicyPage() {
                 Transparencia y protección en cada compra
               </p>
               <p className="text-sm text-white/50">
-                <strong>Última actualización:</strong> {new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
+            <strong>Última actualización:</strong> {new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
             </div>
           </div>
         </div>
@@ -62,10 +62,10 @@ export function RefundPolicyPage() {
                   <p className="font-semibold text-white mb-2">Importante</p>
                   <p className="text-white/80 text-sm leading-relaxed">
                     Las políticas de devolución pueden variar según el organizador del evento. 
-                    Esta política general se aplica cuando el organizador no tiene una política específica. Siempre revise 
-                    los términos específicos del evento antes de realizar su compra.
-                  </p>
-                </div>
+              Esta política general se aplica cuando el organizador no tiene una política específica. Siempre revise 
+              los términos específicos del evento antes de realizar su compra.
+            </p>
+          </div>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export function RefundPolicyPage() {
                 <div>
                   <h2 className="text-2xl font-bold mb-2 font-montserrat">1. Cancelación por el Organizador</h2>
                   <p className="text-white/70 mb-4">
-                    Si un evento es cancelado por el organizador antes de la fecha programada, los compradores recibirán 
+              Si un evento es cancelado por el organizador antes de la fecha programada, los compradores recibirán 
                     un reembolso del precio del ticket.
                   </p>
                 </div>
@@ -157,8 +157,8 @@ export function RefundPolicyPage() {
                   <AlertCircle className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
                   <span className="text-white/80"><strong>Importante:</strong> No se reembolsa a terceros. El reembolso se realiza únicamente al comprador original</span>
                 </li>
-              </ul>
-            </section>
+            </ul>
+          </section>
 
             {/* Postergación de Eventos */}
             <section className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-white/10">
@@ -170,7 +170,7 @@ export function RefundPolicyPage() {
                   <h2 className="text-2xl font-bold mb-2 font-montserrat">2. Postergación de Eventos</h2>
                   <p className="text-white/70 mb-4">
                     Si un evento es pospuesto a una nueva fecha (por cualquier razón, incluyendo desastres naturales):
-                  </p>
+            </p>
                 </div>
               </div>
 
@@ -208,8 +208,8 @@ export function RefundPolicyPage() {
                   <CheckCircle className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
                   <span className="text-white/80">Debe contactarnos para solicitar el reembolso en caso de postergación</span>
                 </li>
-              </ul>
-            </section>
+            </ul>
+          </section>
 
             {/* Cancelación por el Cliente */}
             <section className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-white/10">
@@ -220,9 +220,9 @@ export function RefundPolicyPage() {
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2 font-montserrat">3. Cancelación por el Cliente</h2>
                   <p className="text-white/70 mb-4">
-                    En general, los tickets de eventos son <strong>no reembolsables</strong> una vez adquiridos, excepto 
-                    en las siguientes circunstancias:
-                  </p>
+              En general, los tickets de eventos son <strong>no reembolsables</strong> una vez adquiridos, excepto 
+              en las siguientes circunstancias:
+            </p>
                 </div>
               </div>
               <ul className="space-y-3 mb-6">
@@ -242,15 +242,15 @@ export function RefundPolicyPage() {
                   <CheckCircle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
                   <span className="text-white/80">Políticas específicas del organizador permiten reembolsos</span>
                 </li>
-              </ul>
+            </ul>
               <div className="bg-black/30 rounded-xl p-4 border border-white/10">
                 <h3 className="text-lg font-semibold mb-2 text-white">Solicitudes Especiales</h3>
                 <p className="text-white/70 text-sm">
-                  Puede solicitar un reembolso por razones especiales (emergencias médicas, fallecimiento, etc.). 
-                  Estas solicitudes serán evaluadas caso por caso y requerirán documentación apropiada.
-                </p>
+              Puede solicitar un reembolso por razones especiales (emergencias médicas, fallecimiento, etc.). 
+              Estas solicitudes serán evaluadas caso por caso y requerirán documentación apropiada.
+            </p>
               </div>
-            </section>
+          </section>
 
             {/* Plazos de Reembolso */}
             <section className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-white/10">
@@ -281,10 +281,10 @@ export function RefundPolicyPage() {
                 </div>
               </div>
               <p className="text-white/70 text-sm">
-                Los reembolsos se procesarán al método de pago original. Si ese método ya no está disponible, 
-                contactaremos para coordinar una alternativa.
-              </p>
-            </section>
+              Los reembolsos se procesarán al método de pago original. Si ese método ya no está disponible, 
+              contactaremos para coordinar una alternativa.
+            </p>
+          </section>
 
             {/* Resumen Adicional */}
             <section className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-white/10">
@@ -302,9 +302,9 @@ export function RefundPolicyPage() {
                     <li>✓ Cambios significativos en el evento</li>
                     <li>✓ Desastres naturales (evento aplazado)</li>
                     <li>✓ Emergencias médicas documentadas</li>
-                  </ul>
+            </ul>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <XCircle className="h-5 w-5 text-red-400" />
@@ -316,7 +316,7 @@ export function RefundPolicyPage() {
                     <li>✗ Problemas de transporte</li>
                     <li>✗ Cargos por servicio</li>
                     <li>✗ Fees de procesamiento</li>
-                  </ul>
+            </ul>
                 </div>
               </div>
 
@@ -329,18 +329,18 @@ export function RefundPolicyPage() {
                       <li>• Los reembolsos se realizan <strong>únicamente al comprador original</strong>, no a terceros</li>
                       <li>• Los reembolsos se procesan al <strong>mismo método de pago</strong> utilizado en la compra</li>
                       <li>• Los <strong>cargos por servicio y fees de procesamiento</strong> no son reembolsables en ningún caso</li>
-                    </ul>
+            </ul>
                   </div>
                 </div>
               </div>
-            </section>
+          </section>
 
             {/* Contacto CTA */}
             <section className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-center">
               <h2 className="text-3xl font-bold mb-4 font-montserrat">¿Necesitas Ayuda?</h2>
               <p className="text-white/90 mb-6 max-w-2xl mx-auto">
                 Nuestro equipo está listo para ayudarte con cualquier pregunta sobre reembolsos
-              </p>
+            </p>
               <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
                   <p className="font-semibold mb-1">Email</p>
@@ -355,7 +355,7 @@ export function RefundPolicyPage() {
                   <p className="text-sm text-white/80">Mon-Fri 9AM-6PM PST</p>
                 </div>
               </div>
-            </section>
+          </section>
 
           </div>
         </div>

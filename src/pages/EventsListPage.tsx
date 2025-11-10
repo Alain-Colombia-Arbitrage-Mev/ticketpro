@@ -5,6 +5,8 @@ import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
+import { useAuth } from "../hooks/useAuth";
+import { useCartStore } from "../stores/cartStore";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
 import video1 from "../assets/backgrounds/video1.mp4";
@@ -13,6 +15,8 @@ import logohome from "../assets/images/logohome.svg";
 export function EventsListPage() {
   const { pageData, navigate } = useRouter();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const { addItem } = useCartStore();
   
   // Filter states (initialize from pageData if coming from search)
   const [selectedCategory, setSelectedCategory] = useState<string>(pageData?.category || "all");
@@ -33,6 +37,53 @@ export function EventsListPage() {
       setSelectedCities([pageData.selectedCity]);
     }
   }, [pageData]);
+
+  // Helper function to parse date
+  const parseDate = (dateStr: string): string => {
+    const months: Record<string, string> = {
+      'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
+      'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
+      'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
+    };
+    const parts = dateStr.toLowerCase().split(',');
+    if (parts.length === 2) {
+      const year = parts[1].trim();
+      const dayMonth = parts[0].split('de');
+      if (dayMonth.length === 2) {
+        const day = dayMonth[0].trim();
+        const month = dayMonth[1].trim();
+        const monthNum = months[month] || '01';
+        return `${year}-${monthNum}-${day.padStart(2, '0')}`;
+      }
+    }
+    return new Date().toISOString().split('T')[0];
+  };
+
+  const handleAddToCart = (event: any) => {
+    if (!user) {
+      navigate("login");
+      return;
+    }
+
+    const ticketPrice = parseInt(event.price.replace(/[^0-9]/g, "") || "800");
+    
+    addItem({
+      eventId: event.id,
+      eventName: event.title,
+      eventDate: parseDate(event.date),
+      eventTime: undefined,
+      eventLocation: event.location,
+      eventImage: event.image,
+      ticketType: "General",
+      ticketPrice: ticketPrice,
+      quantity: 1,
+      seatNumber: undefined,
+      seatType: undefined,
+      ticketCategoryId: undefined,
+    });
+
+    navigate("cart");
+  };
 
   // Extract unique cities
   const cities = useMemo(() => {
@@ -166,8 +217,8 @@ export function EventsListPage() {
                 <p className="text-white font-montserrat font-semibold text-[10px] sm:text-[11px] md:text-xs lg:text-sm xl:text-base max-w-4xl leading-snug px-3">
                   {t('events.hero.subtitle')}
                 </p>
-              </div>
-
+          </div>
+          
               {/* Caja roja con blur - Búsqueda */}
               <div className="w-full max-w-[1202px] px-2 sm:px-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <div 
@@ -208,7 +259,7 @@ export function EventsListPage() {
                           {cities.map((city) => (
                             <SelectItem key={city} value={city}>
                               {city}
-                            </SelectItem>
+                  </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -224,8 +275,8 @@ export function EventsListPage() {
                       {t('events.search.button')}
                     </Button>
                   </div>
-                </div>
-              </div>
+                    </div>
+                    </div>
 
               {/* Categorías rápidas */}
               <div className="flex flex-wrap gap-2 sm:gap-2.5 md:gap-[13px] justify-center animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
@@ -311,9 +362,9 @@ export function EventsListPage() {
               </p>
             </div>
 
-          </div>
-        </div>
-        </div>
+                        </div>
+                        </div>
+                      </div>
 
         {/* Título de Explorar por Categoría */}
         <div className="bg-white py-6 sm:py-8 md:py-12 lg:py-16">
@@ -325,9 +376,9 @@ export function EventsListPage() {
             <p className="font-montserrat font-semibold text-sm sm:text-base md:text-lg text-black">
               {t('home.categories.subtitle')}
             </p>
-          </div>
-        </div>
-        </div>
+                            </div>
+                            </div>
+                          </div>
 
         {/* Cards de Categorías */}
         <div className="bg-black py-6 sm:py-8 md:py-12 lg:py-16">
@@ -360,7 +411,7 @@ export function EventsListPage() {
                   8 {t('events.category.eventsCount')}
                 </p>
               </div>
-            </div>
+                        </div>
 
             {/* Deportes */}
             <div 
@@ -382,12 +433,12 @@ export function EventsListPage() {
                 </h3>
                 <div className="p-4 sm:p-5 md:p-6 rounded-full bg-white/10 backdrop-blur-sm group-hover:bg-white/20 transition-all">
                   <Trophy className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" strokeWidth={2} />
-                </div>
+                            </div>
                 <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   15 {t('events.category.eventsCount')}
                 </p>
-              </div>
-            </div>
+                            </div>
+                          </div>
 
             {/* Teatro */}
             <div 
@@ -414,7 +465,7 @@ export function EventsListPage() {
                   3 {t('events.category.eventsCount')}
                 </p>
               </div>
-            </div>
+                        </div>
 
             {/* Familia */}
             <div 
@@ -436,12 +487,12 @@ export function EventsListPage() {
                 </h3>
                 <div className="p-4 sm:p-5 md:p-6 rounded-full bg-white/10 backdrop-blur-sm group-hover:bg-white/20 transition-all">
                   <UsersRound className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" strokeWidth={2} />
-                </div>
+                            </div>
                 <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   20 {t('events.category.eventsCount')}
                 </p>
-              </div>
-            </div>
+                            </div>
+                          </div>
 
             {/* Arte */}
             <div 
@@ -467,8 +518,8 @@ export function EventsListPage() {
                 <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   10 {t('events.category.eventsCount')}
                 </p>
-              </div>
-            </div>
+                        </div>
+                      </div>
 
             {/* Comedia */}
             <div 
@@ -494,11 +545,11 @@ export function EventsListPage() {
                 <p className="font-montserrat font-semibold text-xs sm:text-sm text-white">
                   5 {t('events.category.eventsCount')}
                 </p>
-              </div>
+                  </div>
             </div>
           </div>
         </div>
-        </div>
+      </div>
 
         {/* Eventos Destacados */}
         <div id="eventos-destacados" className="bg-white py-12 md:py-16">
@@ -535,8 +586,8 @@ export function EventsListPage() {
                         <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-black">
                           {t(`category.${event.category.toLowerCase()}`)}
                         </p>
-                      </div>
-                      
+        </div>
+
                       {/* Badge de estado (Últimos/Próximos/Futuros) */}
                       {event.lastTickets && (
                         <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
@@ -570,7 +621,7 @@ export function EventsListPage() {
                           </p>
                         </div>
                       </div>
-                    )}
+              )}
                     {!event.featured && event.trending && (
                       <div className="absolute top-1.5 sm:top-2 md:top-3 right-2 sm:right-3 md:right-[17px] z-10">
                         <div className="bg-[#f55d09] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
@@ -612,25 +663,17 @@ export function EventsListPage() {
                     </p>
 
                     {/* Botón de acción */}
-                    <button 
+                  <button
                       className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
-                      onClick={() => {
-                        navigate("event-detail", {
-                          id: event.id,
-                          title: event.title,
-                          date: event.date,
-                          location: event.location,
-                          price: event.price,
-                          image: event.image,
-                          category: event.category,
-                          featured: event.featured,
-                        });
-                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(event);
+                    }}
                     >
                     <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
                       {t('events.button.buy')}
                     </p>
-                    </button>
+                  </button>
                   </div>
                 </div>
               ))}
@@ -725,7 +768,7 @@ export function EventsListPage() {
                     {/* Título */}
                     <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
                       {t(`event.title.${event.id}`)}
-                    </h3>
+            </h3>
 
                     {/* Fecha */}
                     <p className="font-montserrat font-black text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] xl:text-[14px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4">
@@ -740,17 +783,9 @@ export function EventsListPage() {
                     {/* Botón de acción */}
                     <button 
                       className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
-                      onClick={() => {
-                        navigate("event-detail", {
-                          id: event.id,
-                          title: event.title,
-                          date: event.date,
-                          location: event.location,
-                          price: event.price,
-                          image: event.image,
-                          category: event.category,
-                          featured: event.featured,
-                        });
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(event);
                       }}
                     >
                     <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
@@ -775,8 +810,8 @@ export function EventsListPage() {
                 </p>
               </button>
             </div>
-          </div>
-        </div>
+              </div>
+      </div>
 
       </section>
     </div>

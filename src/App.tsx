@@ -16,6 +16,9 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { RefundPolicyPage } from "./pages/RefundPolicyPage";
 import ContactPage from "./pages/ContactPage";
 import { ValidateTicketPage } from "./pages/ValidateTicketPage";
+import { MyTicketsPage } from "./pages/MyTicketsPage";
+import { CartPage } from "./pages/CartPage";
+import { HosterValidatePage } from "./pages/HosterValidatePage";
 
 function AppContent() {
   const { currentPage } = useRouter();
@@ -39,6 +42,9 @@ function AppContent() {
       {currentPage === "refund-policy" && <RefundPolicyPage />}
       {currentPage === "contact" && <ContactPage />}
       {currentPage === "validate-ticket" && <ValidateTicketPage />}
+      {currentPage === "my-tickets" && <MyTicketsPage />}
+      {currentPage === "cart" && <CartPage />}
+      {currentPage === "hoster-validate" && <HosterValidatePage />}
       
       <Footer />
     </div>
