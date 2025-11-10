@@ -23,7 +23,7 @@ export function HomePage() {
   return (
     <>
       {/* Banner informativo para usuarios hoster/admin */}
-      {user && (user.role === 'hoster' || user.role === 'admin') && (
+      {user && user.role && (user.role === 'hoster' || user.role === 'admin') && (
         <div className="fixed top-24 left-4 right-4 z-50 animate-in slide-in-from-top-2 duration-500">
           <Card className="!bg-red-900/20 border-red-500/50 backdrop-blur-sm">
             <CardContent className="p-4">
