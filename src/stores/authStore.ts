@@ -41,9 +41,30 @@ export const useAuthStore = create<AuthState>()(
         try {
           const { user: userProfile } = await api.getProfile();
           set({ user: userProfile });
-        } catch (error) {
-          console.error('Error refreshing user:', error);
-          set({ user: null });
+        } catch (error: any) {
+          console.warn('⚠️ No se pudo refrescar perfil del backend:', error?.message);
+          
+          // Si el perfil no existe en backend, intentar obtener info de la sesión de Supabase
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+              const basicUser: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
+                balance: 0,
+                createdAt: session.user.created_at || new Date().toISOString(),
+                role: (session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
+              };
+              set({ user: basicUser });
+              console.log('✅ Usuario refrescado desde sesión de Supabase');
+            } else {
+              set({ user: null });
+            }
+          } catch (sessionError) {
+            console.error('Error obteniendo sesión de Supabase:', sessionError);
+            set({ user: null });
+          }
         }
       },
 
@@ -87,18 +108,32 @@ export const useAuthStore = create<AuthState>()(
               const { user: userProfile } = await api.getProfile();
               console.log('✅ Perfil de usuario obtenido:', userProfile?.email, 'Rol:', userProfile?.role);
               set({ user: userProfile });
-            } catch (profileError) {
-              console.error('⚠️ Error al obtener perfil, pero la sesión es válida:', profileError);
-              // Si hay error al obtener el perfil, crear un usuario básico desde la sesión
+            } catch (profileError: any) {
+              console.warn('⚠️ Perfil no encontrado en backend, creando perfil desde sesión de Supabase:', profileError?.message);
+              
+              // Si el perfil no existe (404), crear un usuario básico desde la sesión de Supabase
+              // Esto es común cuando el usuario se crea directamente en Supabase sin pasar por el signup del backend
               const basicUser: User = {
                 id: data.session.user.id,
                 email: data.session.user.email || email,
                 name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
                 balance: 0,
                 createdAt: data.session.user.created_at || new Date().toISOString(),
-                role: data.session.user.user_metadata?.role || 'user',
+                role: (data.session.user.user_metadata?.role as 'user' | 'hoster' | 'admin') || 'user',
               };
+              
+              console.log('✅ Usuario básico creado desde sesión:', basicUser.email, 'Rol:', basicUser.role);
               set({ user: basicUser });
+              
+              // Intentar crear el perfil en el backend (opcional, no crítico)
+              try {
+                // Esto podría fallar si el endpoint no existe, pero no es crítico
+                await api.signup(basicUser.email, '', basicUser.name);
+                console.log('✅ Perfil creado en backend');
+              } catch (createError) {
+                console.warn('⚠️ No se pudo crear perfil en backend (no crítico):', createError);
+                // No es crítico, el usuario puede funcionar sin perfil en backend
+              }
             }
           } else {
             throw new Error('No se recibió un token de acceso válido.');
