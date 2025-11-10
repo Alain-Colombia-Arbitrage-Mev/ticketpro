@@ -46,15 +46,8 @@ export function LoginPage() {
       console.log('🔐 Iniciando sesión con:', normalizedEmail);
       await signIn(normalizedEmail, loginPassword);
 
-      console.log('✅ Login exitoso, redirigiendo...');
-
-      // Redirigir según el rol del usuario
-      // Si es hoster o admin, ir directamente a validación de tickets
-      // Si es usuario regular, ir al home
-      setTimeout(() => {
-        // La redirección se maneja en el authStore después de obtener el perfil
-        navigate("home");
-      }, 100);
+      console.log('✅ Login exitoso, redirigiendo al home...');
+      navigate("home");
     } catch (err: any) {
       console.error('❌ Error en handleLogin:', err);
       // Mostrar mensaje de error más descriptivo
