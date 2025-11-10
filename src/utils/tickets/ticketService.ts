@@ -2,10 +2,26 @@ import { createClient } from '@supabase/supabase-js';
 import { projectId, publicAnonKey } from '../supabase/info';
 import { generateQRCode, generateTicketCode } from './qrGenerator';
 
+// Cliente público (sin autenticación)
 const supabase = createClient(
   `https://${projectId}.supabase.co`,
   publicAnonKey
 );
+
+// Función para obtener cliente autenticado
+export function getAuthenticatedSupabase(accessToken: string) {
+  return createClient(
+    `https://${projectId}.supabase.co`,
+    publicAnonKey,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    }
+  );
+}
 
 export interface TicketData {
   eventId: number;
