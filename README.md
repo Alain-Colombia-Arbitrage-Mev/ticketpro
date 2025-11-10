@@ -35,6 +35,47 @@ src/
 - **shadcn/ui** + **Tailwind CSS** (UI)
 - **Supabase** (Backend)
 
+## Configuración de Variables de Entorno
+
+⚠️ **IMPORTANTE**: Las credenciales de Supabase deben configurarse mediante variables de entorno.
+
+### 1. Crear archivo `.env`
+
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_PROJECT_ID=tu_project_id
+VITE_SUPABASE_ANON_KEY=tu_anon_key
+
+# URL del sitio (opcional)
+VITE_SITE_URL=https://tiquetera.com
+```
+
+### 2. Obtener credenciales de Supabase
+
+1. Ve a tu proyecto en [Supabase Dashboard](https://app.supabase.com)
+2. Navega a **Settings** → **API**
+3. Copia el **Project ID** y la **anon/public key**
+4. Pégales en tu archivo `.env`
+
+### 3. Variables de Entorno en Producción
+
+Para **Cloudflare Pages**:
+1. Ve a tu proyecto en Cloudflare Dashboard
+2. Navega a **Pages** → **Settings** → **Environment Variables**
+3. Agrega las variables:
+   - `VITE_SUPABASE_PROJECT_ID`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_SITE_URL` (opcional)
+
+### 4. Seguridad
+
+- ✅ El archivo `.env` está en `.gitignore` y **NO** se sube al repositorio
+- ✅ Las variables con prefijo `VITE_` son públicas y se incluyen en el bundle
+- ⚠️ **NO** uses la `service_role` key en el frontend (solo en el backend)
+- ⚠️ La `anon` key es segura para usar en el frontend (está protegida por RLS)
+
 ## Scripts
 
 ```bash
