@@ -7,6 +7,8 @@ import { useAuth } from "../hooks/useAuth";
 import { QRCodeComponent } from "../components/media";
 import { Badge } from "../components/ui/badge";
 import { motion } from "motion/react";
+import { TicketComponent } from "../components/tickets/TicketComponent";
+import { Ticket as TicketType } from "../utils/tickets/ticketService";
 
 export function ConfirmationPage() {
   const { navigate, pageData } = useRouter();
@@ -108,47 +110,15 @@ export function ConfirmationPage() {
                 {quantity > 1 ? "Tus Tickets" : "Tu Ticket"}
               </h2>
 
-              {tickets?.map((ticket: any, index: number) => (
-                <Card key={ticket.id} className="overflow-hidden border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
-                  <div className="flex flex-col md:flex-row">
-                    {/* QR Code Section */}
-                    <div className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 p-6 md:w-64 md:border-b-0 md:border-r">
-                      <div className="mb-4 text-center">
-                        <QRCodeComponent value={ticket.qrCode} size={180} />
-                      </div>
-                      <div className="text-center">
-                        <Badge variant="secondary" className="mb-2">
-                          Asiento {ticket.seatNumber}
-                        </Badge>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Presenta este código en la entrada</p>
-                      </div>
-                    </div>
-
-                    {/* Event Details */}
-                    <div className="flex-1 p-6">
-                      <div className="mb-4">
-                        <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">{ticket.eventTitle}</h3>
-                        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>{ticket.eventDate}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            <span>{ticket.eventLocation}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <Separator className="my-4" />
-
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">ID del Ticket</span>
-                        <span className="font-mono text-xs text-gray-900 dark:text-white">{ticket.id}</span>
-                      </div>
-                    </div>
+              {tickets?.map((ticket: TicketType, index: number) => (
+                <div key={ticket.id} className="mb-6">
+                  <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <TicketComponent 
+                      ticket={ticket}
+                      onPrint={() => window.print()}
+                    />
                   </div>
-                </Card>
+                </div>
               ))}
             </motion.div>
 

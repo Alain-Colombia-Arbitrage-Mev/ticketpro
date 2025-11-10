@@ -12,6 +12,7 @@ import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { SEOHead } from "../components/common";
+import { createTicket, TicketData } from "../utils/tickets/ticketService";
 
 type PaymentMethod = "card" | "ach" | "crypto";
 
@@ -23,6 +24,7 @@ export function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [createdTickets, setCreatedTickets] = useState<any[]>([]);
   
   // Formulario
   const [formData, setFormData] = useState({
@@ -128,16 +130,56 @@ export function CheckoutPage() {
 
     setLoading(true);
     
-    // Simular procesamiento de pago
-    setTimeout(() => {
+    try {
+      // Simular procesamiento de pago
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Crear boletas para cada ticket comprado
+      const tickets: any[] = [];
+      const purchaseId = crypto.randomUUID();
+      
+      for (let i = 0; i < quantity; i++) {
+        const ticketData: TicketData = {
+          eventId: pageData.id || 1,
+          eventName: pageData.title || 'Evento',
+          eventDate: pageData.date || new Date().toISOString().split('T')[0],
+          eventTime: pageData.time,
+          eventLocation: pageData.location,
+          buyerId: user?.id,
+          buyerEmail: formData.email,
+          buyerFullName: formData.fullName,
+          buyerAddress: '', // Se puede agregar campo de dirección si es necesario
+          ticketType: pageData.ticketType || 'General',
+          seatNumber: pageData.seatNumber || undefined,
+          gateNumber: pageData.gateNumber || undefined,
+          ticketClass: pageData.ticketClass || 'VIP',
+          price: ticketPrice,
+          purchaseId: purchaseId,
+        };
+        
+        const ticket = await createTicket(ticketData);
+        tickets.push(ticket);
+      }
+      
+      setCreatedTickets(tickets);
       setLoading(false);
       setShowSuccessModal(true);
-    }, 2000);
+    } catch (error) {
+      console.error('Error creating tickets:', error);
+      alert('Error al crear las boletas. Por favor, contacta al soporte.');
+      setLoading(false);
+    }
   };
 
   const handleCloseSuccess = () => {
     setShowSuccessModal(false);
-    navigate("home");
+    // Navegar a confirmación con los tickets creados
+    navigate("confirmation", {
+      tickets: createdTickets,
+      event: pageData,
+      quantity: quantity,
+      total: total
+    });
   };
 
   const paymentMethods = [
