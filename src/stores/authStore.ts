@@ -115,38 +115,40 @@ export const useAuthStore = create<AuthState>()(
               console.log('✅ Perfil de usuario obtenido:', userProfile?.email, 'Rol:', userProfile?.role);
               set({ user: userProfile });
             } catch (profileError: any) {
-              console.warn('⚠️ Perfil no encontrado en backend, creando perfil desde sesión de Supabase:', profileError?.message);
-              
               // Si el perfil no existe (404), crear un usuario básico desde la sesión de Supabase
               // Esto es común cuando el usuario se crea directamente en Supabase sin pasar por el signup del backend
-              // Extraer rol de user_metadata, asegurándose de que sea válido
-              const metadataRole = data.session.user.user_metadata?.role;
-              const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
-                ? metadataRole 
-                : 'user';
+              const is404Error = profileError?.message?.includes('404') || 
+                                profileError?.message?.includes('not found') ||
+                                profileError?.message?.includes('User profile not found');
               
-              const basicUser: User = {
-                id: data.session.user.id,
-                email: data.session.user.email || email,
-                name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
-                balance: 0,
-                createdAt: data.session.user.created_at || new Date().toISOString(),
-                role: validRole,
-              };
-              
-              console.log('🔍 Rol extraído de metadata:', metadataRole, 'Rol asignado:', validRole);
-              
-              console.log('✅ Usuario básico creado desde sesión:', basicUser.email, 'Rol:', basicUser.role);
-              set({ user: basicUser });
-              
-              // Intentar crear el perfil en el backend (opcional, no crítico)
-              try {
-                // Esto podría fallar si el endpoint no existe, pero no es crítico
-                await api.signup(basicUser.email, '', basicUser.name);
-                console.log('✅ Perfil creado en backend');
-              } catch (createError) {
-                console.warn('⚠️ No se pudo crear perfil en backend (no crítico):', createError);
-                // No es crítico, el usuario puede funcionar sin perfil en backend
+              if (is404Error) {
+                console.warn('⚠️ Perfil no encontrado en backend (404), creando perfil desde sesión de Supabase');
+                
+                // Extraer rol de user_metadata, asegurándose de que sea válido
+                const metadataRole = data.session.user.user_metadata?.role;
+                const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+                  ? metadataRole 
+                  : 'user';
+                
+                const basicUser: User = {
+                  id: data.session.user.id,
+                  email: data.session.user.email || email,
+                  name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
+                  balance: 0,
+                  createdAt: data.session.user.created_at || new Date().toISOString(),
+                  role: validRole,
+                };
+                
+                console.log('🔍 Rol extraído de metadata:', metadataRole, 'Rol asignado:', validRole);
+                console.log('✅ Usuario básico creado desde sesión:', basicUser.email, 'Rol:', basicUser.role);
+                set({ user: basicUser });
+                
+                // No intentar crear perfil en backend si no existe el endpoint
+                // El usuario puede funcionar perfectamente con el perfil básico desde Supabase
+              } else {
+                // Si es otro tipo de error, lanzarlo
+                console.error('❌ Error al obtener perfil (no es 404):', profileError);
+                throw profileError;
               }
             }
           } else {

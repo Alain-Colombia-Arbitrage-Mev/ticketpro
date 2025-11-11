@@ -80,7 +80,15 @@ class ApiClient {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'An error occurred');
+      // Proporcionar mensajes de error más descriptivos
+      const errorMessage = data.error || data.message || `Error ${response.status}: ${response.statusText}`;
+      
+      // Si es un 404, incluir información adicional
+      if (response.status === 404) {
+        throw new Error(`User profile not found: ${errorMessage}`);
+      }
+      
+      throw new Error(errorMessage);
     }
 
     return data;
