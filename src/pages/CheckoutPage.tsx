@@ -273,6 +273,28 @@ export function CheckoutPage() {
       // Esto asegura que el carrito se restaure completamente después de cualquier compra
       clearCart();
       
+      // Enviar PIN por email a cada ticket creado
+      const { sendTicketPinEmail } = await import('../utils/tickets/ticketService');
+      for (const ticket of tickets) {
+        if (ticket.pin && formData.email) {
+          try {
+            await sendTicketPinEmail(
+              ticket.id,
+              ticket.ticket_code,
+              ticket.pin,
+              formData.email,
+              formData.fullName,
+              ticket.event_name,
+              ticket.event_date
+            );
+            console.log(`PIN enviado por email para ticket ${ticket.ticket_code}`);
+          } catch (emailError) {
+            console.warn(`No se pudo enviar el PIN por email para ticket ${ticket.ticket_code}:`, emailError);
+            // No bloquear el flujo si falla el envío de email
+          }
+        }
+      }
+      
       setCreatedTickets(tickets);
       setLoading(false);
       setShowSuccessModal(true);
