@@ -242,6 +242,19 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           className="absolute left-[22px] top-[420px] w-[356px] h-[1px] border-t-2 border-dashed border-black/30"
         ></div>
 
+        {/* QR Code - Esquina superior derecha */}
+        {qrCodeImage && (
+          <div className="absolute right-[20px] top-[20px] w-[80px] h-[80px] flex items-center justify-center bg-white rounded-lg p-2 z-20">
+            <img 
+              src={qrCodeImage} 
+              alt="QR Code" 
+              className="w-full h-full object-contain"
+              crossOrigin="anonymous"
+              loading="eager"
+            />
+          </div>
+        )}
+
         {/* Contenido principal - Sección negra superior */}
         <div className="absolute left-0 top-0 w-full h-[420px] flex flex-col items-center gap-[18px] px-4 py-6">
           {/* Logo */}
@@ -352,30 +365,6 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           </div>
         </div>
 
-        {/* QR Code - Centrado en sección inferior */}
-        {qrCodeImage && (
-          <div className="absolute left-[158px] top-[670px] w-[108px] h-[108px] flex items-center justify-center bg-white rounded-lg p-2 z-10">
-            <img 
-              src={qrCodeImage} 
-              alt="QR Code" 
-              className="w-full h-full object-contain"
-              crossOrigin="anonymous"
-              loading="eager"
-            />
-          </div>
-        )}
-
-        {/* Texto "Scan for Valid" debajo del QR */}
-        {qrCodeImage && (
-          <div className="absolute left-[140px] top-[790px] w-[148px] h-[28px] flex items-center justify-center z-10">
-            <p 
-              className="font-['Montserrat_Alternates',sans-serif] text-[14px] text-black text-center"
-              style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
-            >
-              Scan for Valid
-            </p>
-          </div>
-        )}
 
         {/* Watermark VIP en sección inferior (opcional) */}
         <div 
