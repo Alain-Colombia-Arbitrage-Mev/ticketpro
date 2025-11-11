@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
-import { getUserTickets, Ticket, resendTicketPinEmail } from "../utils/tickets/ticketService";
+import { getUserTickets, Ticket, resendTicketPinEmail, assignPinToTicket } from "../utils/tickets/ticketService";
 import { TicketComponent } from "../components/tickets/TicketComponent";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -17,7 +17,8 @@ import {
   Filter,
   Search,
   Mail,
-  CheckCircle2
+  CheckCircle2,
+  Shield
 } from "lucide-react";
 import { SEOHead } from "../components/common";
 import { useLanguage } from "../hooks/useLanguage";
@@ -33,6 +34,7 @@ export function MyTicketsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sendingPin, setSendingPin] = useState<string | null>(null);
   const [pinSent, setPinSent] = useState<string | null>(null);
+  const [assigningPin, setAssigningPin] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -96,6 +98,32 @@ export function MyTicketsPage() {
       alert('Error al reenviar el PIN. Por favor, intenta de nuevo.');
     } finally {
       setSendingPin(null);
+    }
+  };
+
+  const handleAssignPin = async (ticket: Ticket) => {
+    if (!user?.email) {
+      alert('Debes estar autenticado para asignar un PIN.');
+      return;
+    }
+
+    try {
+      setAssigningPin(ticket.id);
+      
+      const result = await assignPinToTicket(ticket.id, user.email);
+      
+      if (result.success) {
+        // Recargar los tickets para obtener el PIN actualizado
+        await loadTickets();
+        alert('PIN asignado exitosamente. Ahora puedes reenviarlo por email.');
+      } else {
+        alert(result.message || 'Error al asignar el PIN');
+      }
+    } catch (error) {
+      console.error('Error assigning PIN:', error);
+      alert('Error al asignar el PIN. Por favor, intenta de nuevo.');
+    } finally {
+      setAssigningPin(null);
     }
   };
 
@@ -335,41 +363,65 @@ export function MyTicketsPage() {
                       </Button>
                     </div>
                     
-                    {/* Botón para reenviar PIN - Mostrar siempre, pero deshabilitar si no hay PIN */}
+                    {/* Botón para reenviar PIN o asignar PIN si no existe */}
                     <div className="relative">
-                      <Button
-                        onClick={() => handleResendPin(ticket)}
-                        disabled={sendingPin === ticket.id || !ticket.pin}
-                        variant="outline"
-                        className="w-full border-[#c61619]/50 !text-[#c61619] hover:!bg-[#c61619]/10 disabled:opacity-50"
-                        title={!ticket.pin ? "Este ticket no tiene PIN asignado" : ""}
-                      >
-                        {sendingPin === ticket.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Enviando...
-                          </>
-                        ) : pinSent === ticket.id ? (
-                          <>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            PIN Enviado
-                          </>
-                        ) : (
-                          <>
-                            <Mail className="h-4 w-4 mr-2" />
-                            Reenviar PIN por Email
-                          </>
-                        )}
-                      </Button>
-                      {pinSent === ticket.id && (
-                        <p className="text-xs text-green-400 mt-1 text-center">
-                          PIN enviado a {user?.email}
-                        </p>
-                      )}
-                      {!ticket.pin && (
-                        <p className="text-xs text-white/50 mt-1 text-center">
-                          Este ticket no tiene PIN asignado
-                        </p>
+                      {!ticket.pin ? (
+                        // Si no tiene PIN, mostrar botón para asignar
+                        <>
+                          <Button
+                            onClick={() => handleAssignPin(ticket)}
+                            disabled={assigningPin === ticket.id}
+                            variant="outline"
+                            className="w-full border-white/50 !text-white hover:!bg-white/10 disabled:opacity-50"
+                          >
+                            {assigningPin === ticket.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Asignando PIN...
+                              </>
+                            ) : (
+                              <>
+                                <Shield className="h-4 w-4 mr-2" />
+                                Asignar PIN de Seguridad
+                              </>
+                            )}
+                          </Button>
+                          <p className="text-xs !text-white mt-1 text-center">
+                            Este ticket no tiene PIN asignado
+                          </p>
+                        </>
+                      ) : (
+                        // Si tiene PIN, mostrar botón para reenviar
+                        <>
+                          <Button
+                            onClick={() => handleResendPin(ticket)}
+                            disabled={sendingPin === ticket.id}
+                            variant="outline"
+                            className="w-full border-white/50 !text-white hover:!bg-white/10 disabled:opacity-50"
+                          >
+                            {sendingPin === ticket.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Enviando...
+                              </>
+                            ) : pinSent === ticket.id ? (
+                              <>
+                                <CheckCircle2 className="h-4 w-4 mr-2" />
+                                PIN Enviado
+                              </>
+                            ) : (
+                              <>
+                                <Mail className="h-4 w-4 mr-2" />
+                                Reenviar PIN por Email
+                              </>
+                            )}
+                          </Button>
+                          {pinSent === ticket.id && (
+                            <p className="text-xs text-green-400 mt-1 text-center">
+                              PIN enviado a {user?.email}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>

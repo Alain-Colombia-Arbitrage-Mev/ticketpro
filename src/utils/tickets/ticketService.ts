@@ -639,6 +639,65 @@ export async function resendTicketPinEmail(
 }
 
 /**
+ * Asigna un PIN de seguridad a un ticket que no lo tiene
+ */
+export async function assignPinToTicket(
+  ticketId: string,
+  buyerEmail: string
+): Promise<{ success: boolean; message: string; pin?: string }> {
+  try {
+    // Obtener el ticket
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('id', ticketId)
+      .single();
+    
+    if (ticketError || !ticket) {
+      throw new Error('Ticket no encontrado');
+    }
+    
+    // Verificar que el email coincida
+    if (ticket.buyer_email !== buyerEmail) {
+      throw new Error('No tienes permiso para acceder a este ticket');
+    }
+    
+    // Verificar que el ticket no tenga PIN
+    if (ticket.pin) {
+      return {
+        success: false,
+        message: 'Este ticket ya tiene un PIN asignado'
+      };
+    }
+    
+    // Generar un nuevo PIN
+    const newPin = generateTicketPin();
+    
+    // Actualizar el ticket con el nuevo PIN
+    const { error: updateError } = await supabase
+      .from('tickets')
+      .update({
+        pin: newPin,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', ticketId);
+    
+    if (updateError) {
+      throw updateError;
+    }
+    
+    return {
+      success: true,
+      message: 'PIN asignado exitosamente',
+      pin: newPin
+    };
+  } catch (error) {
+    console.error('Error assigning PIN to ticket:', error);
+    throw error;
+  }
+}
+
+/**
  * Obtiene un ticket por ID
  */
 export async function getTicketById(ticketId: string): Promise<Ticket | null> {
