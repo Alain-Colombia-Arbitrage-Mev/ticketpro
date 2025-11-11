@@ -115,7 +115,7 @@ export function MyTicketsPage() {
       if (result.success) {
         // Recargar los tickets para obtener el PIN actualizado
         await loadTickets();
-        alert('PIN asignado exitosamente. Ahora puedes reenviarlo por email.');
+        alert('PIN asignado exitosamente y enviado por email. Revisa tu bandeja de entrada.');
       } else {
         alert(result.message || 'Error al asignar el PIN');
       }
