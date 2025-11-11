@@ -686,9 +686,25 @@ export async function assignPinToTicket(
       throw updateError;
     }
     
+    // Enviar el PIN por email automáticamente después de asignarlo
+    try {
+      await sendTicketPinEmail(
+        ticket.id,
+        ticket.ticket_code,
+        newPin,
+        ticket.buyer_email,
+        ticket.buyer_full_name,
+        ticket.event_name,
+        ticket.event_date
+      );
+    } catch (emailError) {
+      console.warn('Error enviando email después de asignar PIN:', emailError);
+      // No fallar si el email no se puede enviar, pero informar al usuario
+    }
+    
     return {
       success: true,
-      message: 'PIN asignado exitosamente',
+      message: 'PIN asignado exitosamente y enviado por email',
       pin: newPin
     };
   } catch (error) {
