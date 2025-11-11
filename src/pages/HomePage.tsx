@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
@@ -19,6 +20,9 @@ export function HomePage() {
   const { navigate } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const video2Ref = useRef<HTMLVideoElement>(null);
+  const video3Ref = useRef<HTMLVideoElement>(null);
+  const video4Ref = useRef<HTMLVideoElement>(null);
 
   // Verificación estricta del rol para mostrar el banner
   const isHosterOrAdmin = user && 
@@ -30,6 +34,35 @@ export function HomePage() {
   if (import.meta.env.DEV && user) {
     console.log('🔍 HomePage - Usuario:', user.email, 'Rol:', user.role, 'isHosterOrAdmin:', isHosterOrAdmin);
   }
+
+  // Lazy load videos cuando están cerca de ser visibles
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '200px', // Cargar cuando está a 200px de ser visible
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.target instanceof HTMLVideoElement) {
+          const video = entry.target;
+          if (video.readyState === 0) { // Si aún no se ha cargado
+            video.load();
+          }
+          observer.unobserve(video);
+        }
+      });
+    }, observerOptions);
+
+    if (video2Ref.current) observer.observe(video2Ref.current);
+    if (video3Ref.current) observer.observe(video3Ref.current);
+    if (video4Ref.current) observer.observe(video4Ref.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <>
