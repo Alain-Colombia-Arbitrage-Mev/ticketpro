@@ -381,9 +381,9 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           )}
         </div>
 
-        {/* QR Code - Parte inferior (centrado verticalmente, alineado a la derecha) */}
+        {/* QR Code - Parte inferior (centrado verticalmente en sección inferior, alineado a la derecha) */}
         {qrCodeImage && (
-          <div className="absolute right-[20px] top-[50%] translate-y-[60%] w-[108px] h-[108px] flex items-center justify-center bg-white rounded-lg p-2 z-10">
+          <div className="absolute right-[20px] top-[calc(420px+(330px/2)-54px)] w-[108px] h-[108px] flex items-center justify-center bg-white rounded-lg p-2 z-10">
             <img 
               src={qrCodeImage} 
               alt="QR Code" 
@@ -396,7 +396,7 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
 
         {/* Texto "Scan for Valid" debajo del QR */}
         {qrCodeImage && (
-          <div className="absolute right-[20px] top-[calc(50%+60%+120px)] w-[108px] h-[28px] flex items-center justify-center z-10">
+          <div className="absolute right-[20px] top-[calc(420px+(330px/2)+70px)] w-[108px] h-[28px] flex items-center justify-center z-10">
             <p 
               className="font-['Montserrat_Alternates',sans-serif] text-[14px] text-black text-center"
               style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
