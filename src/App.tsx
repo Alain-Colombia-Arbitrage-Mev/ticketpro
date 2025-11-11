@@ -41,19 +41,19 @@ function AppContent() {
       <Header />
       
       <Suspense fallback={<PageLoader />}>
-        {currentPage === "home" && <HomePage />}
-        {currentPage === "events" && <EventsListPage />}
+      {currentPage === "home" && <HomePage />}
+      {currentPage === "events" && <EventsListPage />}
         {currentPage === "all-events" && <AllEventsPage />}
-        {currentPage === "event-detail" && <EventDetailPage />}
-        {currentPage === "checkout" && <CheckoutPage />}
-        {currentPage === "confirmation" && <ConfirmationPage />}
-        {currentPage === "profile" && <ProfilePage />}
-        {currentPage === "login" && <LoginPage />}
-        {currentPage === "add-balance" && <AddBalancePage />}
-        {currentPage === "wallet" && <WalletPage />}
-        {currentPage === "terms" && <TermsPage />}
-        {currentPage === "privacy" && <PrivacyPage />}
-        {currentPage === "refund-policy" && <RefundPolicyPage />}
+      {currentPage === "event-detail" && <EventDetailPage />}
+      {currentPage === "checkout" && <CheckoutPage />}
+      {currentPage === "confirmation" && <ConfirmationPage />}
+      {currentPage === "profile" && <ProfilePage />}
+      {currentPage === "login" && <LoginPage />}
+      {currentPage === "add-balance" && <AddBalancePage />}
+      {currentPage === "wallet" && <WalletPage />}
+      {currentPage === "terms" && <TermsPage />}
+      {currentPage === "privacy" && <PrivacyPage />}
+      {currentPage === "refund-policy" && <RefundPolicyPage />}
         {currentPage === "contact" && <ContactPage />}
         {currentPage === "validate-ticket" && <ValidateTicketPage />}
         {currentPage === "my-tickets" && <MyTicketsPage />}

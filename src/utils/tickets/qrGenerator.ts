@@ -64,3 +64,12 @@ export function generateTicketCode(): string {
   return code;
 }
 
+/**
+ * Genera un PIN de 4 dígitos para validación de seguridad
+ */
+export function generateTicketPin(): string {
+  // Generar un número aleatorio de 4 dígitos (1000-9999)
+  const pin = Math.floor(1000 + Math.random() * 9000);
+  return pin.toString();
+}
+
