@@ -18,6 +18,7 @@ export function HosterValidatePage() {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [ticketCode, setTicketCode] = useState("");
   const [ticketId, setTicketId] = useState("");
+  const [pin, setPin] = useState("");
   const [validationResult, setValidationResult] = useState<{
     success: boolean;
     validated: boolean;
@@ -90,17 +91,44 @@ export function HosterValidatePage() {
       }
     }
 
-    // Validar el ticket
-    handleManualValidationWithData(extractedTicketId || extractedTicketCode, extractedTicketId ? 'id' : 'code');
+    // Nota: El PIN debe ser ingresado manualmente después de escanear el QR
+    // Por ahora, solo obtenemos el ticket pero requerimos PIN
+    setTicket(null);
+    setValidationResult({
+      success: false,
+      validated: false,
+      message: 'QR escaneado correctamente. Por favor, ingresa el PIN de 4 dígitos del ticket para completar la validación.'
+    });
+    
+    // Establecer el código del ticket si se extrajo
+    if (extractedTicketCode) {
+      setTicketCode(extractedTicketCode);
+    }
+    if (extractedTicketId) {
+      setTicketId(extractedTicketId);
+    }
   };
 
   // Función auxiliar para validar con datos
-  const handleManualValidationWithData = async (value: string, type: 'id' | 'code') => {
+  const handleManualValidationWithData = async (value: string, type: 'id' | 'code', providedPin?: string) => {
     try {
+      // Si no se proporciona PIN, requerirlo
+      if (!providedPin && !pin) {
+        setValidationResult({
+          success: false,
+          validated: false,
+          message: 'Por favor, ingresa el PIN de 4 dígitos del ticket'
+        });
+        return;
+      }
+      
       const result = await validateTicketByHoster(
         type === 'id' ? value : undefined,
         type === 'code' ? value : undefined,
-        user?.id || ''
+        user?.id || '',
+        user?.email,
+        undefined, // accessToken se obtendrá del cliente autenticado
+        providedPin || pin
       );
 
       if (result.success) {
@@ -233,11 +261,24 @@ export function HosterValidatePage() {
         finalTicketCode = params.get('code') || ticketCode;
       }
 
+      // Validar que se haya ingresado el PIN
+      if (!pin) {
+        setValidationResult({
+          success: false,
+          validated: false,
+          message: 'Por favor, ingresa el PIN de 4 dígitos del ticket'
+        });
+        setLoading(false);
+        return;
+      }
+      
       const result = await validateTicketByHoster(
         finalTicketId,
         finalTicketCode,
         user.id,
-        user.email
+        user.email,
+        undefined, // accessToken
+        pin
       );
 
       setValidationResult(result);
@@ -361,10 +402,32 @@ export function HosterValidatePage() {
               />
             </div>
 
+            <div>
+              <Label htmlFor="pin" className="!text-white/80">
+                PIN de Seguridad (4 dígitos) *
+              </Label>
+              <Input
+                id="pin"
+                type="text"
+                inputMode="numeric"
+                value={pin}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                  setPin(value);
+                }}
+                placeholder="1234"
+                className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 font-mono text-center text-2xl tracking-widest"
+                maxLength={4}
+              />
+              <p className="text-xs text-white/50 mt-1">
+                El PIN está oculto en el ticket del usuario
+              </p>
+            </div>
+
             <div className="flex gap-3">
               <Button
                 onClick={handleManualValidation}
-                disabled={loading || validating || (!ticketId && !ticketCode)}
+                disabled={loading || validating || (!ticketId && !ticketCode) || !pin || pin.length !== 4}
                 className="flex-1 bg-[#c61619] hover:bg-[#a01316] text-white"
               >
                 {loading || validating ? (

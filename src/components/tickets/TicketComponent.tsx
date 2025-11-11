@@ -181,7 +181,7 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
       <div 
         ref={ticketRef}
         data-ticket-ref="true"
-        className="ticket-container relative w-[400px] h-[835px] bg-[#EEEEEE] mx-auto"
+        className="ticket-container relative w-[400px] h-[750px] bg-[#EEEEEE] mx-auto"
         style={{
           fontFamily: "'Montserrat Alternates', sans-serif",
           // Asegurar que las fuentes se rendericen correctamente
@@ -224,7 +224,7 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
 
         {/* Patrón decorativo de fondo en sección inferior - Imagen de fondo */}
         <div 
-          className="absolute bottom-0 left-0 w-full h-[415px] overflow-hidden z-0"
+          className="absolute bottom-0 left-0 w-full h-[330px] overflow-hidden z-0"
           style={{
             backgroundImage: `url(${fondoBoletaParteAbajo})`,
             backgroundSize: '120px 120px',
@@ -242,9 +242,9 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           className="absolute left-[22px] top-[420px] w-[356px] h-[1px] border-t-2 border-dashed border-black/30"
         ></div>
 
-        {/* QR Code - Esquina superior derecha */}
+        {/* QR Code - Esquina superior derecha (centrado verticalmente) */}
         {qrCodeImage && (
-          <div className="absolute right-[20px] top-[20px] w-[80px] h-[80px] flex items-center justify-center bg-white rounded-lg p-2 z-20">
+          <div className="absolute right-[20px] top-[50%] -translate-y-1/2 w-[80px] h-[80px] flex items-center justify-center bg-white rounded-lg p-2 z-20">
             <img 
               src={qrCodeImage} 
               alt="QR Code" 
@@ -325,8 +325,8 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           </div>
         </div>
 
-        {/* Información del comprador (sección inferior) */}
-        <div className="absolute left-[30px] top-[430px] flex flex-col gap-[8px] items-start text-black w-[340px] z-10">
+        {/* Información del comprador (sección inferior - centrada verticalmente) */}
+        <div className="absolute left-[30px] top-[450px] flex flex-col gap-[10px] items-start justify-center text-black w-[340px] z-10">
           <h2 
             className="font-['Germania_One',sans-serif] text-[17px] leading-none font-bold"
             style={{ fontFamily: "'Germania One', sans-serif" }}
@@ -363,7 +363,48 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           >
             CODE: {ticket.ticket_code}
           </div>
+          
+          {/* PIN oculto - texto muy pequeño y discreto */}
+          {ticket.pin && (
+            <div 
+              className="mt-2 opacity-30"
+              style={{
+                fontFamily: "'Montserrat Alternates', sans-serif",
+                fontSize: '10px',
+                letterSpacing: '2px',
+                color: '#666',
+                userSelect: 'text'
+              }}
+            >
+              PIN: {ticket.pin}
+            </div>
+          )}
         </div>
+
+        {/* QR Code - Parte inferior (restaurado) */}
+        {qrCodeImage && (
+          <div className="absolute left-[146px] top-[680px] w-[108px] h-[108px] flex items-center justify-center bg-white rounded-lg p-2 z-10">
+            <img 
+              src={qrCodeImage} 
+              alt="QR Code" 
+              className="w-full h-full object-contain"
+              crossOrigin="anonymous"
+              loading="eager"
+            />
+          </div>
+        )}
+
+        {/* Texto "Scan for Valid" debajo del QR */}
+        {qrCodeImage && (
+          <div className="absolute left-[128px] top-[800px] w-[148px] h-[28px] flex items-center justify-center z-10">
+            <p 
+              className="font-['Montserrat_Alternates',sans-serif] text-[14px] text-black text-center"
+              style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
+            >
+              Scan for Valid
+            </p>
+          </div>
+        )}
 
 
         {/* Watermark VIP en sección inferior (opcional) */}

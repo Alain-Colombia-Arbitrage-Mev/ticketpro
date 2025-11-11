@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { projectId, publicAnonKey, projectUrl } from '../supabase/info';
-import { generateQRCode, generateTicketCode } from './qrGenerator';
+import { generateQRCode, generateTicketCode, generateTicketPin } from './qrGenerator';
 
 // Cliente público (sin autenticación)
 const supabase = createClient(
@@ -77,6 +77,7 @@ export interface Ticket {
   used_at?: string;
   used_by?: string;
   validation_code?: string;
+  pin?: string; // PIN de 4 dígitos para validación de seguridad
   metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -89,6 +90,9 @@ export async function createTicket(ticketData: TicketData): Promise<Ticket> {
   try {
     // Generar código único del ticket
     const ticketCode = generateTicketCode();
+    
+    // Generar PIN de 4 dígitos para validación de seguridad
+    const ticketPin = generateTicketPin();
     
     // Crear registro temporal para obtener el ID
     const tempId = crypto.randomUUID();
@@ -125,6 +129,11 @@ export async function createTicket(ticketData: TicketData): Promise<Ticket> {
         payment_method_id: ticketData.paymentMethodId || null,
         purchase_id: ticketData.purchaseId || null,
         purchase_summary: ticketData.purchaseSummary || null,
+        pin: ticketPin, // Guardar PIN en la base de datos
+        metadata: {
+          ...(ticketData.purchaseSummary || {}),
+          pin_generated_at: new Date().toISOString()
+        }
       })
       .select()
       .single();
@@ -307,7 +316,8 @@ export async function validateTicketByHoster(
   ticketCode?: string,
   hosterId?: string,
   hosterEmail?: string,
-  accessToken?: string
+  accessToken?: string,
+  pin?: string
 ): Promise<{ 
   success: boolean; 
   ticket?: Ticket; 
@@ -352,6 +362,26 @@ export async function validateTicketByHoster(
         validated: false,
         ticket,
         message: 'Este ticket ya ha sido usado'
+      };
+    }
+    
+    // Validar PIN si se proporciona
+    if (pin) {
+      if (!ticket.pin || ticket.pin !== pin) {
+        return {
+          success: false,
+          validated: false,
+          ticket,
+          message: 'PIN incorrecto. Por favor, verifica el PIN de 4 dígitos del ticket.'
+        };
+      }
+    } else {
+      // Si no se proporciona PIN, requerirlo
+      return {
+        success: false,
+        validated: false,
+        ticket,
+        message: 'Se requiere el PIN de 4 dígitos para validar el ticket'
       };
     }
     
