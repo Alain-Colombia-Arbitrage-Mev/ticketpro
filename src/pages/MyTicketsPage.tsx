@@ -335,39 +335,43 @@ export function MyTicketsPage() {
                       </Button>
                     </div>
                     
-                    {/* Botón para reenviar PIN */}
-                    {ticket.pin && (
-                      <div className="relative">
-                        <Button
-                          onClick={() => handleResendPin(ticket)}
-                          disabled={sendingPin === ticket.id}
-                          variant="outline"
-                          className="w-full border-[#c61619]/50 !text-[#c61619] hover:!bg-[#c61619]/10 disabled:opacity-50"
-                        >
-                          {sendingPin === ticket.id ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Enviando...
-                            </>
-                          ) : pinSent === ticket.id ? (
-                            <>
-                              <CheckCircle2 className="h-4 w-4 mr-2" />
-                              PIN Enviado
-                            </>
-                          ) : (
-                            <>
-                              <Mail className="h-4 w-4 mr-2" />
-                              Reenviar PIN por Email
-                            </>
-                          )}
-                        </Button>
-                        {pinSent === ticket.id && (
-                          <p className="text-xs text-green-400 mt-1 text-center">
-                            PIN enviado a {user?.email}
-                          </p>
+                    {/* Botón para reenviar PIN - Mostrar siempre, pero deshabilitar si no hay PIN */}
+                    <div className="relative">
+                      <Button
+                        onClick={() => handleResendPin(ticket)}
+                        disabled={sendingPin === ticket.id || !ticket.pin}
+                        variant="outline"
+                        className="w-full border-[#c61619]/50 !text-[#c61619] hover:!bg-[#c61619]/10 disabled:opacity-50"
+                        title={!ticket.pin ? "Este ticket no tiene PIN asignado" : ""}
+                      >
+                        {sendingPin === ticket.id ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : pinSent === ticket.id ? (
+                          <>
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            PIN Enviado
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Reenviar PIN por Email
+                          </>
                         )}
-                      </div>
-                    )}
+                      </Button>
+                      {pinSent === ticket.id && (
+                        <p className="text-xs text-green-400 mt-1 text-center">
+                          PIN enviado a {user?.email}
+                        </p>
+                      )}
+                      {!ticket.pin && (
+                        <p className="text-xs text-white/50 mt-1 text-center">
+                          Este ticket no tiene PIN asignado
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>
