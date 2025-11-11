@@ -481,6 +481,164 @@ export async function getUserTickets(userEmail: string): Promise<Ticket[]> {
 }
 
 /**
+ * Envía el PIN de seguridad del ticket por correo electrónico
+ */
+export async function sendTicketPinEmail(
+  ticketId: string,
+  ticketCode: string,
+  pin: string,
+  buyerEmail: string,
+  buyerName: string,
+  eventName: string,
+  eventDate: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    // Obtener el ticket para verificar que existe
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('id', ticketId)
+      .single();
+    
+    if (ticketError || !ticket) {
+      throw new Error('Ticket no encontrado');
+    }
+    
+    // Verificar que el PIN coincida
+    if (ticket.pin !== pin) {
+      throw new Error('PIN no válido');
+    }
+    
+    // Preparar el contenido del email
+    const emailSubject = `PIN de Seguridad - Ticket ${ticketCode}`;
+    const emailBody = `
+Hola ${buyerName},
+
+Tu PIN de seguridad para el ticket del evento "${eventName}" es:
+
+PIN: ${pin}
+
+Este PIN es necesario para validar tu entrada en el evento.
+
+Detalles del Ticket:
+- Código: ${ticketCode}
+- Evento: ${eventName}
+- Fecha: ${new Date(eventDate).toLocaleDateString('es-ES')}
+
+IMPORTANTE: Guarda este PIN de forma segura. Será requerido al momento de validar tu entrada.
+
+Si no solicitaste este PIN, por favor contacta a soporte.
+
+Saludos,
+El equipo de Tiquetera
+    `.trim();
+    
+    // Intentar enviar el email usando Supabase Auth (si está configurado)
+    // Nota: Esto requiere que Supabase tenga configurado SMTP
+    try {
+      // Usar Supabase para enviar el email
+      // Si Supabase tiene SMTP configurado, podemos usar una función Edge o directamente
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: buyerEmail,
+          subject: emailSubject,
+          text: emailBody,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #c61619;">PIN de Seguridad - Ticket ${ticketCode}</h2>
+              <p>Hola ${buyerName},</p>
+              <p>Tu PIN de seguridad para el ticket del evento <strong>"${eventName}"</strong> es:</p>
+              <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
+                <h1 style="color: #c61619; font-size: 32px; margin: 0; letter-spacing: 8px;">${pin}</h1>
+              </div>
+              <p>Este PIN es necesario para validar tu entrada en el evento.</p>
+              <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 5px 0;"><strong>Código:</strong> ${ticketCode}</p>
+                <p style="margin: 5px 0;"><strong>Evento:</strong> ${eventName}</p>
+                <p style="margin: 5px 0;"><strong>Fecha:</strong> ${new Date(eventDate).toLocaleDateString('es-ES')}</p>
+              </div>
+              <p style="color: #c61619; font-weight: bold;">IMPORTANTE: Guarda este PIN de forma segura. Será requerido al momento de validar tu entrada.</p>
+              <p>Si no solicitaste este PIN, por favor contacta a soporte.</p>
+              <p>Saludos,<br>El equipo de Tiquetera</p>
+            </div>
+          `
+        }
+      });
+      
+      if (emailError) {
+        console.warn('Error enviando email con Supabase Functions:', emailError);
+        // Si falla, intentar método alternativo o solo loguear
+        // Por ahora, retornamos éxito pero con advertencia
+        return {
+          success: true,
+          message: 'PIN disponible en tu ticket. Para recibirlo por email, configura SMTP en Supabase.'
+        };
+      }
+      
+      return {
+        success: true,
+        message: 'PIN enviado exitosamente a tu correo electrónico'
+      };
+    } catch (emailError) {
+      console.warn('No se pudo enviar el email automáticamente:', emailError);
+      // Si no hay función de email configurada, retornar éxito pero con mensaje informativo
+      return {
+        success: true,
+        message: 'PIN disponible en tu ticket. Para recibirlo por email, configura SMTP en Supabase.'
+      };
+    }
+  } catch (error) {
+    console.error('Error sending ticket PIN email:', error);
+    throw error;
+  }
+}
+
+/**
+ * Reenvía el PIN de seguridad de un ticket por correo electrónico
+ */
+export async function resendTicketPinEmail(
+  ticketId: string,
+  buyerEmail: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    // Obtener el ticket
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('*')
+      .eq('id', ticketId)
+      .single();
+    
+    if (ticketError || !ticket) {
+      throw new Error('Ticket no encontrado');
+    }
+    
+    // Verificar que el email coincida
+    if (ticket.buyer_email !== buyerEmail) {
+      throw new Error('No tienes permiso para acceder a este ticket');
+    }
+    
+    // Verificar que el ticket tenga PIN
+    if (!ticket.pin) {
+      throw new Error('Este ticket no tiene PIN asignado');
+    }
+    
+    // Enviar el PIN por email
+    return await sendTicketPinEmail(
+      ticket.id,
+      ticket.ticket_code,
+      ticket.pin,
+      ticket.buyer_email,
+      ticket.buyer_full_name,
+      ticket.event_name,
+      ticket.event_date
+    );
+  } catch (error) {
+    console.error('Error resending ticket PIN email:', error);
+    throw error;
+  }
+}
+
+/**
  * Obtiene un ticket por ID
  */
 export async function getTicketById(ticketId: string): Promise<Ticket | null> {
