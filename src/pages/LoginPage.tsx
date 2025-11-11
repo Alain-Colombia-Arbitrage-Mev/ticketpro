@@ -47,7 +47,11 @@ export function LoginPage() {
       await signIn(normalizedEmail, loginPassword);
 
       console.log('✅ Login exitoso, redirigiendo al home...');
-      navigate("home");
+      
+      // Pequeño delay para asegurar que el estado del usuario se actualice
+      setTimeout(() => {
+        navigate("home");
+      }, 100);
     } catch (err: any) {
       console.error('❌ Error en handleLogin:', err);
       // Mostrar mensaje de error más descriptivo
