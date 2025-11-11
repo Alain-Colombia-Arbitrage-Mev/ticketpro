@@ -86,7 +86,7 @@ export function HomePage() {
               loop 
               muted 
               playsInline
-              preload="auto"
+              preload="metadata"
               src={video1}
             />
             
@@ -155,12 +155,13 @@ export function HomePage() {
           <div className="absolute inset-0">
             {/* Video de fondo - ocupa toda la pantalla */}
             <video 
+              ref={video2Ref}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay 
               loop 
               muted 
               playsInline
-              preload="auto"
+              preload="none"
               src={video2}
             />
             
@@ -220,12 +221,13 @@ export function HomePage() {
           <div className="absolute inset-0">
             {/* Video de fondo - ocupa toda la pantalla */}
             <video 
+              ref={video3Ref}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay 
               loop 
               muted 
               playsInline
-              preload="auto"
+              preload="none"
               src={video3}
             />
             
@@ -285,12 +287,13 @@ export function HomePage() {
           <div className="absolute inset-0">
             {/* Video de fondo - ocupa toda la pantalla */}
             <video 
+              ref={video4Ref}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay 
               loop 
               muted 
               playsInline
-              preload="auto"
+              preload="none"
               src={video4}
             />
             
