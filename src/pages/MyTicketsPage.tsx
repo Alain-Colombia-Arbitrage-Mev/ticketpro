@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
-import { getUserTickets, Ticket } from "../utils/tickets/ticketService";
+import { getUserTickets, Ticket, resendTicketPinEmail } from "../utils/tickets/ticketService";
 import { TicketComponent } from "../components/tickets/TicketComponent";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -15,7 +15,9 @@ import {
   User,
   Loader2,
   Filter,
-  Search
+  Search,
+  Mail,
+  CheckCircle2
 } from "lucide-react";
 import { SEOHead } from "../components/common";
 import { useLanguage } from "../hooks/useLanguage";
@@ -29,6 +31,8 @@ export function MyTicketsPage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filter, setFilter] = useState<'all' | 'unused' | 'used'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sendingPin, setSendingPin] = useState<string | null>(null);
+  const [pinSent, setPinSent] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.email) {
@@ -64,6 +68,35 @@ export function MyTicketsPage() {
   const handleDownloadTicket = (ticket: Ticket) => {
     // Abrir el ticket en el modal para que se pueda descargar
     setSelectedTicket(ticket);
+  };
+
+  const handleResendPin = async (ticket: Ticket) => {
+    if (!user?.email || !ticket.pin) {
+      alert('No se puede reenviar el PIN. Verifica que tengas acceso a este ticket.');
+      return;
+    }
+
+    try {
+      setSendingPin(ticket.id);
+      setPinSent(null);
+      
+      const result = await resendTicketPinEmail(ticket.id, user.email);
+      
+      if (result.success) {
+        setPinSent(ticket.id);
+        // Ocultar el mensaje después de 5 segundos
+        setTimeout(() => {
+          setPinSent(null);
+        }, 5000);
+      } else {
+        alert(result.message || 'Error al reenviar el PIN');
+      }
+    } catch (error) {
+      console.error('Error resending PIN:', error);
+      alert('Error al reenviar el PIN. Por favor, intenta de nuevo.');
+    } finally {
+      setSendingPin(null);
+    }
   };
 
   const filteredTickets = tickets.filter(ticket => {
@@ -282,23 +315,59 @@ export function MyTicketsPage() {
                   </div>
 
                   {/* Acciones */}
-                  <div className="flex gap-3 pt-4 border-t border-white/10">
-                    <Button
-                      onClick={() => setSelectedTicket(ticket)}
-                      variant="outline"
-                      className="flex-1 border-white/20 !text-white hover:!bg-white/10"
-                    >
-                      <TicketIcon className="h-4 w-4 mr-2" />
-                      Ver Boleta
-                    </Button>
-                    <Button
-                      onClick={() => handlePrintTicket(ticket)}
-                      variant="outline"
-                      className="flex-1 border-white/20 !text-white hover:!bg-white/10"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar
-                    </Button>
+                  <div className="space-y-3 pt-4 border-t border-white/10">
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => setSelectedTicket(ticket)}
+                        variant="outline"
+                        className="flex-1 border-white/20 !text-white hover:!bg-white/10"
+                      >
+                        <TicketIcon className="h-4 w-4 mr-2" />
+                        Ver Boleta
+                      </Button>
+                      <Button
+                        onClick={() => handlePrintTicket(ticket)}
+                        variant="outline"
+                        className="flex-1 border-white/20 !text-white hover:!bg-white/10"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Descargar
+                      </Button>
+                    </div>
+                    
+                    {/* Botón para reenviar PIN */}
+                    {ticket.pin && (
+                      <div className="relative">
+                        <Button
+                          onClick={() => handleResendPin(ticket)}
+                          disabled={sendingPin === ticket.id}
+                          variant="outline"
+                          className="w-full border-[#c61619]/50 !text-[#c61619] hover:!bg-[#c61619]/10 disabled:opacity-50"
+                        >
+                          {sendingPin === ticket.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : pinSent === ticket.id ? (
+                            <>
+                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                              PIN Enviado
+                            </>
+                          ) : (
+                            <>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Reenviar PIN por Email
+                            </>
+                          )}
+                        </Button>
+                        {pinSent === ticket.id && (
+                          <p className="text-xs text-green-400 mt-1 text-center">
+                            PIN enviado a {user?.email}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
