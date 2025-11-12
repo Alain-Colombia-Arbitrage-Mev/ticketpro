@@ -134,7 +134,7 @@ export function HomePage() {
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Logo - responsive */}
-              <div className="w-[180px] h-[86px] sm:w-[220px] sm:h-[105px] md:w-[260px] md:h-[125px] lg:w-[296px] lg:h-[142px] shrink-0 animate-fade-in-up">
+              <div className="w-[140px] h-[67px] sm:w-[160px] sm:h-[77px] md:w-[180px] md:h-[86px] lg:w-[200px] lg:h-[96px] shrink-0 animate-fade-in-up">
               <img 
                 src={logohome} 
                 alt="vetlix.com" 
