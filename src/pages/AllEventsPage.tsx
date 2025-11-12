@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, ChevronLeft, X, Calendar, DollarSign, TrendingUp, SlidersHorizontal } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -31,6 +31,22 @@ export function AllEventsPage() {
   const [sortBy, setSortBy] = useState<string>("date");
   const [searchQuery, setSearchQuery] = useState<string>(pageData?.searchQuery || "");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Actualizar filtros cuando cambie pageData (navegación desde navbar)
+  useEffect(() => {
+    if (pageData?.category) {
+      setSelectedCategory(pageData.category);
+      setCurrentPage(1); // Resetear a la primera página
+    }
+    if (pageData?.searchQuery !== undefined) {
+      setSearchQuery(pageData.searchQuery);
+      setCurrentPage(1);
+    }
+    if (pageData?.selectedCity) {
+      setSelectedCities([pageData.selectedCity]);
+      setCurrentPage(1);
+    }
+  }, [pageData]);
   
   // Advanced filters
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000]);
