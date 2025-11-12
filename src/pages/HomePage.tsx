@@ -127,14 +127,6 @@ export function HomePage() {
             <div className="video-mask-container">
               <div className="video-mask"></div>
             </div>
-            
-            {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
-              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
-              <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
-              <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
-              <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-white rounded-full animate-float-1 opacity-30"></div>
-            </div>
           </div>
           
           {/* Subsección: Contenido frontal */}
@@ -202,14 +194,6 @@ export function HomePage() {
             <div className="video-mask-container">
               <div className="video-mask"></div>
             </div>
-            
-            {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
-              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
-              <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
-              <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
-              <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-white rounded-full animate-float-1 opacity-30"></div>
-            </div>
           </div>
           
           {/* Subsección: Contenido frontal (sin logo) */}
@@ -268,14 +252,6 @@ export function HomePage() {
             <div className="video-mask-container">
               <div className="video-mask"></div>
             </div>
-            
-            {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
-              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
-              <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
-              <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
-              <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-white rounded-full animate-float-1 opacity-30"></div>
-            </div>
           </div>
           
           {/* Subsección: Contenido frontal (sin logo) */}
@@ -333,14 +309,6 @@ export function HomePage() {
             {/* Máscara con viñeta oscura - óvalo transparente en centro */}
             <div className="video-mask-container">
               <div className="video-mask"></div>
-            </div>
-            
-            {/* Efecto de partículas brillantes - oculto en móvil */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-20">
-              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-float-1 opacity-60"></div>
-              <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white rounded-full animate-float-2 opacity-40"></div>
-              <div className="absolute bottom-1/3 left-1/2 w-1.5 h-1.5 bg-white rounded-full animate-float-3 opacity-50"></div>
-              <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-white rounded-full animate-float-1 opacity-30"></div>
             </div>
           </div>
           
