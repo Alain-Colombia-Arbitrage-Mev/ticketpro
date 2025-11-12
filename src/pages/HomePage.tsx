@@ -130,11 +130,11 @@ export function HomePage() {
           </div>
           
           {/* Subsección: Contenido frontal */}
-          <div className="relative z-30 h-full flex items-center justify-center">
+          <div className="relative z-30 h-full flex items-center justify-center py-8 sm:py-12 md:py-16">
             <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
               
               {/* Logo - responsive */}
-              <div className="w-[140px] h-[67px] sm:w-[160px] sm:h-[77px] md:w-[180px] md:h-[86px] lg:w-[200px] lg:h-[96px] shrink-0 animate-fade-in-up">
+              <div className="w-[120px] h-[58px] sm:w-[140px] sm:h-[67px] md:w-[160px] md:h-[77px] lg:w-[180px] lg:h-[86px] shrink-0 animate-fade-in-up">
               <img 
                 src={logohome} 
                 alt="vetlix.com" 
