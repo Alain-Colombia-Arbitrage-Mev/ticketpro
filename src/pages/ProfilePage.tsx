@@ -106,7 +106,31 @@ export function ProfilePage() {
       toast.success("Dirección guardada correctamente");
     } catch (error) {
       console.error("Error updating address:", error);
-      toast.error("Error al guardar la dirección. Intenta de nuevo.");
+      // Fallback directo a Supabase (RLS) si el endpoint falla
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const { projectUrl, publicAnonKey } = await import(
+          "../utils/supabase/info"
+        );
+        const supabase = createClient(projectUrl, publicAnonKey);
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.user?.id) {
+          throw new Error("No hay sesión de usuario para actualizar el perfil");
+        }
+        const { error: upErr } = await supabase
+          .from("profiles")
+          .update({ address: address.trim() })
+          .eq("id", session.user.id);
+        if (upErr) throw upErr;
+        await refreshUser();
+        setIsEditingAddress(false);
+        toast.success("Dirección guardada correctamente");
+      } catch (fallbackErr) {
+        console.error("Fallback Supabase updateAddress failed:", fallbackErr);
+        toast.error("Error al guardar la dirección. Intenta de nuevo.");
+      }
     } finally {
       setSavingAddress(false);
     }
