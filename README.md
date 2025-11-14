@@ -12,7 +12,7 @@ src/
 │   ├── events/        # EventCard, CategoryCard
 │   ├── search/        # SearchBar, CityAutocomplete
 │   ├── auth/          # AuthInitializer
-│   ├── payment/       # CurrencySelector, MultiCurrencyBalance
+│   ├── payment/       # CurrencySelector, MultiCurrencyBalance, CryptoPaymentModal
 │   ├── common/        # Reutilizables (CountUp, FadeIn, etc.)
 │   └── media/         # ImageWithFallback, QRCode
 ├── hooks/             # Custom hooks
@@ -59,6 +59,17 @@ VITE_SITE_URL=https://tiquetera.com
 # Supabase Edge Function (opcional, si usas una función personalizada)
 # VITE_SUPABASE_API_FUNCTION_NAME=make-server-97d4f7c5
 # VITE_SUPABASE_API_URL=https://tu-project-id.supabase.co/functions/v1/tu-function-name
+
+# Cryptomus (pagos cripto)
+# Variables de frontend (se exponen en el bundle)
+VITE_CRYPTOMUS_API_KEY=tu_payment_api_key
+VITE_CRYPTOMUS_MERCHANT_ID=tu_merchant_id
+
+# Variables de backend (Pages Functions) - NO se exponen en el bundle
+# Configúralas en el panel de Cloudflare Pages:
+# - CRYPTOMUS_PAYMENT_API_KEY: tu Payment API Key (para verificar webhooks)
+# - CRYPTOMUS_ACCEPT_STATUSES: (opcional) paid,paid_over,confirming,check,wrong_amount,cancel,fail
+# - DEBUG_CRYPTOMUS: (opcional) "1" para depurar firmas en el webhook
 ```
 
 ### 2. Obtener credenciales de Supabase
@@ -77,6 +88,11 @@ Para **Cloudflare Pages**:
    - `VITE_SUPABASE_PROJECT_ID`
    - `VITE_SUPABASE_ANON_KEY`
    - `VITE_SITE_URL` (opcional)
+   - `VITE_CRYPTOMUS_API_KEY`
+   - `VITE_CRYPTOMUS_MERCHANT_ID`
+   - `CRYPTOMUS_PAYMENT_API_KEY` (server-side, para verificar webhooks)
+   - `CRYPTOMUS_ACCEPT_STATUSES` (opcional)
+   - `DEBUG_CRYPTOMUS` (opcional)
 
 ### 4. Seguridad
 
@@ -136,4 +152,25 @@ npx wrangler@latest pages deploy ./dist --project-name=ticketpro
 - **Build output directory**: `dist`
 - **Root directory**: `/`
 - **Environment Variables**: `BUN_VERSION=latest` (opcional)
+
+### Webhook de Cryptomus
+
+- Endpoint (Pages Functions): `/api/cryptomus/webhook`
+- Autenticación: se valida la firma `md5(base64(body) + CRYPTOMUS_PAYMENT_API_KEY)`
+- Configura `CRYPTOMUS_PAYMENT_API_KEY` en Cloudflare Pages (NO uses prefijo `VITE_` aquí).
+- Opcional: `CRYPTOMUS_ACCEPT_STATUSES` y `DEBUG_CRYPTOMUS=1` para depuración.
+- Recomendado: whitelist de IP origen `91.227.144.54` para mayor seguridad.
+
+Prueba rápida:
+```bash
+curl -X POST https://<tu-dominio>/api/cryptomus/webhook \
+  -H 'Content-Type: application/json' \
+  -H 'merchant: <tu_merchant_id>' \
+  -H 'sign: <firma_calculada>' \
+  -d '{}'
+```
+
+Flujo en UI:
+- En Checkout selecciona “Criptomonedas” para abrir el modal `CryptoPaymentModal`.
+- Se crea un invoice en Cryptomus y se monitorea su estado (pagado/expirado).
 
