@@ -3,7 +3,7 @@
  * Servicio para integración con Cryptomus API para procesamiento de pagos con criptomonedas
  */
 
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 // Tipos de datos para Cryptomus
 export interface CryptomusInvoiceRequest {
@@ -74,15 +74,15 @@ export interface CryptomusPaymentInfo {
 class CryptomusService {
   private apiKey: string;
   private merchantId: string;
-  private baseUrl: string = 'https://api.cryptomus.com/v1';
+  private baseUrl: string = "https://api.cryptomus.com/v1";
 
   constructor() {
     // La API key debe estar en las variables de entorno
-    this.apiKey = import.meta.env.VITE_CRYPTOMUS_API_KEY || '';
-    this.merchantId = import.meta.env.VITE_CRYPTOMUS_MERCHANT_ID || '';
+    this.apiKey = import.meta.env.VITE_CRYPTOMUS_API_KEY || "";
+    this.merchantId = import.meta.env.VITE_CRYPTOMUS_MERCHANT_ID || "";
 
     if (!this.apiKey || !this.merchantId) {
-      console.warn('Cryptomus API key or Merchant ID not configured');
+      console.warn("Cryptomus API key or Merchant ID not configured");
     }
   }
 
@@ -92,7 +92,10 @@ class CryptomusService {
    * @returns Firma MD5 en base64
    */
   private generateSignature(data: string): string {
-    const hash = CryptoJS.MD5(CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(data)) + this.apiKey);
+    const hash = CryptoJS.MD5(
+      CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(data)) +
+        this.apiKey,
+    );
     return hash.toString();
   }
 
@@ -101,17 +104,19 @@ class CryptomusService {
    * @param params - Parámetros de la factura
    * @returns Promise con la respuesta de Cryptomus
    */
-  async createInvoice(params: CryptomusInvoiceRequest): Promise<CryptomusInvoiceResponse> {
+  async createInvoice(
+    params: CryptomusInvoiceRequest,
+  ): Promise<CryptomusInvoiceResponse> {
     try {
       const body = JSON.stringify(params);
       const signature = this.generateSignature(body);
 
       const response = await fetch(`${this.baseUrl}/payment`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'merchant': this.merchantId,
-          'sign': signature,
+          "Content-Type": "application/json",
+          merchant: this.merchantId,
+          sign: signature,
         },
         body: body,
       });
@@ -119,13 +124,13 @@ class CryptomusService {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Cryptomus API error:', data);
-        throw new Error(data.message || 'Error creating Cryptomus invoice');
+        console.error("Cryptomus API error:", data);
+        throw new Error(data.message || "Error creating Cryptomus invoice");
       }
 
       return data;
     } catch (error) {
-      console.error('Error creating Cryptomus invoice:', error);
+      console.error("Error creating Cryptomus invoice:", error);
       throw error;
     }
   }
@@ -135,18 +140,21 @@ class CryptomusService {
    * @param uuid - UUID del pago o order_id
    * @returns Promise con la información del pago
    */
-  async getPaymentInfo(uuid: string, isOrderId: boolean = false): Promise<CryptomusPaymentInfo> {
+  async getPaymentInfo(
+    uuid: string,
+    isOrderId: boolean = false,
+  ): Promise<CryptomusPaymentInfo> {
     try {
       const params = isOrderId ? { order_id: uuid } : { uuid };
       const body = JSON.stringify(params);
       const signature = this.generateSignature(body);
 
       const response = await fetch(`${this.baseUrl}/payment/info`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'merchant': this.merchantId,
-          'sign': signature,
+          "Content-Type": "application/json",
+          merchant: this.merchantId,
+          sign: signature,
         },
         body: body,
       });
@@ -154,13 +162,13 @@ class CryptomusService {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Cryptomus API error:', data);
-        throw new Error(data.message || 'Error getting payment info');
+        console.error("Cryptomus API error:", data);
+        throw new Error(data.message || "Error getting payment info");
       }
 
       return data;
     } catch (error) {
-      console.error('Error getting payment info:', error);
+      console.error("Error getting payment info:", error);
       throw error;
     }
   }
@@ -176,7 +184,7 @@ class CryptomusService {
       const calculatedSign = this.generateSignature(body);
       return calculatedSign === receivedSign;
     } catch (error) {
-      console.error('Error verifying webhook signature:', error);
+      console.error("Error verifying webhook signature:", error);
       return false;
     }
   }
@@ -187,15 +195,15 @@ class CryptomusService {
    */
   async getAvailableServices(): Promise<any> {
     try {
-      const body = '{}';
+      const body = "{}";
       const signature = this.generateSignature(body);
 
       const response = await fetch(`${this.baseUrl}/payment/services`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'merchant': this.merchantId,
-          'sign': signature,
+          "Content-Type": "application/json",
+          merchant: this.merchantId,
+          sign: signature,
         },
         body: body,
       });
@@ -203,13 +211,13 @@ class CryptomusService {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Cryptomus API error:', data);
-        throw new Error(data.message || 'Error getting available services');
+        console.error("Cryptomus API error:", data);
+        throw new Error(data.message || "Error getting available services");
       }
 
       return data;
     } catch (error) {
-      console.error('Error getting available services:', error);
+      console.error("Error getting available services:", error);
       throw error;
     }
   }
@@ -226,11 +234,12 @@ class CryptomusService {
    */
   async createCryptoPayment(
     amount: number,
-    currency: string = 'USD',
+    currency: string = "USD",
     orderId: string,
-    toCurrency: string = 'USDT',
+    toCurrency: string = "USDT",
     callbackUrl?: string,
-    returnUrl?: string
+    returnUrl?: string,
+    additionalData?: string,
   ): Promise<CryptomusInvoiceResponse> {
     const params: CryptomusInvoiceRequest = {
       amount: amount.toString(),
@@ -242,6 +251,7 @@ class CryptomusService {
       url_success: returnUrl,
       lifetime: 3600, // 1 hora
       is_payment_multiple: true,
+      additional_data: additionalData,
     };
 
     return this.createInvoice(params);
@@ -255,10 +265,10 @@ class CryptomusService {
   async checkPaymentStatus(orderId: string): Promise<string> {
     try {
       const paymentInfo = await this.getPaymentInfo(orderId, true);
-      return paymentInfo.result?.payment_status || 'unknown';
+      return paymentInfo.result?.payment_status || "unknown";
     } catch (error) {
-      console.error('Error checking payment status:', error);
-      return 'error';
+      console.error("Error checking payment status:", error);
+      return "error";
     }
   }
 
@@ -275,16 +285,19 @@ export const cryptomusService = new CryptomusService();
 
 // Tipos de estados de pago de Cryptomus
 export enum CryptomusPaymentStatus {
-  CHECK = 'check',
-  PAID = 'paid',
-  PAID_OVER = 'paid_over',
-  WRONG_AMOUNT = 'wrong_amount',
-  CANCEL = 'cancel',
-  FAIL = 'fail',
-  CONFIRMING = 'confirming',
+  CHECK = "check",
+  PAID = "paid",
+  PAID_OVER = "paid_over",
+  WRONG_AMOUNT = "wrong_amount",
+  CANCEL = "cancel",
+  FAIL = "fail",
+  CONFIRMING = "confirming",
 }
 
 // Función auxiliar para formatear montos
-export function formatCryptoAmount(amount: number, decimals: number = 2): string {
+export function formatCryptoAmount(
+  amount: number,
+  decimals: number = 2,
+): string {
   return amount.toFixed(decimals);
 }
