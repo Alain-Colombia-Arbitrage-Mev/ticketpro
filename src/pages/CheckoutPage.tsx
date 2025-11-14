@@ -1,19 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, CreditCard, Lock, Ticket, Calendar, MapPin, User, Mail, Phone, CheckCircle2, Shield, Building2, Bitcoin, Wallet, Gift } from "lucide-react";
+import {
+  ChevronLeft,
+  CreditCard,
+  Lock,
+  Ticket,
+  Calendar,
+  MapPin,
+  User,
+  Mail,
+  Phone,
+  CheckCircle2,
+  Shield,
+  Building2,
+  Bitcoin,
+  Wallet,
+  Gift,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { SEOHead } from "../components/common";
-import { createTicket, TicketData, getTicketCategories, getPaymentMethods } from "../utils/tickets/ticketService";
+import {
+  createTicket,
+  TicketData,
+  getTicketCategories,
+  getPaymentMethods,
+} from "../utils/tickets/ticketService";
 import { useCartStore } from "../stores/cartStore";
+import { CryptoPaymentModal } from "../components/payment";
+import { toast } from "sonner";
 
 type PaymentMethod = "card" | "ach" | "crypto" | "free";
 
@@ -29,7 +58,9 @@ export function CheckoutPage() {
   const [createdTickets, setCreatedTickets] = useState<any[]>([]);
   const [ticketCategories, setTicketCategories] = useState<any[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
-  
+  const [showCryptoModal, setShowCryptoModal] = useState(false);
+  const [cryptoOrderId, setCryptoOrderId] = useState<string>("");
+
   // Verificar si hay items del carrito
   const cartItems = (pageData as any)?.cartItems || null;
 
@@ -38,14 +69,14 @@ export function CheckoutPage() {
     const loadData = async () => {
       const [categories, methods] = await Promise.all([
         getTicketCategories(),
-        getPaymentMethods()
+        getPaymentMethods(),
       ]);
       setTicketCategories(categories);
       setPaymentMethods(methods);
     };
     loadData();
   }, []);
-  
+
   // Formulario
   const [formData, setFormData] = useState({
     fullName: user?.name || "",
@@ -68,7 +99,7 @@ export function CheckoutPage() {
   // Actualizar dirección cuando el usuario cambie
   useEffect(() => {
     if (user?.address) {
-      setFormData(prev => ({ ...prev, address: user.address || "" }));
+      setFormData((prev) => ({ ...prev, address: user.address || "" }));
     }
   }, [user?.address]);
 
@@ -77,7 +108,9 @@ export function CheckoutPage() {
     return null;
   }
 
-  const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
+  const ticketPrice = parseInt(
+    pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800",
+  );
   const subtotal = ticketPrice * quantity;
   const serviceFee = Math.round(subtotal * 0.1);
   const total = subtotal + serviceFee;
@@ -90,7 +123,7 @@ export function CheckoutPage() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCardNumberChange = (value: string) => {
@@ -124,8 +157,15 @@ export function CheckoutPage() {
   };
 
   const validateForm = (): boolean => {
-    if (!formData.fullName || !formData.email || !formData.phone || !formData.address) {
-      alert("Por favor completa todos los campos de contacto, incluyendo la dirección");
+    if (
+      !formData.fullName ||
+      !formData.email ||
+      !formData.phone ||
+      !formData.address
+    ) {
+      alert(
+        "Por favor completa todos los campos de contacto, incluyendo la dirección",
+      );
       return false;
     }
 
@@ -156,49 +196,63 @@ export function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
+    // Si es pago con cripto, abrir el modal de Cryptomus
+    if (paymentMethod === "crypto") {
+      const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      setCryptoOrderId(orderId);
+      setShowCryptoModal(true);
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
       // Método gratuito: procesar inmediatamente sin simular pago
       if (paymentMethod !== "free") {
         // Simular procesamiento de pago para otros métodos
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-      
+
       // Obtener IDs de categoría y método de pago
-      const ticketCategory = ticketCategories.find(cat => 
-        cat.name === (pageData.ticketClass?.toUpperCase() || 'GENERAL')
-      ) || ticketCategories.find(cat => cat.name === 'GENERAL');
-      
+      const ticketCategory =
+        ticketCategories.find(
+          (cat) =>
+            cat.name === (pageData.ticketClass?.toUpperCase() || "GENERAL"),
+        ) || ticketCategories.find((cat) => cat.name === "GENERAL");
+
       // Para método gratuito, usar un método de pago especial o crear uno temporal
-      const paymentMethodObj = paymentMethod === "free" 
-        ? { id: null, name: 'free' } // Método gratuito no requiere ID real
-        : paymentMethods.find(method => method.name === paymentMethod)
-          || paymentMethods.find(method => method.name === 'balance');
+      const paymentMethodObj =
+        paymentMethod === "free"
+          ? { id: null, name: "free" } // Método gratuito no requiere ID real
+          : paymentMethods.find((method) => method.name === paymentMethod) ||
+            paymentMethods.find((method) => method.name === "balance");
 
       // Crear boletas para cada ticket comprado
       const tickets: any[] = [];
       const purchaseId = crypto.randomUUID();
-      
+
       // Si hay items del carrito, procesar todos los items
       if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
         // Procesar todos los items del carrito
         for (const cartItem of cartItems) {
-          const itemTicketCategory = ticketCategories.find(cat => 
-            cat.name === (cartItem.ticketType?.toUpperCase() || 'GENERAL')
-          ) || ticketCategories.find(cat => cat.name === 'GENERAL');
-          
+          const itemTicketCategory =
+            ticketCategories.find(
+              (cat) =>
+                cat.name === (cartItem.ticketType?.toUpperCase() || "GENERAL"),
+            ) || ticketCategories.find((cat) => cat.name === "GENERAL");
+
           // Crear tickets para cada cantidad del item
           for (let i = 0; i < cartItem.quantity; i++) {
             const ticketData: TicketData = {
               eventId: cartItem.eventId,
               eventName: cartItem.eventName,
-              eventDate: cartItem.eventDate || new Date().toISOString().split('T')[0],
+              eventDate:
+                cartItem.eventDate || new Date().toISOString().split("T")[0],
               eventTime: cartItem.eventTime,
               eventLocation: cartItem.eventLocation,
               eventCategory: cartItem.eventCategory,
@@ -206,11 +260,11 @@ export function CheckoutPage() {
               buyerEmail: formData.email,
               buyerFullName: formData.fullName,
               buyerAddress: formData.address,
-              ticketType: cartItem.ticketType || 'General',
+              ticketType: cartItem.ticketType || "General",
               seatNumber: cartItem.seatNumber || undefined,
-              seatType: cartItem.seatType || 'numerado',
+              seatType: cartItem.seatType || "numerado",
               gateNumber: undefined,
-              ticketClass: cartItem.ticketType || 'General',
+              ticketClass: cartItem.ticketType || "General",
               ticketCategoryId: itemTicketCategory?.id,
               price: cartItem.ticketPrice,
               pricePaid: cartItem.total / cartItem.quantity, // Precio por ticket
@@ -222,10 +276,10 @@ export function CheckoutPage() {
                 total: cartItem.total,
                 quantity: cartItem.quantity,
                 paymentMethod: paymentMethod,
-                purchaseDate: new Date().toISOString()
+                purchaseDate: new Date().toISOString(),
               },
             };
-            
+
             const ticket = await createTicket(ticketData);
             tickets.push(ticket);
           }
@@ -235,20 +289,21 @@ export function CheckoutPage() {
         for (let i = 0; i < quantity; i++) {
           const ticketData: TicketData = {
             eventId: pageData.id || 1,
-            eventName: pageData.title || 'Evento',
-            eventDate: pageData.date || new Date().toISOString().split('T')[0],
+            eventName: pageData.title || "Evento",
+            eventDate: pageData.date || new Date().toISOString().split("T")[0],
             eventTime: pageData.time,
             eventLocation: pageData.location,
-            eventCategory: pageData.category || pageData.eventCategory || undefined,
+            eventCategory:
+              pageData.category || pageData.eventCategory || undefined,
             buyerId: user?.id,
             buyerEmail: formData.email,
             buyerFullName: formData.fullName,
-            buyerAddress: '', // Se puede agregar campo de dirección si es necesario
-            ticketType: pageData.ticketType || 'General',
+            buyerAddress: "", // Se puede agregar campo de dirección si es necesario
+            ticketType: pageData.ticketType || "General",
             seatNumber: pageData.seatNumber || undefined,
-            seatType: pageData.seatType || 'numerado', // numerado, general, preferencial
+            seatType: pageData.seatType || "numerado", // numerado, general, preferencial
             gateNumber: pageData.gateNumber || undefined,
-            ticketClass: pageData.ticketClass || 'VIP',
+            ticketClass: pageData.ticketClass || "VIP",
             ticketCategoryId: ticketCategory?.id,
             price: ticketPrice,
             pricePaid: total, // Precio total pagado (incluye fees)
@@ -260,21 +315,23 @@ export function CheckoutPage() {
               total: total,
               quantity: quantity,
               paymentMethod: paymentMethod,
-              purchaseDate: new Date().toISOString()
+              purchaseDate: new Date().toISOString(),
             },
           };
-          
+
           const ticket = await createTicket(ticketData);
           tickets.push(ticket);
         }
       }
-      
+
       // Limpiar el carrito después de una compra exitosa
       // Esto asegura que el carrito se restaure completamente después de cualquier compra
       clearCart();
-      
+
       // Enviar PIN por email a cada ticket creado
-      const { sendTicketPinEmail } = await import('../utils/tickets/ticketService');
+      const { sendTicketPinEmail } = await import(
+        "../utils/tickets/ticketService"
+      );
       for (const ticket of tickets) {
         if (ticket.pin && formData.email) {
           try {
@@ -285,22 +342,27 @@ export function CheckoutPage() {
               formData.email,
               formData.fullName,
               ticket.event_name,
-              ticket.event_date
+              ticket.event_date,
             );
-            console.log(`PIN enviado por email para ticket ${ticket.ticket_code}`);
+            console.log(
+              `PIN enviado por email para ticket ${ticket.ticket_code}`,
+            );
           } catch (emailError) {
-            console.warn(`No se pudo enviar el PIN por email para ticket ${ticket.ticket_code}:`, emailError);
+            console.warn(
+              `No se pudo enviar el PIN por email para ticket ${ticket.ticket_code}:`,
+              emailError,
+            );
             // No bloquear el flujo si falla el envío de email
           }
         }
       }
-      
+
       setCreatedTickets(tickets);
       setLoading(false);
       setShowSuccessModal(true);
     } catch (error) {
-      console.error('Error creating tickets:', error);
-      alert('Error al crear las boletas. Por favor, contacta al soporte.');
+      console.error("Error creating tickets:", error);
+      alert("Error al crear las boletas. Por favor, contacta al soporte.");
       setLoading(false);
     }
   };
@@ -312,8 +374,132 @@ export function CheckoutPage() {
       tickets: createdTickets,
       event: pageData,
       quantity: quantity,
-      total: total
+      total: total,
     });
+  };
+
+  const handleCryptoPaymentSuccess = async (txId: string) => {
+    toast.success("¡Pago con criptomonedas confirmado!");
+    setShowCryptoModal(false);
+    setLoading(true);
+
+    try {
+      // Procesar los tickets después del pago exitoso
+      const ticketCategory =
+        ticketCategories.find(
+          (cat) =>
+            cat.name === (pageData.ticketClass?.toUpperCase() || "GENERAL"),
+        ) || ticketCategories.find((cat) => cat.name === "GENERAL");
+
+      const paymentMethodObj =
+        paymentMethods.find((method) => method.name === "crypto") ||
+        paymentMethods.find((method) => method.name === "balance");
+
+      const tickets: any[] = [];
+      const purchaseId = crypto.randomUUID();
+
+      if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
+        for (const cartItem of cartItems) {
+          for (let i = 0; i < cartItem.quantity; i++) {
+            const ticketData: TicketData = {
+              eventId: cartItem.eventId,
+              eventName: cartItem.eventName,
+              eventDate:
+                cartItem.eventDate || new Date().toISOString().split("T")[0],
+              eventTime: cartItem.eventTime,
+              eventLocation: cartItem.eventLocation,
+              eventCategory: cartItem.eventCategory,
+              buyerId: user?.id,
+              buyerEmail: formData.email,
+              buyerFullName: formData.fullName,
+              buyerAddress: formData.address,
+              ticketType: cartItem.ticketType || "General",
+              seatNumber: cartItem.seatNumber || undefined,
+              seatType: cartItem.seatType || "numerado",
+              ticketClass: cartItem.ticketType || "General",
+              ticketCategoryId: ticketCategory?.id,
+              price: cartItem.ticketPrice,
+              pricePaid: cartItem.total / cartItem.quantity,
+              paymentMethodId: paymentMethodObj?.id,
+              purchaseId: cryptoOrderId,
+              purchaseSummary: {
+                subtotal: cartItem.subtotal,
+                serviceFee: cartItem.serviceFee,
+                total: cartItem.total,
+                quantity: cartItem.quantity,
+                paymentMethod: "crypto",
+                cryptoTxId: txId,
+                purchaseDate: new Date().toISOString(),
+              },
+            };
+
+            const ticket = await createTicket(ticketData);
+            tickets.push(ticket);
+          }
+        }
+        clearCart();
+      } else {
+        for (let i = 0; i < quantity; i++) {
+          const ticketData: TicketData = {
+            eventId: pageData.id || 1,
+            eventName: pageData.title || "Evento",
+            eventDate: pageData.date || new Date().toISOString().split("T")[0],
+            eventTime: pageData.time,
+            eventLocation: pageData.location,
+            eventCategory:
+              pageData.category || pageData.eventCategory || undefined,
+            buyerId: user?.id,
+            buyerEmail: formData.email,
+            buyerFullName: formData.fullName,
+            buyerAddress: formData.address,
+            ticketType: pageData.ticketType || "General",
+            seatNumber: pageData.seatNumber || undefined,
+            seatType: pageData.seatType || "numerado",
+            ticketClass: pageData.ticketClass || "General",
+            ticketCategoryId: ticketCategory?.id,
+            price: ticketPrice,
+            pricePaid: total,
+            paymentMethodId: paymentMethodObj?.id,
+            purchaseId: cryptoOrderId,
+            purchaseSummary: {
+              subtotal: subtotal,
+              serviceFee: serviceFee,
+              total: total,
+              quantity: quantity,
+              paymentMethod: "crypto",
+              cryptoTxId: txId,
+              purchaseDate: new Date().toISOString(),
+            },
+          };
+
+          const ticket = await createTicket(ticketData);
+          tickets.push(ticket);
+        }
+      }
+
+      setCreatedTickets(tickets);
+      setShowSuccessModal(true);
+
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate("confirmation", {
+          tickets: tickets,
+          event: pageData,
+          quantity: quantity,
+          total: total,
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Error creating tickets:", error);
+      toast.error("Error al crear los tickets. Por favor contacta al soporte.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCryptoPaymentError = (error: string) => {
+    toast.error(`Error en el pago: ${error}`);
+    setShowCryptoModal(false);
   };
 
   const paymentMethodOptions = [
@@ -380,15 +566,19 @@ export function CheckoutPage() {
                     <User className="h-5 w-5" />
                     Información de Contacto
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="fullName" className="!text-white/80">Nombre Completo *</Label>
+                      <Label htmlFor="fullName" className="!text-white/80">
+                        Nombre Completo *
+                      </Label>
                       <Input
                         id="fullName"
                         type="text"
                         value={formData.fullName}
-                        onChange={(e) => handleInputChange("fullName", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("fullName", e.target.value)
+                        }
                         className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
                         placeholder="Juan Pérez"
                         required
@@ -397,12 +587,16 @@ export function CheckoutPage() {
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <Label htmlFor="email" className="!text-white/80">Email *</Label>
+                        <Label htmlFor="email" className="!text-white/80">
+                          Email *
+                        </Label>
                         <Input
                           id="email"
                           type="email"
                           value={formData.email}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
                           className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
                           placeholder="juan@example.com"
                           required
@@ -410,12 +604,16 @@ export function CheckoutPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="phone" className="!text-white/80">Teléfono *</Label>
+                        <Label htmlFor="phone" className="!text-white/80">
+                          Teléfono *
+                        </Label>
                         <Input
                           id="phone"
                           type="tel"
                           value={formData.phone}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("phone", e.target.value)
+                          }
                           className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
                           placeholder="+1 (555) 123-4567"
                           required
@@ -424,7 +622,10 @@ export function CheckoutPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="address" className="!text-white/80 flex items-center gap-2">
+                      <Label
+                        htmlFor="address"
+                        className="!text-white/80 flex items-center gap-2"
+                      >
                         <MapPin className="h-4 w-4" />
                         Dirección *
                       </Label>
@@ -432,14 +633,17 @@ export function CheckoutPage() {
                         id="address"
                         type="text"
                         value={formData.address}
-                        onChange={(e) => handleInputChange("address", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("address", e.target.value)
+                        }
                         className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
                         placeholder="Calle, número, ciudad, estado, código postal"
                         required
                       />
                       {user?.address && (
                         <p className="mt-1 text-xs !text-white/60">
-                          Usando tu dirección guardada. Puedes editarla si es necesario.
+                          Usando tu dirección guardada. Puedes editarla si es
+                          necesario.
                         </p>
                       )}
                     </div>
@@ -452,7 +656,7 @@ export function CheckoutPage() {
                     <Wallet className="h-5 w-5" />
                     Selecciona tu Método de Pago
                   </h2>
-                  
+
                   <div className="grid gap-4 sm:grid-cols-3">
                     {paymentMethodOptions.map((method) => (
                       <div
@@ -467,33 +671,35 @@ export function CheckoutPage() {
                           setPaymentMethod(method.id);
                         }}
                       >
-                          {paymentMethod === method.id && (
-                            <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c61619]">
-                              <CheckCircle2 className="h-4 w-4 text-white" />
-                            </div>
-                          )}
-                          
-                          <div className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full transition-all ${
+                        {paymentMethod === method.id && (
+                          <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c61619]">
+                            <CheckCircle2 className="h-4 w-4 text-white" />
+                          </div>
+                        )}
+
+                        <div
+                          className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full transition-all ${
                             paymentMethod === method.id
                               ? "bg-[#c61619] text-white"
                               : "bg-white/10 text-white/70"
-                          }`}>
-                            <div className="scale-150">
-                              {method.icon}
-                            </div>
-                          </div>
-                          
-                          <Label
-                            htmlFor={method.id}
-                            className="text-center !text-white font-bold cursor-pointer mb-2"
-                          >
-                            {method.name}
-                          </Label>
-                          
-                          <p className="text-xs text-center !text-white/60">{method.description}</p>
+                          }`}
+                        >
+                          <div className="scale-150">{method.icon}</div>
                         </div>
-                      ))}
-                    </div>
+
+                        <Label
+                          htmlFor={method.id}
+                          className="text-center !text-white font-bold cursor-pointer mb-2"
+                        >
+                          {method.name}
+                        </Label>
+
+                        <p className="text-xs text-center !text-white/60">
+                          {method.description}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </Card>
 
                 {/* Formulario según método de pago */}
@@ -505,32 +711,48 @@ export function CheckoutPage() {
 
                   {/* Tarjeta de Crédito/Débito */}
                   {paymentMethod === "card" && (
-                    <div key="card-form" className="space-y-4 animate-fade-in-up">
+                    <div
+                      key="card-form"
+                      className="space-y-4 animate-fade-in-up"
+                    >
                       {/* Logos de tarjetas aceptadas */}
                       <div className="flex items-center justify-center gap-4 p-4 rounded-lg !bg-white/5 border border-white/10">
                         <div className="text-xs !text-white/60">Aceptamos:</div>
                         <div className="flex gap-3">
                           <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">VISA</span>
+                            <span className="text-xs font-bold !text-white">
+                              VISA
+                            </span>
                           </div>
                           <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">MC</span>
+                            <span className="text-xs font-bold !text-white">
+                              MC
+                            </span>
                           </div>
                           <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">AMEX</span>
+                            <span className="text-xs font-bold !text-white">
+                              AMEX
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="cardNumber" className="!text-white/80 mb-2 block">Número de Tarjeta *</Label>
+                        <Label
+                          htmlFor="cardNumber"
+                          className="!text-white/80 mb-2 block"
+                        >
+                          Número de Tarjeta *
+                        </Label>
                         <div className="relative">
                           <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                           <Input
                             id="cardNumber"
                             type="text"
                             value={formData.cardNumber}
-                            onChange={(e) => handleCardNumberChange(e.target.value)}
+                            onChange={(e) =>
+                              handleCardNumberChange(e.target.value)
+                            }
                             className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
                             placeholder="1234 5678 9012 3456"
                             maxLength={19}
@@ -541,14 +763,21 @@ export function CheckoutPage() {
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <Label htmlFor="cardExpiry" className="!text-white/80 mb-2 block">Vencimiento *</Label>
+                          <Label
+                            htmlFor="cardExpiry"
+                            className="!text-white/80 mb-2 block"
+                          >
+                            Vencimiento *
+                          </Label>
                           <div className="relative">
                             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                             <Input
                               id="cardExpiry"
                               type="text"
                               value={formData.cardExpiry}
-                              onChange={(e) => handleExpiryChange(e.target.value)}
+                              onChange={(e) =>
+                                handleExpiryChange(e.target.value)
+                              }
                               className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
                               placeholder="MM/YY"
                               maxLength={5}
@@ -558,7 +787,12 @@ export function CheckoutPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="cardCVV" className="!text-white/80 mb-2 block">CVV *</Label>
+                          <Label
+                            htmlFor="cardCVV"
+                            className="!text-white/80 mb-2 block"
+                          >
+                            CVV *
+                          </Label>
                           <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 !text-white/40 z-10" />
                             <Input
@@ -585,81 +819,123 @@ export function CheckoutPage() {
 
                   {/* ACH Transfer */}
                   {paymentMethod === "ach" && (
-                    <div key="ach-form" className="space-y-4 animate-fade-in-up">
+                    <div
+                      key="ach-form"
+                      className="space-y-4 animate-fade-in-up"
+                    >
                       {/* Info banner */}
                       <div className="flex items-start gap-3 rounded-lg !bg-blue-500/10 p-4 border border-blue-500/20">
                         <Building2 className="h-5 w-5 !text-blue-300 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-sm !text-blue-300 font-semibold mb-1">Transferencia Bancaria en EE.UU.</p>
+                          <p className="text-sm !text-blue-300 font-semibold mb-1">
+                            Transferencia Bancaria en EE.UU.
+                          </p>
                           <p className="text-xs !text-blue-200/80">
-                            Las transferencias ACH tardan 1-3 días hábiles. Recibirás tus tickets por email una vez confirmado el pago.
+                            Las transferencias ACH tardan 1-3 días hábiles.
+                            Recibirás tus tickets por email una vez confirmado
+                            el pago.
                           </p>
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="routingNumber" className="!text-white/80 mb-2 block">Routing Number (9 dígitos) *</Label>
+                        <Label
+                          htmlFor="routingNumber"
+                          className="!text-white/80 mb-2 block"
+                        >
+                          Routing Number (9 dígitos) *
+                        </Label>
                         <div className="relative">
                           <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                           <Input
                             id="routingNumber"
                             type="text"
                             value={formData.routingNumber}
-                            onChange={(e) => handleRoutingNumberChange(e.target.value)}
+                            onChange={(e) =>
+                              handleRoutingNumberChange(e.target.value)
+                            }
                             className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
                             placeholder="123456789"
                             maxLength={9}
                             required
                           />
                         </div>
-                        <p className="text-xs !text-white/50 mt-1">Número de ruta de 9 dígitos de tu banco</p>
+                        <p className="text-xs !text-white/50 mt-1">
+                          Número de ruta de 9 dígitos de tu banco
+                        </p>
                       </div>
 
                       <div>
-                        <Label htmlFor="accountNumber" className="!text-white/80 mb-2 block">Account Number *</Label>
+                        <Label
+                          htmlFor="accountNumber"
+                          className="!text-white/80 mb-2 block"
+                        >
+                          Account Number *
+                        </Label>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                           <Input
                             id="accountNumber"
                             type="text"
                             value={formData.accountNumber}
-                            onChange={(e) => handleAccountNumberChange(e.target.value)}
+                            onChange={(e) =>
+                              handleAccountNumberChange(e.target.value)
+                            }
                             className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
                             placeholder="12345678901234"
                             maxLength={17}
                             required
                           />
                         </div>
-                        <p className="text-xs !text-white/50 mt-1">Número de cuenta bancaria (hasta 17 dígitos)</p>
+                        <p className="text-xs !text-white/50 mt-1">
+                          Número de cuenta bancaria (hasta 17 dígitos)
+                        </p>
                       </div>
 
                       <div>
-                        <Label className="!text-white/80 mb-3 block">Tipo de Cuenta *</Label>
-                        <RadioGroup value={formData.accountType} onValueChange={(value) => handleInputChange("accountType", value)}>
+                        <Label className="!text-white/80 mb-3 block">
+                          Tipo de Cuenta *
+                        </Label>
+                        <RadioGroup
+                          value={formData.accountType}
+                          onValueChange={(value) =>
+                            handleInputChange("accountType", value)
+                          }
+                        >
                           <div className="grid gap-3 sm:grid-cols-2">
-                            <div 
+                            <div
                               className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
                                 formData.accountType === "checking"
                                   ? "border-[#c61619] !bg-[#c61619]/10"
                                   : "border-white/20 !bg-white/5 hover:border-white/40"
                               }`}
-                              onClick={() => handleInputChange("accountType", "checking")}
+                              onClick={() =>
+                                handleInputChange("accountType", "checking")
+                              }
                             >
                               <RadioGroupItem value="checking" id="checking" />
-                              <Label htmlFor="checking" className="!text-white cursor-pointer font-medium flex-1">
+                              <Label
+                                htmlFor="checking"
+                                className="!text-white cursor-pointer font-medium flex-1"
+                              >
                                 Checking Account
                               </Label>
                             </div>
-                            <div 
+                            <div
                               className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
                                 formData.accountType === "savings"
                                   ? "border-[#c61619] !bg-[#c61619]/10"
                                   : "border-white/20 !bg-white/5 hover:border-white/40"
                               }`}
-                              onClick={() => handleInputChange("accountType", "savings")}
+                              onClick={() =>
+                                handleInputChange("accountType", "savings")
+                              }
                             >
                               <RadioGroupItem value="savings" id="savings" />
-                              <Label htmlFor="savings" className="!text-white cursor-pointer font-medium flex-1">
+                              <Label
+                                htmlFor="savings"
+                                className="!text-white cursor-pointer font-medium flex-1"
+                              >
                                 Savings Account
                               </Label>
                             </div>
@@ -671,7 +947,10 @@ export function CheckoutPage() {
 
                   {/* Método Gratuito */}
                   {paymentMethod === "free" && (
-                    <div key="free-form" className="space-y-4 animate-fade-in-up">
+                    <div
+                      key="free-form"
+                      className="space-y-4 animate-fade-in-up"
+                    >
                       <div className="rounded-lg !bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-6 border border-green-500/30 backdrop-blur">
                         <div className="flex items-start gap-3 mb-4">
                           <Gift className="h-6 w-6 !text-green-300 mt-0.5 flex-shrink-0" />
@@ -680,11 +959,16 @@ export function CheckoutPage() {
                               Método de Pago Gratuito (Prueba)
                             </p>
                             <p className="text-sm !text-green-200/80 mb-3">
-                              Este método está disponible solo para pruebas. No se realizará ningún cargo y los tickets se generarán inmediatamente.
+                              Este método está disponible solo para pruebas. No
+                              se realizará ningún cargo y los tickets se
+                              generarán inmediatamente.
                             </p>
                             <div className="flex items-center gap-2 text-xs !text-green-200/70 bg-green-500/10 px-3 py-2 rounded-lg border border-green-500/20">
                               <CheckCircle2 className="h-4 w-4" />
-                              <span>Ideal para probar la generación de boletas y el sistema de tickets</span>
+                              <span>
+                                Ideal para probar la generación de boletas y el
+                                sistema de tickets
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -694,73 +978,136 @@ export function CheckoutPage() {
 
                   {/* Crypto */}
                   {paymentMethod === "crypto" && (
-                    <div key="crypto-form" className="space-y-4 animate-fade-in-up">
+                    <div
+                      key="crypto-form"
+                      className="space-y-4 animate-fade-in-up"
+                    >
                       <div>
-                        <Label className="!text-white/80 mb-3 block">Selecciona tu Criptomoneda *</Label>
-                        <RadioGroup value={formData.cryptoType} onValueChange={(value) => handleInputChange("cryptoType", value)}>
+                        <Label className="!text-white/80 mb-3 block">
+                          Selecciona tu Criptomoneda *
+                        </Label>
+                        <RadioGroup
+                          value={formData.cryptoType}
+                          onValueChange={(value) =>
+                            handleInputChange("cryptoType", value)
+                          }
+                        >
                           <div className="grid gap-3 sm:grid-cols-3">
-                            <div 
+                            <div
                               className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
                                 formData.cryptoType === "bitcoin"
                                   ? "border-[#c61619] !bg-[#c61619]/10"
                                   : "border-white/20 !bg-white/5 hover:border-white/40"
                               }`}
-                              onClick={() => handleInputChange("cryptoType", "bitcoin")}
+                              onClick={() =>
+                                handleInputChange("cryptoType", "bitcoin")
+                              }
                             >
-                              <RadioGroupItem value="bitcoin" id="bitcoin" className="sr-only" />
+                              <RadioGroupItem
+                                value="bitcoin"
+                                id="bitcoin"
+                                className="sr-only"
+                              />
                               <Bitcoin className="h-10 w-10 !text-orange-400 mb-2" />
-                              <Label htmlFor="bitcoin" className="!text-white cursor-pointer font-bold">Bitcoin</Label>
-                              <span className="text-xs !text-white/60">BTC</span>
+                              <Label
+                                htmlFor="bitcoin"
+                                className="!text-white cursor-pointer font-bold"
+                              >
+                                Bitcoin
+                              </Label>
+                              <span className="text-xs !text-white/60">
+                                BTC
+                              </span>
                             </div>
-                            <div 
+                            <div
                               className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
                                 formData.cryptoType === "ethereum"
                                   ? "border-[#c61619] !bg-[#c61619]/10"
                                   : "border-white/20 !bg-white/5 hover:border-white/40"
                               }`}
-                              onClick={() => handleInputChange("cryptoType", "ethereum")}
+                              onClick={() =>
+                                handleInputChange("cryptoType", "ethereum")
+                              }
                             >
-                              <RadioGroupItem value="ethereum" id="ethereum" className="sr-only" />
+                              <RadioGroupItem
+                                value="ethereum"
+                                id="ethereum"
+                                className="sr-only"
+                              />
                               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center mb-2">
-                                <span className="text-white font-bold text-xs">ETH</span>
+                                <span className="text-white font-bold text-xs">
+                                  ETH
+                                </span>
                               </div>
-                              <Label htmlFor="ethereum" className="!text-white cursor-pointer font-bold">Ethereum</Label>
-                              <span className="text-xs !text-white/60">ETH</span>
+                              <Label
+                                htmlFor="ethereum"
+                                className="!text-white cursor-pointer font-bold"
+                              >
+                                Ethereum
+                              </Label>
+                              <span className="text-xs !text-white/60">
+                                ETH
+                              </span>
                             </div>
-                            <div 
+                            <div
                               className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
                                 formData.cryptoType === "usdt"
                                   ? "border-[#c61619] !bg-[#c61619]/10"
                                   : "border-white/20 !bg-white/5 hover:border-white/40"
                               }`}
-                              onClick={() => handleInputChange("cryptoType", "usdt")}
+                              onClick={() =>
+                                handleInputChange("cryptoType", "usdt")
+                              }
                             >
-                              <RadioGroupItem value="usdt" id="usdt" className="sr-only" />
+                              <RadioGroupItem
+                                value="usdt"
+                                id="usdt"
+                                className="sr-only"
+                              />
                               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center mb-2">
-                                <span className="text-white font-bold text-xs">₮</span>
+                                <span className="text-white font-bold text-xs">
+                                  ₮
+                                </span>
                               </div>
-                              <Label htmlFor="usdt" className="!text-white cursor-pointer font-bold">Tether</Label>
-                              <span className="text-xs !text-white/60">USDT</span>
+                              <Label
+                                htmlFor="usdt"
+                                className="!text-white cursor-pointer font-bold"
+                              >
+                                Tether
+                              </Label>
+                              <span className="text-xs !text-white/60">
+                                USDT
+                              </span>
                             </div>
                           </div>
                         </RadioGroup>
                       </div>
 
                       <div>
-                        <Label htmlFor="walletAddress" className="!text-white/80 mb-2 block">Tu Dirección de Wallet *</Label>
+                        <Label
+                          htmlFor="walletAddress"
+                          className="!text-white/80 mb-2 block"
+                        >
+                          Tu Dirección de Wallet *
+                        </Label>
                         <div className="relative">
                           <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                           <Input
                             id="walletAddress"
                             type="text"
                             value={formData.walletAddress}
-                            onChange={(e) => handleInputChange("walletAddress", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange("walletAddress", e.target.value)
+                            }
                             className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono text-sm"
                             placeholder="0x1234...5678 o bc1q..."
                             required
                           />
                         </div>
-                        <p className="text-xs !text-white/50 mt-1">Esta será la dirección desde la cual realizarás el pago</p>
+                        <p className="text-xs !text-white/50 mt-1">
+                          Esta será la dirección desde la cual realizarás el
+                          pago
+                        </p>
                       </div>
 
                       <div className="rounded-lg !bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-5 border border-purple-500/30 backdrop-blur">
@@ -771,35 +1118,43 @@ export function CheckoutPage() {
                               Dirección para enviar el pago
                             </p>
                             <p className="text-xs !text-purple-200/70">
-                              Envía exactamente ${total} USD equivalente en {formData.cryptoType.toUpperCase()}
+                              Envía exactamente ${total} USD equivalente en{" "}
+                              {formData.cryptoType.toUpperCase()}
                             </p>
                           </div>
                         </div>
-                        
+
                         <div className="!bg-black/50 p-4 rounded-lg border border-purple-500/30 relative">
                           <code className="text-sm !text-white break-all font-mono block">
-                            {formData.cryptoType === "bitcoin" && "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"}
-                            {formData.cryptoType === "ethereum" && "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
-                            {formData.cryptoType === "usdt" && "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
+                            {formData.cryptoType === "bitcoin" &&
+                              "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"}
+                            {formData.cryptoType === "ethereum" &&
+                              "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
+                            {formData.cryptoType === "usdt" &&
+                              "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
                           </code>
                           <Button
                             type="button"
                             size="sm"
                             className="absolute top-2 right-2 h-8 !bg-purple-500/20 hover:!bg-purple-500/30 !text-purple-200 border border-purple-500/30"
                             onClick={() => {
-                              const address = formData.cryptoType === "bitcoin" 
-                                ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-                                : "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+                              const address =
+                                formData.cryptoType === "bitcoin"
+                                  ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+                                  : "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
                               navigator.clipboard.writeText(address);
                             }}
                           >
                             Copiar
                           </Button>
                         </div>
-                        
+
                         <div className="mt-3 flex items-center gap-2 text-xs !text-purple-200/80">
                           <Shield className="h-4 w-4" />
-                          <span>Los tickets se enviarán tras confirmar la transacción blockchain</span>
+                          <span>
+                            Los tickets se enviarán tras confirmar la
+                            transacción blockchain
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -808,7 +1163,8 @@ export function CheckoutPage() {
                   <div className="flex items-center gap-2 rounded-lg !bg-white/5 p-3 border border-white/10 mt-4">
                     <Shield className="h-4 w-4 !text-green-400" />
                     <p className="text-sm !text-white/70">
-                      Tu información está protegida con encriptación SSL de 256 bits
+                      Tu información está protegida con encriptación SSL de 256
+                      bits
                     </p>
                   </div>
                 </Card>
@@ -831,7 +1187,10 @@ export function CheckoutPage() {
                       ) : (
                         <>
                           <Shield className="mr-2 h-5 w-5" />
-                          {paymentMethod === "ach" ? "Autorizar Transferencia" : "Pagar"} ${total.toLocaleString()} MXN
+                          {paymentMethod === "ach"
+                            ? "Autorizar Transferencia"
+                            : "Pagar"}{" "}
+                          ${total.toLocaleString()} MXN
                         </>
                       )}
                     </>
@@ -847,7 +1206,7 @@ export function CheckoutPage() {
                   <div className="border-b border-white/20 bg-[#c61619] p-4">
                     <h3 className="font-bold text-white">Resumen del Pedido</h3>
                   </div>
-                  
+
                   <div className="p-4 space-y-4">
                     {/* Imagen del Evento */}
                     <div className="aspect-video w-full overflow-hidden rounded-lg">
@@ -860,7 +1219,9 @@ export function CheckoutPage() {
 
                     {/* Detalles del Evento */}
                     <div>
-                      <h4 className="font-bold !text-white mb-3 text-lg">{pageData.title}</h4>
+                      <h4 className="font-bold !text-white mb-3 text-lg">
+                        {pageData.title}
+                      </h4>
                       <div className="space-y-2.5 text-sm">
                         <div className="flex items-center gap-2 !text-white/90">
                           <Calendar className="h-4 w-4 !text-white/70" />
@@ -872,7 +1233,9 @@ export function CheckoutPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Ticket className="h-4 w-4 !text-white/70" />
-                          <span className="capitalize !text-white/90 font-medium">{pageData.selectedTicketType || "General"}</span>
+                          <span className="capitalize !text-white/90 font-medium">
+                            {pageData.selectedTicketType || "General"}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -881,8 +1244,10 @@ export function CheckoutPage() {
 
                     {/* Cantidad - Mejorado */}
                     <div>
-                      <Label className="!text-white mb-3 block font-semibold text-base">Cantidad de Entradas</Label>
-                      
+                      <Label className="!text-white mb-3 block font-semibold text-base">
+                        Cantidad de Entradas
+                      </Label>
+
                       {/* Selector principal con botones +/- */}
                       <div className="flex items-center gap-3 mb-4">
                         <Button
@@ -896,9 +1261,11 @@ export function CheckoutPage() {
                           <span className="text-xl font-bold">−</span>
                         </Button>
                         <div className="flex-1 text-center">
-                          <div className="text-3xl font-bold !text-white mb-1">{quantity}</div>
+                          <div className="text-3xl font-bold !text-white mb-1">
+                            {quantity}
+                          </div>
                           <div className="text-xs !text-white/60">
-                            {quantity === 1 ? 'entrada' : 'entradas'}
+                            {quantity === 1 ? "entrada" : "entradas"}
                           </div>
                         </div>
                         <Button
@@ -915,7 +1282,9 @@ export function CheckoutPage() {
 
                       {/* Opciones rápidas de cantidad */}
                       <div className="mb-4">
-                        <Label className="!text-white/70 mb-2 block text-xs">O selecciona rápidamente:</Label>
+                        <Label className="!text-white/70 mb-2 block text-xs">
+                          O selecciona rápidamente:
+                        </Label>
                         <div className="grid grid-cols-4 gap-2">
                           {[2, 4, 6, 8].map((quickQty) => (
                             <button
@@ -937,8 +1306,12 @@ export function CheckoutPage() {
                       {/* Precio por entrada */}
                       <div className="rounded-lg border border-white/20 bg-white/5 p-3">
                         <div className="flex justify-between items-center text-sm">
-                          <span className="!text-white/80">Precio por entrada</span>
-                          <span className="font-semibold !text-white">${ticketPrice.toLocaleString()} MXN</span>
+                          <span className="!text-white/80">
+                            Precio por entrada
+                          </span>
+                          <span className="font-semibold !text-white">
+                            ${ticketPrice.toLocaleString()} MXN
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -949,29 +1322,46 @@ export function CheckoutPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <div>
-                          <div className="!text-white font-medium">Subtotal</div>
+                          <div className="!text-white font-medium">
+                            Subtotal
+                          </div>
                           <div className="text-xs !text-white/60">
-                            {quantity} {quantity === 1 ? 'entrada' : 'entradas'} × ${ticketPrice.toLocaleString()}
+                            {quantity} {quantity === 1 ? "entrada" : "entradas"}{" "}
+                            × ${ticketPrice.toLocaleString()}
                           </div>
                         </div>
-                        <span className="font-semibold !text-white">${subtotal.toLocaleString()} MXN</span>
+                        <span className="font-semibold !text-white">
+                          ${subtotal.toLocaleString()} MXN
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <div>
-                          <div className="!text-white/80 font-medium text-sm">Cargo por servicio</div>
-                          <div className="text-xs !text-white/50">10% del subtotal</div>
+                          <div className="!text-white/80 font-medium text-sm">
+                            Cargo por servicio
+                          </div>
+                          <div className="text-xs !text-white/50">
+                            10% del subtotal
+                          </div>
                         </div>
-                        <span className="font-semibold !text-white/80">${serviceFee.toLocaleString()} MXN</span>
+                        <span className="font-semibold !text-white/80">
+                          ${serviceFee.toLocaleString()} MXN
+                        </span>
                       </div>
                       <Separator className="!bg-white/30" />
                       <div className="flex justify-between items-center pt-2">
                         <span className="text-lg font-bold !text-white">
                           {paymentMethod === "free" ? "Total" : "Total a pagar"}
                         </span>
-                        <span className={`text-2xl font-bold ${
-                          paymentMethod === "free" ? "!text-green-400" : "!text-[#c61619]"
-                        }`}>
-                          {paymentMethod === "free" ? "GRATIS" : `$${total.toLocaleString()} MXN`}
+                        <span
+                          className={`text-2xl font-bold ${
+                            paymentMethod === "free"
+                              ? "!text-green-400"
+                              : "!text-[#c61619]"
+                          }`}
+                        >
+                          {paymentMethod === "free"
+                            ? "GRATIS"
+                            : `$${total.toLocaleString()} MXN`}
                         </span>
                       </div>
                       {paymentMethod === "free" && (
@@ -1010,29 +1400,43 @@ export function CheckoutPage() {
             <DialogDescription className="text-center !text-white/70">
               {paymentMethod === "free"
                 ? "¡Tickets generados exitosamente! Este fue un método de prueba gratuito. Los tickets han sido creados y están disponibles en tu cuenta."
-                : paymentMethod === "ach" 
-                ? "Tu transferencia ha sido autorizada. Recibirás una confirmación por email en 1-3 días hábiles."
-                : paymentMethod === "crypto"
-                ? "Tu pago en criptomonedas ha sido recibido. Los tickets se enviarán a tu email una vez confirmada la transacción."
-                : "Tu compra ha sido procesada correctamente. Los tickets han sido enviados a tu email."}
+                : paymentMethod === "ach"
+                  ? "Tu transferencia ha sido autorizada. Recibirás una confirmación por email en 1-3 días hábiles."
+                  : paymentMethod === "crypto"
+                    ? "Tu pago en criptomonedas ha sido recibido. Los tickets se enviarán a tu email una vez confirmada la transacción."
+                    : "Tu compra ha sido procesada correctamente. Los tickets han sido enviados a tu email."}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <Card className="p-4 !bg-white/5 border-white/20">
-              <p className="text-sm !text-white/70 mb-2">Detalles de la compra:</p>
+              <p className="text-sm !text-white/70 mb-2">
+                Detalles de la compra:
+              </p>
               <div className="space-y-1 text-sm">
-                <p className="!text-white"><strong>Evento:</strong> {pageData.title}</p>
-                <p className="!text-white"><strong>Cantidad:</strong> {quantity} {quantity === 1 ? 'ticket' : 'tickets'}</p>
-                <p className="!text-white"><strong>Método de pago:</strong> {
-                  paymentMethod === "free" ? "Gratis (Prueba)" :
-                  paymentMethod === "card" ? "Tarjeta" :
-                  paymentMethod === "ach" ? "ACH Transfer" :
-                  "Criptomonedas"
-                }</p>
-                <p className="!text-white"><strong>Total:</strong> {
-                  paymentMethod === "free" ? "GRATIS" : `$${total.toLocaleString()} MXN`
-                }</p>
+                <p className="!text-white">
+                  <strong>Evento:</strong> {pageData.title}
+                </p>
+                <p className="!text-white">
+                  <strong>Cantidad:</strong> {quantity}{" "}
+                  {quantity === 1 ? "ticket" : "tickets"}
+                </p>
+                <p className="!text-white">
+                  <strong>Método de pago:</strong>{" "}
+                  {paymentMethod === "free"
+                    ? "Gratis (Prueba)"
+                    : paymentMethod === "card"
+                      ? "Tarjeta"
+                      : paymentMethod === "ach"
+                        ? "ACH Transfer"
+                        : "Criptomonedas"}
+                </p>
+                <p className="!text-white">
+                  <strong>Total:</strong>{" "}
+                  {paymentMethod === "free"
+                    ? "GRATIS"
+                    : `$${total.toLocaleString()} MXN`}
+                </p>
               </div>
             </Card>
           </div>
@@ -1045,6 +1449,17 @@ export function CheckoutPage() {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Modal de pago con criptomonedas */}
+      <CryptoPaymentModal
+        isOpen={showCryptoModal}
+        onClose={() => setShowCryptoModal(false)}
+        amount={total}
+        currency="USD"
+        orderId={cryptoOrderId}
+        onSuccess={handleCryptoPaymentSuccess}
+        onError={handleCryptoPaymentError}
+      />
     </div>
   );
 }
