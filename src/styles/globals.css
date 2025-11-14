@@ -341,10 +341,10 @@ header button[class*="ghost"] svg path {
     left: 0;
     /* Gradiente radial exacto de Figma - óvalo transparente en centro, negro en bordes */
     background: radial-gradient(
-        ellipse 75% 70% at 50% 50%,
-        rgba(0, 0, 0, 0) 50%,
-        rgba(0, 0, 0, 0.5) 70%,
-        #000 90%
+        ellipse 65% 60% at 50% 50%,
+        rgba(0, 0, 0, 0) 42%,
+        rgba(0, 0, 0, 0.6) 62%,
+        #000 82%
     );
     pointer-events: none;
     z-index: 10;
@@ -354,10 +354,10 @@ header button[class*="ghost"] svg path {
 @media (max-width: 1440px) {
     .video-mask {
         background: radial-gradient(
-            ellipse 75% 70% at 50% 50%,
-            rgba(0, 0, 0, 0) 50%,
-            rgba(0, 0, 0, 0.5) 70%,
-            #000 90%
+            ellipse 65% 60% at 50% 50%,
+            rgba(0, 0, 0, 0) 42%,
+            rgba(0, 0, 0, 0.6) 62%,
+            #000 82%
         );
     }
 }
@@ -365,10 +365,10 @@ header button[class*="ghost"] svg path {
 @media (max-width: 1024px) {
     .video-mask {
         background: radial-gradient(
-            ellipse 80% 75% at 50% 50%,
-            rgba(0, 0, 0, 0) 45%,
-            rgba(0, 0, 0, 0.5) 67%,
-            #000 87%
+            ellipse 70% 65% at 50% 50%,
+            rgba(0, 0, 0, 0) 38%,
+            rgba(0, 0, 0, 0.6) 60%,
+            #000 80%
         );
     }
 }
@@ -377,10 +377,10 @@ header button[class*="ghost"] svg path {
     .video-mask {
         /* Óvalo más ancho y alto en móviles para mejor visibilidad */
         background: radial-gradient(
-            ellipse 85% 80% at 50% 50%,
-            rgba(0, 0, 0, 0) 40%,
-            rgba(0, 0, 0, 0.4) 63%,
-            #000 83%
+            ellipse 75% 70% at 50% 50%,
+            rgba(0, 0, 0, 0) 33%,
+            rgba(0, 0, 0, 0.55) 56%,
+            #000 76%
         );
     }
 }
@@ -389,10 +389,10 @@ header button[class*="ghost"] svg path {
     .video-mask {
         /* Óvalo aún más grande en pantallas muy pequeñas */
         background: radial-gradient(
-            ellipse 90% 85% at 50% 50%,
-            rgba(0, 0, 0, 0) 37%,
-            rgba(0, 0, 0, 0.3) 60%,
-            #000 80%
+            ellipse 80% 75% at 50% 50%,
+            rgba(0, 0, 0, 0) 30%,
+            rgba(0, 0, 0, 0.5) 53%,
+            #000 73%
         );
     }
 }
