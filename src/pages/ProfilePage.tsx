@@ -44,6 +44,7 @@ import { QRCodeComponent } from "../components/media";
 import { CurrencySelector, MultiCurrencyBalance } from "../components/payment";
 import { Currency, formatCurrency } from "../utils/currency";
 import { LanguageSelector } from "../components/common";
+import { toast } from "sonner";
 
 export function ProfilePage() {
   const { navigate } = useRouter();
@@ -93,22 +94,29 @@ export function ProfilePage() {
   };
 
   const handleSaveAddress = async () => {
+    if (!address || address.trim() === "") {
+      toast.error("Por favor ingresa una dirección válida");
+      return;
+    }
     setSavingAddress(true);
     try {
-      await api.updateAddress(address);
+      await api.updateAddress(address.trim());
       await refreshUser();
       setIsEditingAddress(false);
+      toast.success("Dirección guardada correctamente");
     } catch (error) {
       console.error("Error updating address:", error);
-      alert("Error al guardar la dirección. Por favor, intenta de nuevo.");
+      toast.error("Error al guardar la dirección. Intenta de nuevo.");
     } finally {
       setSavingAddress(false);
     }
   };
 
   const handleCancelEditAddress = () => {
+    if (savingAddress) return;
     setAddress(user?.address || "");
     setIsEditingAddress(false);
+    toast("Edición de dirección cancelada");
   };
 
   useEffect(() => {
@@ -259,6 +267,7 @@ export function ProfilePage() {
                         variant="ghost"
                         size="sm"
                         onClick={handleCancelEditAddress}
+                        disabled={savingAddress}
                         className="h-8 px-2 !text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
                       >
                         <X className="h-3 w-3" />
