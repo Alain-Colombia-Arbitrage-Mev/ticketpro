@@ -36,6 +36,7 @@ interface CryptoPaymentModalProps {
   orderId: string;
   onSuccess: (txId: string) => void;
   onError?: (error: string) => void;
+  additionalData?: string;
 }
 
 export function CryptoPaymentModal({
@@ -44,6 +45,7 @@ export function CryptoPaymentModal({
   amount,
   currency = "USD",
   orderId,
+  additionalData,
   onSuccess,
   onError,
 }: CryptoPaymentModalProps) {
@@ -105,11 +107,13 @@ export function CryptoPaymentModal({
       const callbackUrl = `${window.location.origin}/api/cryptomus/webhook`;
       const returnUrl = `${window.location.origin}/#/confirmation?order=${orderId}`;
 
-      const additionalData = JSON.stringify({
-        orderId,
-        amount,
-        currency,
-      });
+      const extraData =
+        additionalData ||
+        JSON.stringify({
+          orderId,
+          amount,
+          currency,
+        });
 
       const response = await cryptomusService.createCryptoPayment(
         amount,
@@ -118,7 +122,7 @@ export function CryptoPaymentModal({
         selectedCrypto,
         callbackUrl,
         returnUrl,
-        additionalData,
+        extraData,
       );
 
       if (response.state === 0 && response.result) {

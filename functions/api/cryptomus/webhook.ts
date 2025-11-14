@@ -398,20 +398,29 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     // Esperamos encontrar items de compra en additional_data.tickets o additional_data.cart
+    // Esperamos encontrar items de compra en additional_data.items, additional_data.tickets o additional_data.cart
+    // (cada item con eventId, eventName, eventDate, eventTime?, eventLocation?, eventCategory?, ticketType?, seatType?, price, quantity, buyerEmail, buyerFullName, buyerAddress)
     // Estructuras esperadas:
     // additional_data = {
     //   orderId: "...",
     //   amount: 123.45,
     //   currency: "USD",
+    //   items?: [{ eventId, eventName, eventDate, eventTime?, eventLocation?, eventCategory?, ticketType?, seatType?, price, quantity, buyerEmail, buyerFullName, buyerAddress }],
     //   tickets?: [{ eventId, eventName, eventDate, eventTime?, eventLocation?, eventCategory?, ticketType?, seatType?, price, quantity, buyerEmail, buyerFullName, buyerAddress }],
     //   cart?: [{ eventId, eventName, eventDate, eventTime?, eventLocation?, eventCategory?, ticketType?, seatType?, price, quantity }]
     // }
     const ticketItems: any[] = [];
+    if (additional?.items && Array.isArray(additional.items)) {
+      for (const it of additional.items) {
+        ticketItems.push(it);
+      }
+    }
     if (additional?.tickets && Array.isArray(additional.tickets)) {
       for (const t of additional.tickets) {
         ticketItems.push(t);
       }
-    } else if (additional?.cart && Array.isArray(additional.cart)) {
+    }
+    if (additional?.cart && Array.isArray(additional.cart)) {
       for (const c of additional.cart) {
         ticketItems.push(c);
       }
