@@ -1,12 +1,39 @@
 import { useState, useEffect } from "react";
-import { User, Mail, ChevronLeft, LogOut, Ticket as TicketIcon, Wallet, Send, Download, AlertCircle, CheckCircle, MapPin, Edit2, Save, X, Shield } from "lucide-react";
+import {
+  User,
+  Mail,
+  ChevronLeft,
+  LogOut,
+  Ticket as TicketIcon,
+  Wallet,
+  Send,
+  Download,
+  AlertCircle,
+  CheckCircle,
+  MapPin,
+  Edit2,
+  Save,
+  X,
+  Shield,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useRouter } from "../hooks/useRouter";
@@ -32,7 +59,7 @@ export function ProfilePage() {
   const [transferLoading, setTransferLoading] = useState(false);
   const [transferError, setTransferError] = useState("");
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [address, setAddress] = useState(user?.address || "");
   const [savingAddress, setSavingAddress] = useState(false);
@@ -46,8 +73,12 @@ export function ProfilePage() {
 
   // Sync address with user data
   useEffect(() => {
-    if (user?.address) {
+    if (user?.address && user.address.trim() !== "") {
       setAddress(user.address);
+      setIsEditingAddress(false);
+    } else {
+      setAddress("");
+      setIsEditingAddress(true);
     }
   }, [user?.address]);
 
@@ -138,8 +169,8 @@ export function ProfilePage() {
     return null;
   }
 
-  const activeTickets = tickets.filter(t => t.status === "active");
-  const usedTickets = tickets.filter(t => t.status === "used");
+  const activeTickets = tickets.filter((t) => t.status === "active");
+  const usedTickets = tickets.filter((t) => t.status === "used");
 
   return (
     <div className="min-h-screen bg-black">
@@ -165,7 +196,11 @@ export function ProfilePage() {
               <div className="mb-6 text-center">
                 <Avatar className="mx-auto mb-4 h-24 w-24">
                   <AvatarFallback className="bg-gradient-to-br from-[#c61619] to-[#a01316] text-2xl text-white">
-                    {user.name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <h2 className="mb-1 text-white">{user.name}</h2>
@@ -205,6 +240,9 @@ export function ProfilePage() {
                       className="h-8 px-2 !text-white/70 hover:!text-white hover:!bg-white/10"
                     >
                       <Edit2 className="h-3 w-3" />
+                      <span className="ml-1">
+                        {user?.address ? "Editar" : "Agregar"}
+                      </span>
                     </Button>
                   ) : (
                     <div className="flex gap-1">
@@ -234,11 +272,19 @@ export function ProfilePage() {
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSaveAddress();
+                        } else if (e.key === "Escape") {
+                          handleCancelEditAddress();
+                        }
+                      }}
                       placeholder="Ingresa tu dirección completa"
                       className="!bg-black border-white/20 !text-white placeholder:!text-white/50"
                     />
                     <p className="text-xs !text-white/60">
-                      Esta dirección se usará para tus compras
+                      Presiona Enter para guardar o Esc para cancelar. Esta
+                      dirección se usará para tus compras.
                     </p>
                   </div>
                 ) : (
@@ -270,7 +316,7 @@ export function ProfilePage() {
               </Button>
 
               {/* Botón para hosters - Validar Entradas */}
-              {(user?.role === 'hoster' || user?.role === 'admin') && (
+              {(user?.role === "hoster" || user?.role === "admin") && (
                 <>
                   <Separator className="my-6 bg-white/20" />
                   <Button
@@ -304,23 +350,37 @@ export function ProfilePage() {
             <Card className="mb-6 p-4 !bg-gradient-to-r !from-[#c61619]/20 !to-[#c61619]/10 border-[#c61619]/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">{t('profile.my_tickets_page')}</h3>
-                  <p className="text-sm text-white/70">{t('profile.my_tickets_desc')}</p>
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    {t("profile.my_tickets_page")}
+                  </h3>
+                  <p className="text-sm text-white/70">
+                    {t("profile.my_tickets_desc")}
+                  </p>
                 </div>
                 <Button
                   onClick={() => navigate("my-tickets")}
                   className="bg-[#c61619] hover:bg-[#a01316] text-white"
                 >
                   <TicketIcon className="h-4 w-4 mr-2" />
-                  {t('profile.view_my_tickets')}
+                  {t("profile.view_my_tickets")}
                 </Button>
               </div>
             </Card>
 
             <Tabs defaultValue="tickets" className="w-full">
               <TabsList className="mb-6 grid w-full grid-cols-2 !bg-black/50 border border-white/20">
-                <TabsTrigger value="tickets" className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white">Mis Tickets ({activeTickets.length})</TabsTrigger>
-                <TabsTrigger value="history" className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white">Historial</TabsTrigger>
+                <TabsTrigger
+                  value="tickets"
+                  className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white"
+                >
+                  Mis Tickets ({activeTickets.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="history"
+                  className="!text-white data-[state=active]:!bg-[#c61619] data-[state=active]:!text-white"
+                >
+                  Historial
+                </TabsTrigger>
               </TabsList>
 
               {/* Tickets Tab */}
@@ -332,16 +392,26 @@ export function ProfilePage() {
                 ) : activeTickets.length === 0 ? (
                   <Card className="p-12 text-center !bg-black border-white/20">
                     <TicketIcon className="mx-auto mb-4 h-12 w-12 text-white/40" />
-                    <h3 className="mb-2 font-semibold text-white">No tienes tickets</h3>
-                    <p className="mb-6 text-white/70">Explora eventos y compra tus primeros tickets</p>
-                    <Button onClick={() => navigate("events")} className="bg-[#c61619] hover:bg-[#a01316] text-white">
+                    <h3 className="mb-2 font-semibold text-white">
+                      No tienes tickets
+                    </h3>
+                    <p className="mb-6 text-white/70">
+                      Explora eventos y compra tus primeros tickets
+                    </p>
+                    <Button
+                      onClick={() => navigate("events")}
+                      className="bg-[#c61619] hover:bg-[#a01316] text-white"
+                    >
                       Explorar Eventos
                     </Button>
                   </Card>
                 ) : (
                   <div className="space-y-4">
                     {activeTickets.map((ticket) => (
-                      <Card key={ticket.id} className="overflow-hidden !bg-black border-white/20">
+                      <Card
+                        key={ticket.id}
+                        className="overflow-hidden !bg-black border-white/20"
+                      >
                         <div className="flex flex-col md:flex-row">
                           <div className="h-48 w-full md:h-auto md:w-48">
                             <img
@@ -354,11 +424,20 @@ export function ProfilePage() {
                           <div className="flex-1 p-6">
                             <div className="mb-4 flex items-start justify-between">
                               <div>
-                                <h3 className="mb-2 font-semibold text-white">{ticket.eventTitle}</h3>
-                                <p className="mb-1 text-sm text-white/70">{ticket.eventDate}</p>
-                                <p className="text-sm text-white/70">{ticket.eventLocation}</p>
+                                <h3 className="mb-2 font-semibold text-white">
+                                  {ticket.eventTitle}
+                                </h3>
+                                <p className="mb-1 text-sm text-white/70">
+                                  {ticket.eventDate}
+                                </p>
+                                <p className="text-sm text-white/70">
+                                  {ticket.eventLocation}
+                                </p>
                               </div>
-                              <Badge variant="secondary" className="!bg-white/10 !text-white border-white/20">
+                              <Badge
+                                variant="secondary"
+                                className="!bg-white/10 !text-white border-white/20"
+                              >
                                 Asiento {ticket.seatNumber}
                               </Badge>
                             </div>
@@ -405,29 +484,44 @@ export function ProfilePage() {
               {/* History Tab */}
               <TabsContent value="history">
                 <Card className="p-6 !bg-black border-white/20">
-                  <h3 className="mb-4 font-semibold text-white">Historial de Transacciones</h3>
+                  <h3 className="mb-4 font-semibold text-white">
+                    Historial de Transacciones
+                  </h3>
                   {loading ? (
                     <p className="text-center text-white/70">Cargando...</p>
                   ) : transactions.length === 0 ? (
-                    <p className="text-center text-white/70">No hay transacciones aún</p>
+                    <p className="text-center text-white/70">
+                      No hay transacciones aún
+                    </p>
                   ) : (
                     <div className="space-y-3">
                       {transactions.map((transaction) => (
-                        <div key={transaction.id} className="flex items-center justify-between border-b border-white/20 pb-3 last:border-0">
+                        <div
+                          key={transaction.id}
+                          className="flex items-center justify-between border-b border-white/20 pb-3 last:border-0"
+                        >
                           <div>
-                            <p className="font-medium text-white">{transaction.description}</p>
+                            <p className="font-medium text-white">
+                              {transaction.description}
+                            </p>
                             <p className="text-sm text-white/70">
-                              {new Date(transaction.date).toLocaleDateString('es-MX', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                              {new Date(transaction.date).toLocaleDateString(
+                                "es-MX",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
                             </p>
                           </div>
-                          <span className={`font-semibold ${transaction.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {transaction.amount >= 0 ? '+' : ''}{transaction.amount.toLocaleString()} MXN
+                          <span
+                            className={`font-semibold ${transaction.amount >= 0 ? "text-green-400" : "text-red-400"}`}
+                          >
+                            {transaction.amount >= 0 ? "+" : ""}
+                            {transaction.amount.toLocaleString()} MXN
                           </span>
                         </div>
                       ))}
@@ -437,17 +531,32 @@ export function ProfilePage() {
                   {usedTickets.length > 0 && (
                     <>
                       <Separator className="my-6 bg-white/20" />
-                      <h3 className="mb-4 font-semibold text-white">Tickets Usados</h3>
+                      <h3 className="mb-4 font-semibold text-white">
+                        Tickets Usados
+                      </h3>
                       <div className="space-y-3">
                         {usedTickets.map((ticket) => (
-                          <div key={ticket.id} className="flex items-center justify-between border-b border-white/20 pb-3 last:border-0">
+                          <div
+                            key={ticket.id}
+                            className="flex items-center justify-between border-b border-white/20 pb-3 last:border-0"
+                          >
                             <div>
-                              <p className="font-medium text-white">{ticket.eventTitle}</p>
+                              <p className="font-medium text-white">
+                                {ticket.eventTitle}
+                              </p>
                               <p className="text-sm text-white/70">
-                                Usado el {new Date(ticket.usedAt!).toLocaleDateString('es-MX')}
+                                Usado el{" "}
+                                {new Date(ticket.usedAt!).toLocaleDateString(
+                                  "es-MX",
+                                )}
                               </p>
                             </div>
-                            <Badge variant="secondary" className="!bg-white/10 !text-white border-white/20">Completado</Badge>
+                            <Badge
+                              variant="secondary"
+                              className="!bg-white/10 !text-white border-white/20"
+                            >
+                              Completado
+                            </Badge>
                           </div>
                         ))}
                       </div>
@@ -466,20 +575,27 @@ export function ProfilePage() {
           <DialogHeader>
             <DialogTitle className="!text-white">Transferir Ticket</DialogTitle>
             <DialogDescription className="!text-white/70">
-              Ingresa el correo electrónico de la persona a quien deseas transferir este ticket
+              Ingresa el correo electrónico de la persona a quien deseas
+              transferir este ticket
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             {selectedTicket && (
               <div className="rounded-lg border border-white/20 bg-black/50 p-4">
-                <p className="font-medium text-white">{selectedTicket.eventTitle}</p>
-                <p className="text-sm text-white/70">Asiento: {selectedTicket.seatNumber}</p>
+                <p className="font-medium text-white">
+                  {selectedTicket.eventTitle}
+                </p>
+                <p className="text-sm text-white/70">
+                  Asiento: {selectedTicket.seatNumber}
+                </p>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="recipient-email" className="!text-white">Correo del Destinatario</Label>
+              <Label htmlFor="recipient-email" className="!text-white">
+                Correo del Destinatario
+              </Label>
               <Input
                 id="recipient-email"
                 type="email"
@@ -501,7 +617,10 @@ export function ProfilePage() {
                 <AlertCircle className="h-5 w-5 flex-shrink-0 text-[#c61619]" />
                 <div className="text-sm text-white/90">
                   <p className="font-medium">Importante</p>
-                  <p>Una vez transferido, no podrás recuperar este ticket. La persona que lo reciba será la nueva propietaria.</p>
+                  <p>
+                    Una vez transferido, no podrás recuperar este ticket. La
+                    persona que lo reciba será la nueva propietaria.
+                  </p>
                 </div>
               </div>
             </div>
@@ -544,20 +663,32 @@ export function ProfilePage() {
             <div className="space-y-4">
               <div className="rounded-lg border border-white/20 bg-black/50 p-6 text-center">
                 <QRCodeComponent value={selectedTicket.qrCode} size={200} />
-                <p className="mt-4 font-semibold text-white">{selectedTicket.eventTitle}</p>
-                <p className="text-sm text-white/70">Asiento: {selectedTicket.seatNumber}</p>
-                <p className="text-sm text-white/70">{selectedTicket.eventDate}</p>
+                <p className="mt-4 font-semibold text-white">
+                  {selectedTicket.eventTitle}
+                </p>
+                <p className="text-sm text-white/70">
+                  Asiento: {selectedTicket.seatNumber}
+                </p>
+                <p className="text-sm text-white/70">
+                  {selectedTicket.eventDate}
+                </p>
               </div>
 
               <div className="rounded-lg border border-[#c61619]/50 bg-[#c61619]/10 p-4 text-sm text-white/90">
                 <p className="font-medium">Código de verificación generado</p>
-                <p className="break-all font-mono text-xs text-white/70">{downloadToken}</p>
+                <p className="break-all font-mono text-xs text-white/70">
+                  {downloadToken}
+                </p>
                 <p className="mt-2 text-xs text-white/70">
-                  Este código expira en 15 minutos. En producción se enviaría por email.
+                  Este código expira en 15 minutos. En producción se enviaría
+                  por email.
                 </p>
               </div>
 
-              <Button className="w-full bg-[#c61619] hover:bg-[#a01316] text-white" onClick={() => setShowQRModal(false)}>
+              <Button
+                className="w-full bg-[#c61619] hover:bg-[#a01316] text-white"
+                onClick={() => setShowQRModal(false)}
+              >
                 Cerrar
               </Button>
             </div>
