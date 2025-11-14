@@ -204,7 +204,48 @@ export function CheckoutPage() {
     // Si es pago con cripto, abrir el modal de Cryptomus
     if (paymentMethod === "crypto") {
       const orderId = `ORDER-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const items =
+        cartItems && Array.isArray(cartItems) && cartItems.length > 0
+          ? cartItems.map((ci) => ({
+              eventId: ci.eventId,
+              eventName: ci.eventName,
+              eventDate: ci.eventDate || new Date().toISOString().split("T")[0],
+              eventTime: ci.eventTime,
+              eventLocation: ci.eventLocation,
+              eventCategory: ci.eventCategory,
+              ticketType: ci.ticketType || "General",
+              seatType: ci.seatType || "general",
+              price: ci.ticketPrice,
+              quantity: ci.quantity,
+              buyerEmail: formData.email,
+              buyerFullName: formData.fullName,
+              buyerAddress: formData.address,
+            }))
+          : [
+              {
+                eventId: pageData.id || 1,
+                eventName: pageData.title || "Evento",
+                eventDate:
+                  pageData.date || new Date().toISOString().split("T")[0],
+                eventTime: pageData.time,
+                eventLocation: pageData.location,
+                eventCategory:
+                  pageData.category || pageData.eventCategory || undefined,
+                ticketType: pageData.ticketType || "General",
+                seatType: pageData.seatType || "general",
+                price: total,
+                quantity: quantity,
+                buyerEmail: formData.email,
+                buyerFullName: formData.fullName,
+                buyerAddress: formData.address,
+              },
+            ];
+
       setCryptoOrderId(orderId);
+      // Exponer detalles por si se requiere en otras integraciones/depuración
+      (window as any).__CRYPTO_ORDER__ = { orderId, items };
+
       setShowCryptoModal(true);
       return;
     }
@@ -379,122 +420,13 @@ export function CheckoutPage() {
   };
 
   const handleCryptoPaymentSuccess = async (txId: string) => {
-    toast.success("¡Pago con criptomonedas confirmado!");
+    // No crear tickets en frontend; el webhook los generará al confirmar el pago
     setShowCryptoModal(false);
-    setLoading(true);
-
-    try {
-      // Procesar los tickets después del pago exitoso
-      const ticketCategory =
-        ticketCategories.find(
-          (cat) =>
-            cat.name === (pageData.ticketClass?.toUpperCase() || "GENERAL"),
-        ) || ticketCategories.find((cat) => cat.name === "GENERAL");
-
-      const paymentMethodObj =
-        paymentMethods.find((method) => method.name === "crypto") ||
-        paymentMethods.find((method) => method.name === "balance");
-
-      const tickets: any[] = [];
-      const purchaseId = crypto.randomUUID();
-
-      if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
-        for (const cartItem of cartItems) {
-          for (let i = 0; i < cartItem.quantity; i++) {
-            const ticketData: TicketData = {
-              eventId: cartItem.eventId,
-              eventName: cartItem.eventName,
-              eventDate:
-                cartItem.eventDate || new Date().toISOString().split("T")[0],
-              eventTime: cartItem.eventTime,
-              eventLocation: cartItem.eventLocation,
-              eventCategory: cartItem.eventCategory,
-              buyerId: user?.id,
-              buyerEmail: formData.email,
-              buyerFullName: formData.fullName,
-              buyerAddress: formData.address,
-              ticketType: cartItem.ticketType || "General",
-              seatNumber: cartItem.seatNumber || undefined,
-              seatType: cartItem.seatType || "numerado",
-              ticketClass: cartItem.ticketType || "General",
-              ticketCategoryId: ticketCategory?.id,
-              price: cartItem.ticketPrice,
-              pricePaid: cartItem.total / cartItem.quantity,
-              paymentMethodId: paymentMethodObj?.id,
-              purchaseId: cryptoOrderId,
-              purchaseSummary: {
-                subtotal: cartItem.subtotal,
-                serviceFee: cartItem.serviceFee,
-                total: cartItem.total,
-                quantity: cartItem.quantity,
-                paymentMethod: "crypto",
-                cryptoTxId: txId,
-                purchaseDate: new Date().toISOString(),
-              },
-            };
-
-            const ticket = await createTicket(ticketData);
-            tickets.push(ticket);
-          }
-        }
-        clearCart();
-      } else {
-        for (let i = 0; i < quantity; i++) {
-          const ticketData: TicketData = {
-            eventId: pageData.id || 1,
-            eventName: pageData.title || "Evento",
-            eventDate: pageData.date || new Date().toISOString().split("T")[0],
-            eventTime: pageData.time,
-            eventLocation: pageData.location,
-            eventCategory:
-              pageData.category || pageData.eventCategory || undefined,
-            buyerId: user?.id,
-            buyerEmail: formData.email,
-            buyerFullName: formData.fullName,
-            buyerAddress: formData.address,
-            ticketType: pageData.ticketType || "General",
-            seatNumber: pageData.seatNumber || undefined,
-            seatType: pageData.seatType || "numerado",
-            ticketClass: pageData.ticketClass || "General",
-            ticketCategoryId: ticketCategory?.id,
-            price: ticketPrice,
-            pricePaid: total,
-            paymentMethodId: paymentMethodObj?.id,
-            purchaseId: cryptoOrderId,
-            purchaseSummary: {
-              subtotal: subtotal,
-              serviceFee: serviceFee,
-              total: total,
-              quantity: quantity,
-              paymentMethod: "crypto",
-              cryptoTxId: txId,
-              purchaseDate: new Date().toISOString(),
-            },
-          };
-
-          const ticket = await createTicket(ticketData);
-          tickets.push(ticket);
-        }
-      }
-
-      setCreatedTickets(tickets);
-      setShowSuccessModal(true);
-
-      setTimeout(() => {
-        setShowSuccessModal(false);
-        navigate("confirmation", {
-          tickets: tickets,
-          event: pageData,
-          quantity: quantity,
-          total: total,
-        });
-      }, 2000);
-    } catch (error) {
-      console.error("Error creating tickets:", error);
-      toast.error("Error al crear los tickets. Por favor contacta al soporte.");
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
+    setShowSuccessModal(true);
+    toast.success(
+      "Pago cripto recibido. Generaremos tus tickets al confirmar la transacción.",
+    );
   };
 
   const handleCryptoPaymentError = (error: string) => {
@@ -1459,6 +1391,48 @@ export function CheckoutPage() {
         orderId={cryptoOrderId}
         onSuccess={handleCryptoPaymentSuccess}
         onError={handleCryptoPaymentError}
+        // Pasar detalle de compra para incluir en additional_data del invoice
+        additionalData={JSON.stringify({
+          orderId: cryptoOrderId,
+          amount: total,
+          currency: "USD",
+          buyer: {
+            fullName: formData.fullName,
+            email: formData.email,
+            address: formData.address,
+          },
+          items:
+            cartItems && Array.isArray(cartItems) && cartItems.length > 0
+              ? cartItems.map((ci) => ({
+                  eventId: ci.eventId,
+                  eventName: ci.eventName,
+                  eventDate:
+                    ci.eventDate || new Date().toISOString().split("T")[0],
+                  eventTime: ci.eventTime,
+                  eventLocation: ci.eventLocation,
+                  eventCategory: ci.eventCategory,
+                  ticketType: ci.ticketType || "General",
+                  seatType: ci.seatType || "general",
+                  price: ci.ticketPrice,
+                  quantity: ci.quantity,
+                }))
+              : [
+                  {
+                    eventId: pageData.id || 1,
+                    eventName: pageData.title || "Evento",
+                    eventDate:
+                      pageData.date || new Date().toISOString().split("T")[0],
+                    eventTime: pageData.time,
+                    eventLocation: pageData.location,
+                    eventCategory:
+                      pageData.category || pageData.eventCategory || undefined,
+                    ticketType: pageData.ticketType || "General",
+                    seatType: pageData.seatType || "general",
+                    price: total,
+                    quantity: quantity,
+                  },
+                ],
+        })}
       />
     </div>
   );
