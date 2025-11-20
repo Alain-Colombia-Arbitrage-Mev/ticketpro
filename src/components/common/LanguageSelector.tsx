@@ -62,10 +62,7 @@ const LANGUAGES: Record<Language, { flag: React.ReactNode; name: string; nativeN
 
 export function LanguageSelector({ variant = "default" }: LanguageSelectorProps) {
   const { language, setLanguage, t } = useLanguage();
-  
-  // Debug: Verificar el idioma actual
-  console.log('LanguageSelector - Current language:', language);
-  
+
   const currentLanguage = useMemo(() => {
     return LANGUAGES[language] || LANGUAGES['es'];
   }, [language]);

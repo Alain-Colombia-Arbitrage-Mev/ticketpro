@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { projectUrl, publicAnonKey } from '../utils/supabase/info';
+import { supabase } from '../utils/supabase/client';
 import { api, User } from '../utils/api';
 
 interface AuthContextType {
@@ -16,21 +15,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const supabase = createClient(
-  projectUrl,
-  publicAnonKey
-);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async () => {
+    const startTime = Date.now();
     try {
+      console.log('🔄 Fetching user profile...');
       const { user: userProfile } = await api.getProfile();
       setUser(userProfile);
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ User profile set in ${elapsed}ms`);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('❌ Error fetching user profile:', error);
       setUser(null);
     }
   };

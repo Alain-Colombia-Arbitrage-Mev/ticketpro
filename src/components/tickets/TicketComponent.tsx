@@ -3,6 +3,7 @@ import { Ticket } from '../../utils/tickets/ticketService';
 import { generateQRCode } from '../../utils/tickets/qrGenerator';
 import logo2 from '../../assets/images/logo2.svg';
 import fondoBoletaParteAbajo from '../../assets/backgrounds/fondoboletaparteabajo.png';
+import fondo5 from '../../assets/backgrounds/fondo5.svg';
 import html2canvas from 'html2canvas';
 
 interface TicketComponentProps {
@@ -177,13 +178,14 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
 
   return (
     <div className="relative">
-      {/* Contenedor del boleto con referencia para descarga - Tamaño reducido */}
+      {/* Contenedor del boleto con referencia para descarga - Diseño Figma */}
       <div 
         ref={ticketRef}
         data-ticket-ref="true"
-        className="ticket-container relative w-[400px] h-[750px] bg-[#EEEEEE] mx-auto"
+        className="ticket-container relative w-[450px] h-[700px] mx-auto rounded-lg overflow-hidden shadow-2xl"
         style={{
           fontFamily: "'Montserrat Alternates', sans-serif",
+          border: '3px solid #c61619',
           // Asegurar que las fuentes se rendericen correctamente
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
@@ -194,57 +196,43 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           colorAdjust: 'exact',
         }}
       >
-        {/* Fondo base */}
-        <div className="absolute inset-0 bg-[#EEEEEE]"></div>
-
-        {/* Fondo negro superior - Sección principal del ticket */}
-        <div className="absolute top-0 left-0 w-full h-[420px] bg-black">
-          {/* Patrón decorativo de fondo en sección negra */}
+        {/* Fondo negro superior con imagen - Sección principal del ticket */}
+        <div className="absolute top-0 left-0 w-full h-[450px] bg-black relative overflow-hidden">
+          {/* Imagen de fondo con overlay oscuro - Similar al diseño de Figma */}
           <div 
-            className="absolute inset-0 opacity-[0.15]"
+            className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90"
             style={{
-              backgroundImage: `
-                radial-gradient(circle at 10px 10px, rgba(255,255,255,0.1) 1px, transparent 0),
-                radial-gradient(circle at 30px 30px, rgba(255,255,255,0.05) 1px, transparent 0)
-              `,
-              backgroundSize: '40px 40px, 60px 60px',
+              backgroundImage: `url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&q=80')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: 0.4,
             }}
           ></div>
           
-          {/* Watermark decorativo grande en fondo negro */}
+          {/* Gradiente adicional para texto legible */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+        </div>
+
+        {/* Sección inferior blanca con patrón fondo5.svg */}
+        <div className="absolute bottom-0 left-0 w-full h-[250px] bg-white overflow-hidden z-0">
           <div 
-            className="absolute inset-0 opacity-[0.03]"
+            className="absolute inset-0 flex items-center justify-center"
             style={{
-              backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)`,
-              backgroundSize: '200px 200px',
+              backgroundImage: `url(${fondo5})`,
+              backgroundSize: 'contain',
               backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              opacity: 0.15,
+              WebkitPrintColorAdjust: 'exact',
+              printColorAdjust: 'exact',
+              colorAdjust: 'exact',
             }}
           ></div>
         </div>
 
-        {/* Patrón decorativo de fondo en sección inferior - Imagen de fondo */}
-        <div 
-          className="absolute bottom-0 left-0 w-full h-[330px] overflow-hidden z-0"
-          style={{
-            backgroundImage: `url(${fondoBoletaParteAbajo})`,
-            backgroundSize: '120px 120px',
-            backgroundPosition: '0 0',
-            backgroundRepeat: 'repeat',
-            opacity: 0.5,
-            WebkitPrintColorAdjust: 'exact',
-            printColorAdjust: 'exact',
-            colorAdjust: 'exact',
-          }}
-        ></div>
-
-        {/* Línea divisoria decorativa (perforada) */}
-        <div 
-          className="absolute left-[22px] top-[420px] w-[356px] h-[1px] border-t-2 border-dashed border-black/30"
-        ></div>
-
-        {/* QR Code - Esquina superior derecha (centrado verticalmente) */}
+        {/* QR Code a la derecha - Más arriba para no interferir */}
         {qrCodeImage && (
-          <div className="absolute right-[20px] top-[50%] -translate-y-1/2 w-[80px] h-[80px] flex items-center justify-center bg-white rounded-lg p-2 z-20">
+          <div className="absolute right-8 top-[280px] w-[95px] h-[95px] flex items-center justify-center bg-white rounded-lg p-2 z-30 shadow-2xl border-2 border-gray-200">
             <img 
               src={qrCodeImage} 
               alt="QR Code" 
@@ -255,171 +243,130 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
           </div>
         )}
 
-        {/* Contenido principal - Sección negra superior */}
-        <div className="absolute left-0 top-0 w-full h-[420px] flex flex-col items-center gap-[18px] px-4 py-6">
-          {/* Logo */}
-          <div className="h-[22px] w-[114px] flex items-center justify-center">
+        {/* Contenido principal - Sección oscura superior */}
+        <div className="absolute left-0 top-0 w-full h-[450px] flex flex-col items-center gap-[20px] px-6 py-8 z-10">
+          {/* Logo VELTLIX */}
+          <div className="h-[30px] w-[140px] flex items-center justify-center">
             <img 
               src={logo2} 
-              alt="vetlix.com" 
-              className="h-full w-auto object-contain"
+              alt="VELTLIX" 
+              className="h-full w-auto object-contain drop-shadow-lg"
               crossOrigin="anonymous"
               loading="eager"
             />
           </div>
 
           {/* Información del evento */}
-          <div className="flex flex-col items-center gap-[12px] text-center text-white w-full max-w-[250px]">
+          <div className="flex flex-col items-center gap-[8px] text-center text-white w-full mt-2">
             <h1 
-              className="font-['Montserrat_Alternates',sans-serif] text-[23px] font-normal leading-tight"
-              style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
+              className="font-bold text-[26px] leading-tight tracking-tight drop-shadow-lg px-4"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               {ticket.event_name}
             </h1>
             <p 
-              className="font-['Germania_One',sans-serif] text-[17px] leading-none"
-              style={{ fontFamily: "'Germania One', sans-serif" }}
+              className="text-[14px] leading-none text-white/80"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
               {`Date: ${formatDate(ticket.event_date)}`}
             </p>
           </div>
 
-          {/* Código del ticket */}
-          <div className="flex flex-col gap-[2px] items-center w-full max-w-[193px]">
+          {/* Código del ticket con diseño destacado - Más arriba */}
+          <div className="flex flex-col gap-[4px] items-center w-full max-w-[320px] mt-3">
             <p 
-              className="font-['Montserrat_Alternates',sans-serif] text-[14px] text-center text-white leading-none"
-              style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
+              className="text-[14px] text-center text-white/70 font-medium"
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Ticket #
+              Ticket
             </p>
-            <div className="bg-[#c61619] rounded-[8px] px-[30px] py-1 h-[32px] flex items-center justify-center w-full">
+            <div className="bg-gradient-to-r from-pink-500 via-[#c61619] to-pink-500 rounded-full px-[40px] py-2 shadow-2xl shadow-pink-500/50">
               <p 
-                className="font-['Germania_One',sans-serif] text-[23px] text-white text-center leading-none"
-                style={{ fontFamily: "'Germania One', sans-serif" }}
+                className="text-[20px] text-white text-center font-bold tracking-[4px]"
+                style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 {ticket.ticket_code}
               </p>
             </div>
           </div>
 
-          {/* Asiento y Puerta */}
-          <div className="flex gap-[44px] items-center justify-center font-['Montserrat_Alternates',sans-serif] text-[20px] text-center text-white w-full">
-            <div className="w-[65px]">
-              <p className="leading-none">Seat: {ticket.seat_number || 'N/A'}</p>
+          {/* Asiento y Puerta - Diseño minimalista - Posicionados a la izquierda */}
+          <div className="flex gap-[60px] items-start justify-start text-white w-full mt-6 pl-4">
+            <div className="flex flex-col items-start">
+              <p className="text-[10px] text-white/50 mb-0.5 tracking-wide">Seat</p>
+              <p className="text-[16px] font-bold">{ticket.seat_number || 'XX'}</p>
             </div>
-            <div className="w-[65px]">
-              <p className="leading-none">Gate: {ticket.gate_number || 'N/A'}</p>
+            <div className="flex flex-col items-start">
+              <p className="text-[10px] text-white/50 mb-0.5 tracking-wide">Gate</p>
+              <p className="text-[16px] font-bold">{ticket.gate_number || 'XX'}</p>
             </div>
           </div>
 
-          {/* Clase y validación */}
-          <div className="flex gap-[28px] items-center justify-center font-['Montserrat_Alternates',sans-serif] text-[14px] text-center text-white w-full">
-            <div className="w-[150px]">
-              <p className="leading-none">
+          {/* Clase y validación - En la parte inferior */}
+          <div className="flex gap-[40px] items-center justify-center text-[9px] text-center text-white/50 w-full mt-auto mb-4">
+            <div>
+              <p className="leading-none font-medium tracking-widest">
                 CLASS: {ticket.ticket_class || 'VIP'}
               </p>
             </div>
-            <div className="w-[170px]">
-              <p className="leading-none text-[12px]">Valid for Only 1 Person</p>
+            <div>
+              <p className="leading-none font-medium tracking-widest">VALID FOR ONLY 1 PERSON</p>
             </div>
           </div>
         </div>
 
-        {/* Información del comprador (sección inferior - centrada verticalmente) */}
-        <div className="absolute left-[30px] top-[450px] flex flex-col gap-[10px] items-start justify-center text-black w-[340px] z-10">
+        {/* Sección inferior - Información del comprador - Ajustada y compacta */}
+        <div className="absolute left-0 top-[465px] w-full px-6 py-4 flex flex-col gap-[8px] z-10">
           <h2 
-            className="font-['Germania_One',sans-serif] text-[17px] leading-none font-bold"
-            style={{ fontFamily: "'Germania One', sans-serif" }}
+            className="text-[12px] font-bold text-gray-800 tracking-[2px] mb-1"
+            style={{ fontFamily: "'Inter', sans-serif", letterSpacing: '2px' }}
           >
             DETAILS INFORMATION
           </h2>
           
-          <div className="font-['Germania_One',sans-serif] text-[17px] leading-none font-bold">
-            Full name
-          </div>
-          <p 
-            className="font-['Montserrat_Alternates',sans-serif] text-[17px] leading-none"
-            style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
-          >
-            {ticket.buyer_full_name}
-          </p>
-          
-          <div 
-            className="font-['Germania_One',sans-serif] text-[17px] leading-none font-bold mt-1"
-            style={{ fontFamily: "'Germania One', sans-serif" }}
-          >
-            Full Address
-          </div>
-          <p 
-            className="font-['Montserrat_Alternates',sans-serif] text-[17px] leading-none break-words"
-            style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
-          >
-            {ticket.buyer_address || 'N/A'}
-          </p>
-          
-          <div 
-            className="font-['Germania_One',sans-serif] text-[17px] leading-none font-bold mt-1"
-            style={{ fontFamily: "'Germania One', sans-serif" }}
-          >
-            CODE: {ticket.ticket_code}
-          </div>
-          
-          {/* PIN oculto - texto muy pequeño y discreto */}
-          {ticket.pin && (
-            <div 
-              className="mt-2 opacity-30"
-              style={{
-                fontFamily: "'Montserrat Alternates', sans-serif",
-                fontSize: '10px',
-                letterSpacing: '2px',
-                color: '#666',
-                userSelect: 'text'
-              }}
-            >
-              PIN: {ticket.pin}
+          {/* Grid de dos columnas - Más compacto y sin interferir con QR */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 max-w-[340px]">
+            <div className="overflow-hidden">
+              <div className="text-[10px] text-gray-500 font-semibold mb-1 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>
+                FULL NAME
+              </div>
+              <p 
+                className="text-[12px] text-gray-900 font-medium truncate"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                {ticket.buyer_full_name}
+              </p>
             </div>
-          )}
-        </div>
-
-        {/* QR Code - Parte inferior (centrado verticalmente en sección inferior, alineado a la derecha) */}
-        {qrCodeImage && (
-          <div className="absolute right-[20px] top-[calc(420px+(330px/2)-54px)] w-[108px] h-[108px] flex items-center justify-center bg-white rounded-lg p-2 z-10">
-            <img 
-              src={qrCodeImage} 
-              alt="QR Code" 
-              className="w-full h-full object-contain"
-              crossOrigin="anonymous"
-              loading="eager"
-            />
+            
+            <div className="overflow-hidden">
+              <div className="text-[10px] text-gray-500 font-semibold mb-1 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>
+                FULL ADDRESS
+              </div>
+              <p 
+                className="text-[12px] text-gray-900 font-medium line-clamp-2 leading-tight"
+                style={{ fontFamily: "'Inter', sans-serif" }}
+              >
+                {ticket.buyer_address || 'N/A'}
+              </p>
+            </div>
           </div>
-        )}
-
-        {/* Texto "Scan for Valid" debajo del QR */}
-        {qrCodeImage && (
-          <div className="absolute right-[20px] top-[calc(420px+(330px/2)+70px)] w-[108px] h-[28px] flex items-center justify-center z-10">
-            <p 
-              className="font-['Montserrat_Alternates',sans-serif] text-[14px] text-black text-center"
-              style={{ fontFamily: "'Montserrat Alternates', sans-serif" }}
-            >
-              Scan for Valid
-            </p>
+          
+          {/* Nota sobre el PIN - Sin revelar el número */}
+          <div 
+            className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg max-w-[340px]"
+          >
+            <div className="flex items-start gap-2">
+              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <p className="text-[10px] text-blue-800 font-bold mb-1">🔒 PIN DE SEGURIDAD</p>
+                <p className="text-[9px] text-blue-700 leading-tight">
+                  Tu PIN de 4 dígitos fue enviado a tu correo electrónico. Preséntalo al ingresar al evento.
+                </p>
+              </div>
+            </div>
           </div>
-        )}
-
-
-        {/* Watermark VIP en sección inferior (opcional) */}
-        <div 
-          className="absolute right-[20px] top-[480px] opacity-[0.05]"
-          style={{
-            fontFamily: "'Germania One', sans-serif",
-            fontSize: '120px',
-            color: 'black',
-            fontWeight: 'bold',
-            transform: 'rotate(0deg)',
-            pointerEvents: 'none',
-          }}
-        >
-          {ticket.ticket_class || 'VIP'}
         </div>
       </div>
 

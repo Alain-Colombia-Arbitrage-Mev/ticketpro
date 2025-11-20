@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 
+import "./assets/fonts/anxler.css";
 import "./index.css";
 import "./styles/globals.css";
 

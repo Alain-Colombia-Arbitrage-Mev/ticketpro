@@ -1,14 +1,34 @@
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey, projectUrl } from '../supabase/info';
+import { supabase } from '../supabase/client';
 import { generateQRCode, generateTicketCode, generateTicketPin } from './qrGenerator';
 
-// Cliente público (sin autenticación)
-const supabase = createClient(
-  projectUrl,
-  publicAnonKey
-);
+// Función para obtener la URL del proyecto dinámicamente
+function getProjectUrl(): string {
+  const envProjectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url;
+  const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
+  const defaultProjectId = "hxmdzhkkuhsetqucbpia";
+  const projectId = envProjectId || defaultProjectId;
+  return envProjectUrl || `https://${projectId}.supabase.co`;
+}
 
-// Función para obtener cliente autenticado
+// Función para obtener la anon key dinámicamente
+function getAnonKey(): string {
+  const envAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_supabase_anon_key;
+  const defaultAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bWR6aGtrdWhzZXRxdWNicGlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4Mzk5MjEsImV4cCI6MjA2NDQxNTkyMX0.-vUT8oRIKl4Pk7UZDOVhxxMRCictahFwAFEYc98HwFI";
+  return envAnonKey || defaultAnonKey;
+}
+
+// Función para obtener el projectId dinámicamente
+function getProjectId(): string {
+  const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
+  return envProjectId || "hxmdzhkkuhsetqucbpia";
+}
+
+const projectUrl = getProjectUrl();
+const publicAnonKey = getAnonKey();
+const projectId = getProjectId();
+
+// Función para obtener cliente autenticado (cuando se necesite un token específico)
 export function getAuthenticatedSupabase(accessToken: string) {
   return createClient(
     projectUrl,
@@ -463,6 +483,8 @@ export async function validateTicketByHoster(
  */
 export async function getUserTickets(userEmail: string): Promise<Ticket[]> {
   try {
+    console.log(`📋 Cargando tickets para: ${userEmail}`);
+    
     const { data, error } = await supabase
       .from('tickets')
       .select('*')
@@ -470,13 +492,17 @@ export async function getUserTickets(userEmail: string): Promise<Ticket[]> {
       .order('created_at', { ascending: false });
     
     if (error) {
+      console.error('❌ Error al cargar tickets:', error);
       throw error;
     }
+    
+    console.log(`✅ Tickets cargados: ${data?.length || 0}`);
     
     return (data || []) as Ticket[];
   } catch (error) {
     console.error('Error fetching user tickets:', error);
-    throw error;
+    // NO lanzar el error, retornar array vacío para que la UI no se rompa
+    return [];
   }
 }
 

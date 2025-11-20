@@ -4,15 +4,8 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { createClient } from '@supabase/supabase-js';
-import { projectUrl, publicAnonKey } from '../utils/supabase/info';
+import { supabase } from '../utils/supabase/client';
 import { api, User } from '../utils/api';
-
-// Cliente de Supabase para acciones de autenticación
-const supabase = createClient(
-  projectUrl,
-  publicAnonKey
-);
 
 interface AuthState {
   user: User | null;
@@ -44,10 +37,27 @@ export const useAuthStore = create<AuthState>()(
         } catch (error: any) {
           console.warn('⚠️ No se pudo refrescar perfil del backend:', error?.message);
           
-          // Si el perfil no existe en backend, intentar obtener info de la sesión de Supabase
+          // Si el perfil no existe en backend, intentar obtener info de la sesión de Supabase + dirección de profiles
           try {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
+              // ⚡ Intentar obtener dirección de profiles
+              let profileData: any = null;
+              try {
+                const { data } = await supabase
+                  .from('profiles')
+                  .select('address, city, state, zip_code, country')
+                  .eq('id', session.user.id)
+                  .maybeSingle();
+                
+                profileData = data;
+                if (profileData?.address) {
+                  console.log('📍 Dirección cargada en refreshUser:', profileData.address.substring(0, 30) + '...', profileData.city, profileData.country);
+                }
+              } catch (err) {
+                console.warn('⚠️ No se pudo cargar dirección en refreshUser:', err);
+              }
+              
               // Extraer rol de user_metadata, asegurándose de que sea válido
               const metadataRole = session.user.user_metadata?.role;
               const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
@@ -58,12 +68,17 @@ export const useAuthStore = create<AuthState>()(
                 id: session.user.id,
                 email: session.user.email || '',
                 name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
+                address: profileData?.address || undefined,
+                city: profileData?.city || undefined,
+                state: profileData?.state || undefined,
+                zipCode: profileData?.zip_code || undefined,
+                country: profileData?.country || undefined,
                 balance: 0,
                 createdAt: session.user.created_at || new Date().toISOString(),
                 role: validRole,
               };
               set({ user: basicUser });
-              console.log('✅ Usuario refrescado desde sesión de Supabase. Rol:', validRole);
+              console.log('✅ Usuario refrescado desde sesión de Supabase. Address:', !!basicUser.address, 'City:', basicUser.city, 'Rol:', validRole);
             } else {
               set({ user: null });
             }
@@ -77,8 +92,6 @@ export const useAuthStore = create<AuthState>()(
       signIn: async (email: string, password: string) => {
         try {
           console.log('🔐 Intentando iniciar sesión con:', email);
-          console.log('🔗 URL de Supabase:', projectUrl);
-          console.log('🔑 Anon Key configurada:', publicAnonKey ? 'SI' : 'NO');
 
           const { data, error } = await supabase.auth.signInWithPassword({
             email: email.trim().toLowerCase(),
@@ -87,9 +100,7 @@ export const useAuthStore = create<AuthState>()(
 
           if (error) {
             console.error('❌ Error de autenticación:', error);
-            console.error('❌ Código de error:', error.status);
-            console.error('❌ Mensaje completo:', error.message);
-
+            
             // Proporcionar mensajes de error más descriptivos
             if (error.message.includes('Invalid login credentials')) {
               throw new Error('Credenciales inválidas. Verifica tu email y contraseña.');
@@ -107,50 +118,52 @@ export const useAuthStore = create<AuthState>()(
           }
 
           if (data.session?.access_token) {
-            console.log('✅ Sesión creada exitosamente');
             api.setAccessToken(data.session.access_token);
             
+            // ⚡ OPTIMIZACIÓN: Crear usuario inmediatamente desde la sesión
+            // No esperar getProfile() que puede ser lento
+            const metadataRole = data.session.user.user_metadata?.role;
+            const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
+              ? metadataRole 
+              : 'user';
+            
+            // ⚡ Intentar obtener dirección inmediatamente de profiles
+            let profileData: any = null;
             try {
-              const { user: userProfile } = await api.getProfile();
-              console.log('✅ Perfil de usuario obtenido:', userProfile?.email, 'Rol:', userProfile?.role);
-              set({ user: userProfile });
-            } catch (profileError: any) {
-              // Si el perfil no existe (404), crear un usuario básico desde la sesión de Supabase
-              // Esto es común cuando el usuario se crea directamente en Supabase sin pasar por el signup del backend
-              const is404Error = profileError?.message?.includes('404') || 
-                                profileError?.message?.includes('not found') ||
-                                profileError?.message?.includes('User profile not found');
+              const { data } = await supabase
+                .from('profiles')
+                .select('address, city, state, zip_code, country')
+                .eq('id', data.session.user.id)
+                .maybeSingle();
               
-              if (is404Error) {
-                console.warn('⚠️ Perfil no encontrado en backend (404), creando perfil desde sesión de Supabase');
-                
-                // Extraer rol de user_metadata, asegurándose de que sea válido
-                const metadataRole = data.session.user.user_metadata?.role;
-                const validRole = (metadataRole === 'hoster' || metadataRole === 'admin') 
-                  ? metadataRole 
-                  : 'user';
-                
-                const basicUser: User = {
-                  id: data.session.user.id,
-                  email: data.session.user.email || email,
-                  name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
-                  balance: 0,
-                  createdAt: data.session.user.created_at || new Date().toISOString(),
-                  role: validRole,
-                };
-                
-                console.log('🔍 Rol extraído de metadata:', metadataRole, 'Rol asignado:', validRole);
-                console.log('✅ Usuario básico creado desde sesión:', basicUser.email, 'Rol:', basicUser.role);
-                set({ user: basicUser });
-                
-                // No intentar crear perfil en backend si no existe el endpoint
-                // El usuario puede funcionar perfectamente con el perfil básico desde Supabase
-              } else {
-                // Si es otro tipo de error, lanzarlo
-                console.error('❌ Error al obtener perfil (no es 404):', profileError);
-                throw profileError;
+              profileData = data;
+              if (profileData?.address) {
+                console.log('📍 Dirección cargada en login:', profileData.address.substring(0, 30) + '...', profileData.city, profileData.country);
               }
+            } catch (err) {
+              console.warn('⚠️ No se pudo cargar dirección en login:', err);
             }
+            
+            const quickUser: User = {
+              id: data.session.user.id,
+              email: data.session.user.email || email,
+              name: data.session.user.user_metadata?.name || data.session.user.email?.split('@')[0] || 'Usuario',
+              address: profileData?.address || undefined,
+              city: profileData?.city || undefined,
+              state: profileData?.state || undefined,
+              zipCode: profileData?.zip_code || undefined,
+              country: profileData?.country || undefined,
+              balance: 0,
+              createdAt: data.session.user.created_at || new Date().toISOString(),
+              role: validRole,
+            };
+            
+            console.log('⚡ Usuario creado inmediatamente desde sesión. Address:', !!quickUser.address, 'City:', quickUser.city);
+            set({ user: quickUser });
+            
+            // ⚡ Cargar perfil completo en background (sin esperar)
+            // AuthInitializer lo hará automáticamente al detectar SIGNED_IN
+            console.log('🔄 Perfil completo se cargará en segundo plano...');
           } else {
             throw new Error('No se recibió un token de acceso válido.');
           }

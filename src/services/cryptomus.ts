@@ -77,12 +77,13 @@ class CryptomusService {
   private baseUrl: string = "https://api.cryptomus.com/v1";
 
   constructor() {
-    // La API key debe estar en las variables de entorno
-    this.apiKey = import.meta.env.VITE_CRYPTOMUS_API_KEY || "";
+    // La API key NO se necesita en el frontend - se maneja en Edge Function
+    // Solo necesitamos el Merchant ID para mostrar en la UI
+    this.apiKey = ""; // No se usa en el frontend
     this.merchantId = import.meta.env.VITE_CRYPTOMUS_MERCHANT_ID || "";
 
-    if (!this.apiKey || !this.merchantId) {
-      console.warn("Cryptomus API key or Merchant ID not configured");
+    if (!this.merchantId) {
+      console.warn("Cryptomus Merchant ID not configured");
     }
   }
 
@@ -223,38 +224,66 @@ class CryptomusService {
   }
 
   /**
-   * Crea un pago con conversión automática
+   * Crea un pago con conversión automática usando Edge Function
+   * NUNCA expone la API key al frontend - todo se maneja en el backend
    * @param amount - Monto en moneda fiat
    * @param currency - Moneda fiat (USD, EUR, etc)
    * @param orderId - ID único del pedido
    * @param toCurrency - Criptomoneda a la que se convertirá (BTC, ETH, USDT, etc)
-   * @param callbackUrl - URL para recibir webhooks
-   * @param returnUrl - URL de retorno después del pago
-   * @returns Promise con la factura creada
+   * @param items - Items del carrito
+   * @param buyerEmail - Email del comprador
+   * @param buyerFullName - Nombre del comprador
+   * @param buyerAddress - Dirección del comprador
+   * @returns Promise con la URL de pago de Cryptomus
    */
   async createCryptoPayment(
     amount: number,
     currency: string = "USD",
     orderId: string,
     toCurrency: string = "USDT",
-    callbackUrl?: string,
-    returnUrl?: string,
-    additionalData?: string,
-  ): Promise<CryptomusInvoiceResponse> {
-    const params: CryptomusInvoiceRequest = {
-      amount: amount.toString(),
-      currency: currency,
-      order_id: orderId,
-      to_currency: toCurrency,
-      url_callback: callbackUrl,
-      url_return: returnUrl,
-      url_success: returnUrl,
-      lifetime: 3600, // 1 hora
-      is_payment_multiple: true,
-      additional_data: additionalData,
-    };
+    items: any[] = [],
+    buyerEmail?: string,
+    buyerFullName?: string,
+    buyerAddress?: string,
+  ): Promise<{ paymentUrl: string; invoice: any }> {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      
+      if (!supabaseUrl) {
+        throw new Error('Supabase URL not configured');
+      }
 
-    return this.createInvoice(params);
+      const response = await fetch(`${supabaseUrl}/functions/v1/cryptomus-create-invoice`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount,
+          currency,
+          orderId,
+          toCurrency,
+          items,
+          buyerEmail,
+          buyerFullName,
+          buyerAddress,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.details || data.error || 'Error creating Cryptomus invoice');
+      }
+
+      return {
+        paymentUrl: data.paymentUrl,
+        invoice: data.invoice,
+      };
+    } catch (error) {
+      console.error('Error creating crypto payment:', error);
+      throw error;
+    }
   }
 
   /**
@@ -274,9 +303,10 @@ class CryptomusService {
 
   /**
    * Verifica si el servicio está configurado correctamente
+   * Solo necesita el Merchant ID ya que la API Key se maneja en el backend
    */
   isConfigured(): boolean {
-    return !!(this.apiKey && this.merchantId);
+    return !!this.merchantId;
   }
 }
 

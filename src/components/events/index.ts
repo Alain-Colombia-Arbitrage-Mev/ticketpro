@@ -5,4 +5,5 @@
 export { EventCard } from './EventCard';
 export { EventCardSkeleton } from './EventCardSkeleton';
 export { CategoryCard } from './CategoryCard';
+export { PromoSlider } from './PromoSlider';
 

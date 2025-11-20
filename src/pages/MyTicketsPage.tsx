@@ -25,7 +25,7 @@ import { useLanguage } from "../hooks/useLanguage";
 
 export function MyTicketsPage() {
   const { navigate } = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,13 +37,18 @@ export function MyTicketsPage() {
   const [assigningPin, setAssigningPin] = useState<string | null>(null);
 
   useEffect(() => {
+    // NO redirigir si aún está cargando la autenticación
+    if (authLoading) {
+      return;
+    }
+    
     if (user?.email) {
       loadTickets();
     } else {
-      // Si no hay usuario, redirigir al login
+      // Solo redirigir después de que termine de cargar y NO haya usuario
       navigate("login");
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadTickets = async () => {
     if (!user?.email) return;
@@ -169,6 +174,16 @@ export function MyTicketsPage() {
     });
   };
 
+  // Mostrar cargando mientras se verifica la autenticación
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="h-12 w-12 text-white animate-spin" />
+      </div>
+    );
+  }
+
+  // Si no hay usuario después de cargar, no renderizar (ya se redirigió)
   if (!user) {
     return null;
   }
@@ -341,6 +356,24 @@ export function MyTicketsPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* PIN de Seguridad - Destacado */}
+                  {ticket.pin && (
+                    <div className="mb-4 p-4 bg-gradient-to-r from-red-900/30 to-red-800/20 border-2 border-red-500/40 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Shield className="h-6 w-6 text-red-400" />
+                          <div>
+                            <p className="text-xs text-white/60 uppercase tracking-wider mb-1">🔐 PIN de Seguridad</p>
+                            <p className="text-3xl font-bold text-white tracking-[0.5em] font-mono">{ticket.pin}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-red-300 font-semibold">⚠️ Requerido en el evento</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Acciones */}
                   <div className="space-y-3 pt-4 border-t border-white/10">

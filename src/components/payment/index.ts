@@ -5,3 +5,4 @@
 export { CurrencySelector } from "./CurrencySelector";
 export { MultiCurrencyBalance } from "./MultiCurrencyBalance";
 export { CryptoPaymentModal } from "./CryptoPaymentModal";
+export { StripePaymentButton } from "./StripePaymentButton";

@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 
-export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact" | "validate-ticket" | "my-tickets" | "cart" | "hoster-validate";
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "payment-failed" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact" | "validate-ticket" | "my-tickets" | "cart" | "hoster-validate";
 
 interface RouterState {
   currentPage: Page;
@@ -28,9 +28,9 @@ export const useRouterStore = create<RouterState>((set) => ({
             params.append(key, String(value));
           }
         });
-        window.location.hash = `${page}?${params.toString()}`;
+        window.location.hash = `#/${page}?${params.toString()}`;
       } else {
-        window.location.hash = page;
+        window.location.hash = `#/${page}`;
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -41,10 +41,11 @@ export const useRouterStore = create<RouterState>((set) => ({
     
     const handleHashChange = () => {
       const fullHash = window.location.hash;
-      const hashWithParams = fullHash.replace('#', '');
+      // Remover # y / inicial si existe
+      const hashWithParams = fullHash.replace(/^#\/?/, '');
       const hash = hashWithParams.split('?')[0] as Page;
-      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate"];
-      
+      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed"];
+
       if (hash && validPages.includes(hash)) {
         // Extraer parámetros de la URL si existen
         const params = new URLSearchParams(hashWithParams.split('?')[1] || '');
@@ -52,11 +53,13 @@ export const useRouterStore = create<RouterState>((set) => ({
         params.forEach((value, key) => {
           pageData[key] = value;
         });
-        
-        set({ 
+
+        set({
           currentPage: hash,
           pageData: Object.keys(pageData).length > 0 ? pageData : null
         });
+      } else {
+        set({ currentPage: 'home', pageData: null });
       }
     };
 

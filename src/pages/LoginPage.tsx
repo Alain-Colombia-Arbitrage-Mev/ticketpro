@@ -43,7 +43,6 @@ export function LoginPage() {
         return;
       }
 
-      console.log('🔐 Iniciando sesión con:', normalizedEmail);
       await signIn(normalizedEmail, loginPassword);
 
       console.log('✅ Login exitoso, redirigiendo al home...');
