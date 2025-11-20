@@ -124,6 +124,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'event.title.18': 'Musical: El Rey León',
     'event.title.19': 'Reggaeton & Trap Party',
     'event.title.20': 'Lucha Libre - Función Estelar',
+    'event.title.21': 'NAVIDAD VICION POWER',
+    'event.title.22': 'NAVIDAD VICION POWER',
     
     // HomePage
     'home.hero.title': 'Todo Empieza con un Sí',
@@ -560,6 +562,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'event.title.18': 'Musical: The Lion King',
     'event.title.19': 'Reggaeton & Trap Party',
     'event.title.20': 'Wrestling - Main Event',
+    'event.title.21': 'CHRISTMAS VICION POWER',
+    'event.title.22': 'CHRISTMAS VICION POWER',
     
     // HomePage
     'home.hero.title': 'It All Starts with a Yes',
@@ -996,6 +1000,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'event.title.18': 'Musical: O Rei Leão',
     'event.title.19': 'Reggaeton & Trap Party',
     'event.title.20': 'Luta Livre - Evento Principal',
+    'event.title.21': 'NATAL VICION POWER',
+    'event.title.22': 'NATAL VICION POWER',
     
     // HomePage
     'home.hero.title': 'Tudo Começa com um Sim',
