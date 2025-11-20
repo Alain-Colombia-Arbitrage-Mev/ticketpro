@@ -10,10 +10,6 @@ import {
   Download,
   AlertCircle,
   CheckCircle,
-  MapPin,
-  Edit2,
-  Save,
-  X,
   Shield,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -61,9 +57,10 @@ export function ProfilePage() {
   const [transferError, setTransferError] = useState("");
   const [downloadToken, setDownloadToken] = useState<string | null>(null);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD");
-  const [isEditingAddress, setIsEditingAddress] = useState(false);
-  const [address, setAddress] = useState(user?.address || "");
-  const [savingAddress, setSavingAddress] = useState(false);
+  // Dirección se maneja solo en checkout, no en perfil
+  // const [isEditingAddress, setIsEditingAddress] = useState(false);
+  // const [address, setAddress] = useState(user?.address || "");
+  // const [savingAddress, setSavingAddress] = useState(false);
 
   // Sync selected currency with user preference
   useEffect(() => {
@@ -72,16 +69,7 @@ export function ProfilePage() {
     }
   }, [user?.preferredCurrency]);
 
-  // Sync address with user data
-  useEffect(() => {
-    if (user?.address && user.address.trim() !== "") {
-      setAddress(user.address);
-      setIsEditingAddress(false);
-    } else {
-      setAddress("");
-      setIsEditingAddress(true);
-    }
-  }, [user?.address]);
+  // Dirección eliminada del perfil - se maneja solo en checkout
 
   const handleCurrencyChange = async (currency: Currency) => {
     setSelectedCurrency(currency);
@@ -93,55 +81,7 @@ export function ProfilePage() {
     }
   };
 
-  const handleSaveAddress = async () => {
-    if (!address || address.trim() === "") {
-      toast.error("Por favor ingresa una dirección válida");
-      return;
-    }
-    setSavingAddress(true);
-    try {
-      await api.updateAddress(address.trim());
-      await refreshUser();
-      setIsEditingAddress(false);
-      toast.success("Dirección guardada correctamente");
-    } catch (error) {
-      console.error("Error updating address:", error);
-      // Fallback directo a Supabase (RLS) si el endpoint falla
-      try {
-        const { createClient } = await import("@supabase/supabase-js");
-        const { projectUrl, publicAnonKey } = await import(
-          "../utils/supabase/info"
-        );
-        const supabase = createClient(projectUrl, publicAnonKey);
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session?.user?.id) {
-          throw new Error("No hay sesión de usuario para actualizar el perfil");
-        }
-        const { error: upErr } = await supabase
-          .from("profiles")
-          .update({ address: address.trim() })
-          .eq("id", session.user.id);
-        if (upErr) throw upErr;
-        await refreshUser();
-        setIsEditingAddress(false);
-        toast.success("Dirección guardada correctamente");
-      } catch (fallbackErr) {
-        console.error("Fallback Supabase updateAddress failed:", fallbackErr);
-        toast.error("Error al guardar la dirección. Intenta de nuevo.");
-      }
-    } finally {
-      setSavingAddress(false);
-    }
-  };
-
-  const handleCancelEditAddress = () => {
-    if (savingAddress) return;
-    setAddress(user?.address || "");
-    setIsEditingAddress(false);
-    toast("Edición de dirección cancelada");
-  };
+  // Funciones de dirección eliminadas - se maneja solo en checkout
 
   useEffect(() => {
     if (!user) {
@@ -257,79 +197,7 @@ export function ProfilePage() {
 
               <Separator className="my-6 bg-white/20" />
 
-              {/* Dirección del Usuario */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="!text-white flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Dirección
-                  </Label>
-                  {!isEditingAddress ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditingAddress(true)}
-                      className="h-8 px-2 !text-white/70 hover:!text-white hover:!bg-white/10"
-                    >
-                      <Edit2 className="h-3 w-3" />
-                      <span className="ml-1">
-                        {user?.address ? "Editar" : "Agregar"}
-                      </span>
-                    </Button>
-                  ) : (
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleSaveAddress}
-                        disabled={savingAddress}
-                        className="h-8 px-2 !text-green-400 hover:!text-green-300 hover:!bg-green-500/10"
-                      >
-                        <Save className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleCancelEditAddress}
-                        disabled={savingAddress}
-                        className="h-8 px-2 !text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {isEditingAddress ? (
-                  <div className="space-y-2">
-                    <Input
-                      type="text"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleSaveAddress();
-                        } else if (e.key === "Escape") {
-                          handleCancelEditAddress();
-                        }
-                      }}
-                      placeholder="Ingresa tu dirección completa"
-                      className="!bg-black border-white/20 !text-white placeholder:!text-white/50"
-                    />
-                    <p className="text-xs !text-white/60">
-                      Presiona Enter para guardar o Esc para cancelar. Esta
-                      dirección se usará para tus compras.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-white/20 bg-black/50 p-3">
-                    <p className="text-sm !text-white/90">
-                      {user?.address || "No has agregado una dirección"}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <Separator className="my-6 bg-white/20" />
+              {/* Dirección eliminada - se maneja solo en el proceso de compra */}
 
               {/* Multi-Currency Balance */}
               <div className="mb-6">
@@ -554,7 +422,7 @@ export function ProfilePage() {
                             className={`font-semibold ${transaction.amount >= 0 ? "text-green-400" : "text-red-400"}`}
                           >
                             {transaction.amount >= 0 ? "+" : ""}
-                            {transaction.amount.toLocaleString()} MXN
+                            {transaction.amount.toLocaleString()} USD
                           </span>
                         </div>
                       ))}

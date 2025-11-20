@@ -260,7 +260,7 @@ export function CheckoutPageSimple() {
                   ) : (
                     <>
                       <Shield className="mr-2 h-5 w-5" />
-                      Pagar ${total.toLocaleString()} MXN
+                      Pagar ${total.toLocaleString()} USD
                     </>
                   )}
                 </Button>
@@ -340,16 +340,16 @@ export function CheckoutPageSimple() {
                     <div className="space-y-2">
                       <div className="flex justify-between !text-white/70">
                         <span>Subtotal ({quantity} {quantity === 1 ? 'ticket' : 'tickets'})</span>
-                        <span>${subtotal.toLocaleString()} MXN</span>
+                        <span>${subtotal.toLocaleString()} USD</span>
                       </div>
                       <div className="flex justify-between !text-white/70">
                         <span>Cargo por servicio</span>
-                        <span>${serviceFee.toLocaleString()} MXN</span>
+                        <span>${serviceFee.toLocaleString()} USD</span>
                       </div>
                       <Separator className="!bg-white/20" />
                       <div className="flex justify-between text-lg font-bold !text-white">
                         <span>Total</span>
-                        <span>${total.toLocaleString()} MXN</span>
+                        <span>${total.toLocaleString()} USD</span>
                       </div>
                     </div>
                   </div>
@@ -381,7 +381,7 @@ export function CheckoutPageSimple() {
               <div className="space-y-1 text-sm">
                 <p className="!text-white"><strong>Evento:</strong> {pageData.title}</p>
                 <p className="!text-white"><strong>Cantidad:</strong> {quantity} {quantity === 1 ? 'ticket' : 'tickets'}</p>
-                <p className="!text-white"><strong>Total:</strong> ${total.toLocaleString()} MXN</p>
+                <p className="!text-white"><strong>Total:</strong> ${total.toLocaleString()} USD</p>
               </div>
             </Card>
           </div>

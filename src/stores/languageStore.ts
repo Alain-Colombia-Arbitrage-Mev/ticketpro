@@ -273,7 +273,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'checkout.complete_form': 'Completa el formulario arriba',
     'checkout.secure_payment': 'Pago seguro con tu saldo interno',
     'checkout.insufficient_balance': 'Saldo Insuficiente',
-    'checkout.insufficient_balance_desc': 'Necesitas ${amount} MXN más para completar esta compra',
+    'checkout.insufficient_balance_desc': 'Necesitas ${amount} USD más para completar esta compra',
     'checkout.add_balance': 'Agregar Saldo',
     'checkout.add_balance_title': 'Agregar Saldo a tu Cuenta',
     'checkout.add_balance_desc': 'Selecciona el monto que deseas agregar',
@@ -709,7 +709,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'checkout.complete_form': 'Complete the form above',
     'checkout.secure_payment': 'Secure payment with your internal balance',
     'checkout.insufficient_balance': 'Insufficient Balance',
-    'checkout.insufficient_balance_desc': 'You need ${amount} MXN more to complete this purchase',
+    'checkout.insufficient_balance_desc': 'You need ${amount} USD more to complete this purchase',
     'checkout.add_balance': 'Add Balance',
     'checkout.add_balance_title': 'Add Balance to Your Account',
     'checkout.add_balance_desc': 'Select the amount you want to add',
@@ -1145,7 +1145,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'checkout.complete_form': 'Complete o formulário acima',
     'checkout.secure_payment': 'Pagamento seguro com seu saldo interno',
     'checkout.insufficient_balance': 'Saldo Insuficiente',
-    'checkout.insufficient_balance_desc': 'Você precisa de ${amount} MXN a mais para completar esta compra',
+    'checkout.insufficient_balance_desc': 'Você precisa de ${amount} USD a mais para completar esta compra',
     'checkout.add_balance': 'Adicionar Saldo',
     'checkout.add_balance_title': 'Adicionar Saldo à Sua Conta',
     'checkout.add_balance_desc': 'Selecione o valor que deseja adicionar',
@@ -1335,14 +1335,12 @@ const getInitialLanguage = (): Language => {
     if (stored) {
       const parsed = JSON.parse(stored);
       const savedLang = parsed.state?.language;
-      console.log('Language loaded from storage:', savedLang);
       return savedLang || 'es';
     }
   } catch (error) {
-    console.warn('Error loading language from storage:', error);
+    // Error silencioso
   }
-  
-  console.log('No language in storage, defaulting to: es');
+
   return 'es'; // Siempre español por defecto
 };
 
@@ -1350,9 +1348,8 @@ export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
       language: getInitialLanguage(),
-      
+
       setLanguage: (language) => {
-        console.log('🌐 Idioma cambiado a:', language);
         set({ language });
       },
     }),

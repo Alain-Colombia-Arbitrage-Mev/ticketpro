@@ -80,7 +80,7 @@ export function HomePage() {
   }, []);
 
   return (
-    <>
+    <div data-page="home" className="home-page">
       {/* Banner informativo para usuarios hoster/admin */}
       {isHosterOrAdmin && (
         <div className="fixed top-24 left-4 right-4 z-50 animate-in slide-in-from-top-2 duration-500">
@@ -342,6 +342,6 @@ export function HomePage() {
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }

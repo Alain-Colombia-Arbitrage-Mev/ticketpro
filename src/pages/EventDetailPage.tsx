@@ -312,7 +312,7 @@ export function EventDetailPage() {
                             <p className="text-sm sm:text-base font-semibold !text-white">{ticket.name}</p>
                             <p className={`mt-0.5 sm:mt-1 text-base sm:text-lg font-bold ${
                               selectedTicketType === ticket.id ? '!text-[#ff4d4d]' : '!text-[#c61619]'
-                            }`}>${ticket.price} MXN</p>
+                            }`}>${ticket.price} USD</p>
                           </div>
                           <div className={`flex h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 items-center justify-center rounded-lg sm:rounded-xl transition-all ${
                             selectedTicketType === ticket.id 

@@ -1,26 +1,74 @@
-import { useState } from "react";
-import { ShoppingCart, ChevronLeft, Trash2, Plus, Minus, ArrowRight, Calendar, MapPin, Ticket, ChevronDown, Edit2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShoppingCart, ChevronLeft, Trash2, Plus, Minus, ArrowRight, Calendar, MapPin, Ticket, ChevronDown, Check, Info } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Input } from "../components/ui/input";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
 import { useCartStore } from "../stores/cartStore";
+import { useCheckoutStore } from "../stores/checkoutStore";
 import { ImageWithFallback } from "../components/media";
 import { formatCurrency } from "../utils/currency";
+import { toast } from "sonner";
 
 export function CartPage() {
   const { navigate } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { items, removeItem, updateQuantity, updateTicketType, clearCart, getTotalItems, getTotalPrice } = useCartStore();
+  const { checkoutInfo, updateField, setCheckoutInfo, isAddressComplete } = useCheckoutStore();
   const [loading, setLoading] = useState(false);
 
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
+
+  // Cargar dirección del usuario al montar
+  useEffect(() => {
+    console.log('🔍 CartPage - User Debug:', {
+      hasUser: !!user,
+      userEmail: user?.email,
+      userAddress: user?.address,
+      checkoutAddress: checkoutInfo.address,
+      willLoadAddress: !!(user?.address && !checkoutInfo.address)
+    });
+
+    if (user) {
+      // Siempre sincronizar email y nombre del usuario autenticado
+      if (user.email && !checkoutInfo.email) {
+        updateField('email', user.email);
+      }
+      if (user.name && !checkoutInfo.fullName) {
+        updateField('fullName', user.name);
+      }
+      
+      // Si el usuario tiene dirección guardada en su perfil y el checkoutStore está vacío
+      if ((user.address || user.city) && !checkoutInfo.address) {
+        console.log('📍 Cargando dirección completa del perfil:', {
+          address: user.address?.substring(0, 30),
+          city: user.city,
+          country: user.country
+        });
+        setCheckoutInfo({
+          address: user.address || '',
+          city: user.city || '',
+          state: user.state || '',
+          zipCode: user.zipCode || '',
+          country: user.country || 'Colombia',
+        });
+      } else if (!user.address && !user.city) {
+        console.log('⚠️ Usuario NO tiene dirección en su perfil');
+      } else if (checkoutInfo.address) {
+        console.log('ℹ️ Ya hay dirección en checkoutStore:', checkoutInfo.address.substring(0, 50));
+      }
+    }
+  }, [user, checkoutInfo.address, checkoutInfo.email, checkoutInfo.fullName, setCheckoutInfo, updateField]);
+
+  // Los boletos son digitales y se envían por correo
+  // La dirección solo se necesita para pagos con Stripe en CheckoutPage
 
   // Tipos de tickets disponibles
   const ticketTypes = [
@@ -39,18 +87,12 @@ export function CartPage() {
       return;
     }
 
-    // Verificar que el usuario tenga una dirección
-    if (!user.address) {
-      if (confirm("Necesitas agregar una dirección para completar la compra. ¿Deseas ir a tu perfil para agregarla?")) {
-        navigate("profile");
-      }
-      return;
-    }
+    // La dirección se validará y completará en CheckoutPage
+    // No requerimos dirección completa aquí
 
-    // Navegar al checkout con todos los items del carrito
-    // El checkout procesará todos los items
+    // Navegar al checkout con la dirección del checkoutStore
     navigate("checkout", {
-      cartItems: items, // Pasar todos los items del carrito
+      cartItems: items,
       // Mantener compatibilidad con checkout de un solo item
       id: items[0].eventId,
       title: items[0].eventName,
@@ -66,6 +108,9 @@ export function CartPage() {
       seatType: items[0].seatType,
     });
   };
+
+  // ❌ ELIMINADA: La dirección solo se edita en CheckoutPage con el formulario completo
+  // que guarda directamente en Supabase
 
   if (!user) {
     return (
@@ -147,23 +192,23 @@ export function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
-                <Card key={item.id} className="p-6 !bg-black border-white/20">
-                  <div className="flex gap-4">
-                    {/* Event Image */}
+                <Card key={item.id} className="p-2 sm:p-3 md:p-6 !bg-black border-white/20">
+                  <div className="flex gap-1.5 sm:gap-2 md:gap-4">
+                    {/* Event Image - Ultra compacto 320px */}
                     {item.eventImage && (
-                      <div className="hidden sm:block flex-shrink-0">
+                      <div className="flex-shrink-0">
                         <ImageWithFallback
                           src={item.eventImage}
                           alt={item.eventName}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-14 h-14 min-[375px]:w-16 min-[375px]:h-16 sm:w-24 sm:h-24 object-cover rounded-md sm:rounded-lg"
                         />
                       </div>
                     )}
                     
                     {/* Item Details */}
                     <div className="flex-1 min-w-0">
-                      <div className="mb-4">
-                        <h3 className="text-lg sm:text-xl font-semibold !text-white mb-2 hover:!text-[#c61619] transition-colors cursor-pointer"
+                      <div className="mb-2 sm:mb-3 md:mb-4">
+                        <h3 className="text-sm min-[375px]:text-base sm:text-lg md:text-xl font-semibold !text-white mb-1 sm:mb-2 hover:!text-[#c61619] transition-colors cursor-pointer line-clamp-2"
                             onClick={() => navigate("event-detail", {
                               id: item.eventId,
                               title: item.eventName,
@@ -174,28 +219,27 @@ export function CartPage() {
                           >
                           {item.eventName}
                         </h3>
-                        <div className="flex flex-wrap gap-2 text-sm !text-white/70 mb-3">
+                        <div className="flex flex-wrap gap-1 sm:gap-1.5 md:gap-2 text-[10px] min-[375px]:text-xs sm:text-sm !text-white/70 mb-1.5 sm:mb-2 md:mb-3">
                           {item.eventDate && (
-                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-md">
-                              <Calendar className="h-4 w-4 !text-white/60" />
-                              <span>{new Date(item.eventDate).toLocaleDateString('es-MX', {
-                                year: 'numeric',
-                                month: 'long',
+                            <div className="flex items-center gap-0.5 sm:gap-1 bg-white/5 px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded">
+                              <Calendar className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4 !text-white/60 flex-shrink-0" />
+                              <span className="text-[10px] min-[375px]:text-xs sm:text-sm whitespace-nowrap">{new Date(item.eventDate).toLocaleDateString('es-MX', {
+                                month: 'short',
                                 day: 'numeric'
                               })}</span>
                             </div>
                           )}
                           {item.eventLocation && (
-                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-md">
-                              <MapPin className="h-4 w-4 !text-white/60" />
-                              <span className="line-clamp-1">{item.eventLocation}</span>
+                            <div className="flex items-center gap-0.5 sm:gap-1 bg-white/5 px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded max-w-[140px] min-[375px]:max-w-none">
+                              <MapPin className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4 !text-white/60 flex-shrink-0" />
+                              <span className="line-clamp-1 text-[10px] min-[375px]:text-xs sm:text-sm">{item.eventLocation}</span>
                             </div>
                           )}
                         </div>
-                        <div className="flex flex-col gap-2">
-                          {/* Selector de tipo de ticket */}
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium !text-white/80 whitespace-nowrap">Tipo de entrada:</span>
+                        <div className="flex flex-col gap-1 sm:gap-1.5 md:gap-2">
+                          {/* Selector de tipo de ticket - Ultra compacto */}
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-0.5 sm:gap-1 md:gap-2">
+                            <span className="text-[10px] min-[375px]:text-xs sm:text-sm font-medium !text-white/80 whitespace-nowrap">Tipo:</span>
                             <Select
                               value={item.ticketType}
                               onValueChange={(value) => {
@@ -205,7 +249,7 @@ export function CartPage() {
                                 }
                               }}
                             >
-                              <SelectTrigger className="w-[160px] !bg-white/10 !border-white/30 hover:!bg-white/20 focus:!ring-[#c61619] focus:!ring-2 [&_svg]:!text-white [&_svg]:!fill-white [&>span]:!text-white [&_*]:!text-white">
+                              <SelectTrigger className="w-full sm:w-[140px] h-7 min-[375px]:h-8 sm:h-10 text-[11px] min-[375px]:text-xs sm:text-sm !bg-white/10 !border-white/30 hover:!bg-white/20 focus:!ring-[#c61619] focus:!ring-2 [&_svg]:!text-white [&_svg]:!fill-white [&>span]:!text-white [&_*]:!text-white">
                                 <SelectValue className="!text-white">
                                   <div className="flex items-center gap-1.5 !text-white">
                                     <Ticket className="h-4 w-4 !text-white !stroke-white" />
@@ -226,7 +270,7 @@ export function CartPage() {
                                         <span className="font-medium !text-white">{type.name}</span>
                                       </div>
                                       <span className="text-sm !text-white/80">
-                                        {formatCurrency(type.price, 'MXN')}
+                                        {formatCurrency(type.price, 'USD')}
                                       </span>
                                     </div>
                                   </SelectItem>
@@ -242,54 +286,54 @@ export function CartPage() {
                         </div>
                       </div>
 
-                      {/* Quantity and Price */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-white/10">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-medium !text-white/80">{t('cart.quantity')}:</span>
-                          <div className="flex items-center gap-2 border border-white/20 rounded-lg bg-white/5">
+                      {/* Quantity and Price - Ultra compacto 320px */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2 md:gap-4 pt-2 sm:pt-3 md:pt-4 border-t border-white/10">
+                        <div className="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2 md:gap-3">
+                          <span className="text-[10px] min-[375px]:text-xs sm:text-sm font-medium !text-white/80">{t('cart.quantity')}:</span>
+                          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2 border border-white/20 rounded-md sm:rounded-lg bg-white/5">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 !text-white hover:!bg-white/10 hover:!bg-[#c61619]/20"
+                              className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 sm:h-9 sm:w-9 !text-white hover:!bg-white/10 hover:!bg-[#c61619]/20"
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
                               disabled={item.quantity <= 1}
                             >
-                              <Minus className="h-4 w-4" />
+                              <Minus className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4" />
                             </Button>
-                            <span className="w-10 text-center !text-white font-semibold text-base">{item.quantity}</span>
+                            <span className="w-6 min-[375px]:w-8 sm:w-10 text-center !text-white font-semibold text-xs min-[375px]:text-sm sm:text-base">{item.quantity}</span>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 !text-white hover:!bg-white/10 hover:!bg-[#c61619]/20"
+                              className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 sm:h-9 sm:w-9 !text-white hover:!bg-white/10 hover:!bg-[#c61619]/20"
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               disabled={item.quantity >= 10}
                             >
-                              <Plus className="h-4 w-4" />
+                              <Plus className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4" />
                             </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="text-xl font-bold !text-white">
-                              {formatCurrency(item.total, 'MXN')}
+                        <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 md:gap-4">
+                          <div className="text-right flex-1 sm:flex-initial">
+                            <p className="text-base min-[375px]:text-lg sm:text-xl font-bold !text-white">
+                              {formatCurrency(item.total, 'USD')}
                             </p>
-                            <p className="text-xs !text-white/60">
-                              {formatCurrency(item.ticketPrice, 'MXN')} {t('cart.each')}
+                            <p className="text-[10px] min-[375px]:text-xs !text-white/60">
+                              {formatCurrency(item.ticketPrice, 'USD')} {t('cart.each')}
                             </p>
                             {item.quantity > 1 && (
                               <p className="text-xs !text-white/50 mt-1">
-                                {item.quantity} × {formatCurrency(item.ticketPrice, 'MXN')}
+                                {item.quantity} × {formatCurrency(item.ticketPrice, 'USD')}
                               </p>
                             )}
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="flex-shrink-0 !text-red-400 hover:!text-red-300 hover:!bg-red-500/10 h-9 w-9"
+                            className="flex-shrink-0 !text-red-400 hover:!text-red-300 hover:!bg-red-500/10 h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 sm:h-9 sm:w-9"
                             onClick={() => removeItem(item.id)}
                             aria-label="Eliminar del carrito"
                           >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 sm:h-5 sm:w-5" />
                           </Button>
                         </div>
                       </div>
@@ -301,71 +345,42 @@ export function CartPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <Card className="p-6 !bg-black border-white/20 sticky top-24">
-                <h2 className="text-xl font-bold !text-white mb-4">{t('cart.summary')}</h2>
+              <Card className="p-3 min-[375px]:p-4 sm:p-6 !bg-black border-white/20 lg:sticky lg:top-24">
+                <h2 className="text-lg min-[375px]:text-xl font-bold !text-white mb-3 min-[375px]:mb-4">{t('cart.summary')}</h2>
                 
-                {/* Dirección del Usuario */}
-                {user?.address && (
-                  <div className="mb-4 p-3 rounded-lg border border-white/20 bg-white/5">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 !text-white/70 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs !text-white/60 mb-1">Dirección de entrega</p>
-                        <p className="text-sm !text-white/90 break-words">{user.address}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate("profile")}
-                      className="mt-2 h-8 text-xs !text-white/70 hover:!text-white hover:!bg-white/10"
-                    >
-                      <Edit2 className="h-3 w-3 mr-1" />
-                      Editar dirección
-                    </Button>
-                  </div>
-                )}
-
-                {!user?.address && (
-                  <div className="mb-4 p-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 !text-yellow-400 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-xs !text-yellow-300 mb-1">Dirección requerida</p>
-                        <p className="text-xs !text-yellow-200/80 mb-2">
-                          Necesitas agregar una dirección para completar la compra
-                        </p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate("profile")}
-                          className="h-8 text-xs !text-yellow-300 hover:!text-yellow-200 hover:!bg-yellow-500/20"
-                        >
-                          Agregar dirección
-                        </Button>
-                      </div>
+                {/* Información sobre entrega digital */}
+                <div className="mb-3 min-[375px]:mb-4 p-3 min-[375px]:p-4 sm:p-4 rounded-lg border-2 border-blue-400/50 bg-blue-500/20">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <Ticket className="h-5 w-5 min-[375px]:h-6 min-[375px]:w-6 !text-blue-300 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm min-[375px]:text-base sm:text-lg font-bold !text-blue-100 mb-1">
+                        Boletos Digitales
+                      </p>
+                      <p className="text-xs min-[375px]:text-sm sm:text-base !text-blue-50 leading-relaxed">
+                        Recibirás tus boletos por correo con un PIN de seguridad
+                      </p>
                     </div>
                   </div>
-                )}
+                </div>
                 
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-2 min-[375px]:space-y-2.5 sm:space-y-3 mb-3 min-[375px]:mb-4">
+                  <div className="flex justify-between text-xs min-[375px]:text-sm">
                     <span className="!text-white/70">{t('cart.subtotal')}</span>
                     <span className="!text-white font-medium">
-                      {formatCurrency(items.reduce((sum, item) => sum + item.subtotal, 0), 'MXN')}
+                      {formatCurrency(items.reduce((sum, item) => sum + item.subtotal, 0), 'USD')}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs min-[375px]:text-sm">
                     <span className="!text-white/70">{t('cart.service_fee')}</span>
                     <span className="!text-white font-medium">
-                      {formatCurrency(items.reduce((sum, item) => sum + item.serviceFee, 0), 'MXN')}
+                      {formatCurrency(items.reduce((sum, item) => sum + item.serviceFee, 0), 'USD')}
                     </span>
                   </div>
                   <Separator className="bg-white/20" />
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold !text-white">{t('cart.total')}</span>
-                    <span className="text-lg font-bold !text-[#c61619]">
-                      {formatCurrency(totalPrice, 'MXN')}
+                    <span className="text-base min-[375px]:text-lg font-semibold !text-white">{t('cart.total')}</span>
+                    <span className="text-base min-[375px]:text-lg font-bold !text-[#c61619]">
+                      {formatCurrency(totalPrice, 'USD')}
                     </span>
                   </div>
                 </div>
@@ -373,7 +388,7 @@ export function CartPage() {
                 <Button
                   className="w-full bg-[#c61619] hover:bg-[#a01316] text-white"
                   onClick={handleCheckout}
-                  disabled={loading || items.length === 0 || !user?.address}
+                  disabled={loading || items.length === 0}
                 >
                   {loading ? t('common.loading') : t('cart.checkout')}
                   <ArrowRight className="ml-2 h-4 w-4" />

@@ -107,12 +107,7 @@ export function ValidateTicketPage() {
       // Esto requiere que el usuario esté autenticado con Supabase
       let accessToken: string | undefined;
       try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const { projectId, publicAnonKey, projectUrl } = await import('../utils/supabase/info');
-        const supabaseClient = createClient(
-          projectUrl,
-          publicAnonKey
-        );
+        const { supabase: supabaseClient } = await import('../utils/supabase/client');
         
         const { data: { session } } = await supabaseClient.auth.getSession();
         accessToken = session?.access_token;

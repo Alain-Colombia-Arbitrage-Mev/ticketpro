@@ -15,6 +15,7 @@ import {
   Bitcoin,
   Wallet,
   Gift,
+  Info,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -41,8 +42,11 @@ import {
   getPaymentMethods,
 } from "../utils/tickets/ticketService";
 import { useCartStore } from "../stores/cartStore";
+import { useCheckoutStore } from "../stores/checkoutStore";
 import { CryptoPaymentModal } from "../components/payment";
+import { AddressForm } from "../components/checkout";
 import { toast } from "sonner";
+import { stripeService } from "../services/stripe";
 
 type PaymentMethod = "card" | "ach" | "crypto" | "free";
 
@@ -51,6 +55,7 @@ export function CheckoutPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { clearCart } = useCartStore();
+  const { checkoutInfo } = useCheckoutStore();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -60,6 +65,7 @@ export function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
   const [showCryptoModal, setShowCryptoModal] = useState(false);
   const [cryptoOrderId, setCryptoOrderId] = useState<string>("");
+  const [isAddressValid, setIsAddressValid] = useState(false);
 
   // Verificar si hay items del carrito
   const cartItems = (pageData as any)?.cartItems || null;
@@ -96,12 +102,41 @@ export function CheckoutPage() {
     cryptoType: "bitcoin",
   });
 
+  // Inicializar información de contacto con datos del usuario autenticado
+  useEffect(() => {
+    if (user) {
+      const { setCheckoutInfo } = useCheckoutStore.getState();
+      
+      // Solo actualizar si los campos están vacíos
+      if (!checkoutInfo.fullName && user.name) {
+        setCheckoutInfo({ fullName: user.name });
+      }
+      if (!checkoutInfo.email && user.email) {
+        setCheckoutInfo({ email: user.email });
+      }
+      if (!checkoutInfo.address && user.address) {
+        setCheckoutInfo({ address: user.address });
+      }
+    }
+  }, [user]);
+
   // Actualizar dirección cuando el usuario cambie
   useEffect(() => {
     if (user?.address) {
       setFormData((prev) => ({ ...prev, address: user.address || "" }));
     }
   }, [user?.address]);
+
+  // Validar dirección inicial cuando checkoutInfo cambie
+  useEffect(() => {
+    const isValid = !!checkoutInfo.address && checkoutInfo.address.trim().length > 5;
+    setIsAddressValid(isValid);
+    console.log('✅ Validación de dirección:', { 
+      hasAddress: !!checkoutInfo.address, 
+      length: checkoutInfo.address?.length || 0, 
+      isValid 
+    });
+  }, [checkoutInfo.address]);
 
   if (!pageData) {
     navigate("home");
@@ -157,38 +192,39 @@ export function CheckoutPage() {
   };
 
   const validateForm = (): boolean => {
+    // Validar información de contacto
     if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.address
+      !checkoutInfo.fullName ||
+      !checkoutInfo.email ||
+      !checkoutInfo.phone
     ) {
-      alert(
-        "Por favor completa todos los campos de contacto, incluyendo la dirección",
-      );
+      toast.error("Por favor completa tu información de contacto");
       return false;
     }
 
-    // Método gratuito no requiere validación de pago
+    // ✅ Dirección solo es necesaria para pagos con tarjeta (Stripe)
+    // Los boletos son digitales y se envían por correo
+    if (paymentMethod === "card") {
+    if (!isAddressValid || !checkoutInfo.address) {
+        toast.error("Por favor completa tu dirección para pagos con tarjeta");
+      return false;
+      }
+    }
+
+    // ✅ Crypto (Cryptomus): NO requiere dirección ni wallet
+    // Cryptomus maneja la selección de moneda y wallet en su propia interfaz
+    if (paymentMethod === "crypto") {
+      return true;
+    }
+
+    // ✅ Método gratuito: solo requiere información de contacto
     if (paymentMethod === "free") {
       return true;
     }
 
-    if (paymentMethod === "card") {
-      if (!formData.cardNumber || !formData.cardExpiry || !formData.cardCVV) {
-        alert("Por favor completa todos los datos de la tarjeta");
-        return false;
-      }
-    } else if (paymentMethod === "ach") {
-      if (!formData.routingNumber || !formData.accountNumber) {
-        alert("Por favor completa todos los datos bancarios");
-        return false;
-      }
-    } else if (paymentMethod === "crypto") {
-      if (!formData.walletAddress) {
-        alert("Por favor ingresa tu dirección de wallet");
-        return false;
-      }
+    // ✅ Método ACH: no requiere dirección (boletos digitales por correo)
+    if (paymentMethod === "ach") {
+      return true;
     }
 
     return true;
@@ -198,6 +234,99 @@ export function CheckoutPage() {
     e.preventDefault();
 
     if (!validateForm()) {
+      return;
+    }
+
+    // Si es pago con tarjeta, usar Stripe
+    if (paymentMethod === "card") {
+      setLoading(true);
+      try {
+        // Verificar que Stripe esté configurado
+        if (!stripeService.isConfigured()) {
+          toast.error("Stripe no está configurado correctamente");
+          setLoading(false);
+          return;
+        }
+
+        // Preparar items para Stripe
+        const items =
+          cartItems && Array.isArray(cartItems) && cartItems.length > 0
+            ? cartItems.map((ci) => ({
+                eventId: ci.eventId,
+                eventName: ci.eventName,
+                eventDate: ci.eventDate || new Date().toISOString().split("T")[0],
+                eventTime: ci.eventTime,
+                eventLocation: ci.eventLocation,
+                eventCategory: ci.eventCategory,
+                ticketType: ci.ticketType || "General",
+                seatType: ci.seatType || "general",
+                price: ci.ticketPrice,
+                quantity: ci.quantity,
+                buyerEmail: checkoutInfo.email || '',
+                buyerFullName: checkoutInfo.fullName || '',
+                buyerAddress: [
+                  checkoutInfo.address,
+                  checkoutInfo.city,
+                  checkoutInfo.state,
+                  checkoutInfo.zipCode,
+                  checkoutInfo.country
+                ].filter(Boolean).join(', '),
+              }))
+            : [
+                {
+                  eventId: pageData.id || 1,
+                  eventName: pageData.title || "Evento",
+                  eventDate: pageData.date || new Date().toISOString().split("T")[0],
+                  eventTime: pageData.time,
+                  eventLocation: pageData.location,
+                  eventCategory: pageData.category || pageData.eventCategory || undefined,
+                  ticketType: pageData.ticketType || "General",
+                  seatType: pageData.seatType || "general",
+                  price: total,
+                  quantity: quantity,
+                  buyerEmail: checkoutInfo.email || '',
+                  buyerFullName: checkoutInfo.fullName || '',
+                  buyerAddress: [
+                    checkoutInfo.address,
+                    checkoutInfo.city,
+                    checkoutInfo.state,
+                    checkoutInfo.zipCode,
+                    checkoutInfo.country
+                  ].filter(Boolean).join(', '),
+                },
+              ];
+
+        console.log('💳 Iniciando pago con Stripe:', { items, total });
+
+        // Crear sesión de checkout de Stripe
+        const frontendUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
+        const session = await stripeService.createCheckoutSession({
+          items,
+          buyerEmail: checkoutInfo.email || '',
+          buyerFullName: checkoutInfo.fullName || '',
+          buyerAddress: [
+            checkoutInfo.address,
+            checkoutInfo.city,
+            checkoutInfo.state,
+            checkoutInfo.zipCode,
+            checkoutInfo.country
+          ].filter(Boolean).join(', '),
+          successUrl: `${frontendUrl}/#/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${frontendUrl}/#/checkout?canceled=true`,
+        });
+
+        if (session.url) {
+          console.log('✅ Redirigiendo a Stripe Checkout');
+          // Redirigir a Stripe Checkout
+          window.location.href = session.url;
+        } else {
+          throw new Error('No se recibió URL de Stripe');
+        }
+      } catch (error: any) {
+        console.error('❌ Error al procesar pago con Stripe:', error);
+        toast.error(error.message || 'Error al procesar el pago con Stripe');
+        setLoading(false);
+      }
       return;
     }
 
@@ -236,9 +365,15 @@ export function CheckoutPage() {
                 seatType: pageData.seatType || "general",
                 price: total,
                 quantity: quantity,
-                buyerEmail: formData.email,
-                buyerFullName: formData.fullName,
-                buyerAddress: formData.address,
+                buyerEmail: checkoutInfo.email || '',
+                buyerFullName: checkoutInfo.fullName || '',
+                buyerAddress: [
+                  checkoutInfo.address,
+                  checkoutInfo.city,
+                  checkoutInfo.state,
+                  checkoutInfo.zipCode,
+                  checkoutInfo.country
+                ].filter(Boolean).join(', '),
               },
             ];
 
@@ -253,8 +388,15 @@ export function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Método ACH: mostrar confirmación y procesar
+      if (paymentMethod === "ach") {
+        toast.success("Instrucciones de pago ACH enviadas por email");
+        // Aquí podrías enviar un email con las instrucciones de pago
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+
       // Método gratuito: procesar inmediatamente sin simular pago
-      if (paymentMethod !== "free") {
+      if (paymentMethod !== "free" && paymentMethod !== "ach") {
         // Simular procesamiento de pago para otros métodos
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
@@ -436,29 +578,35 @@ export function CheckoutPage() {
 
   const paymentMethodOptions = [
     {
-      id: "free" as PaymentMethod,
-      name: "Gratis (Prueba)",
-      icon: <Gift className="h-5 w-5" />,
-      description: "Método de prueba sin costo",
-    },
-    {
       id: "card" as PaymentMethod,
       name: "Tarjeta de Crédito/Débito",
       icon: <CreditCard className="h-5 w-5" />,
       description: "Visa, Mastercard, American Express",
     },
+    // ⚠️ ACH DESHABILITADO TEMPORALMENTE
+    // Requiere confirmación manual (1-3 días)
+    // Necesita panel administrativo para aprobar transacciones pendientes
+    // Descomentar cuando esté implementado el panel admin
+    /*
     {
       id: "ach" as PaymentMethod,
       name: "Transferencia ACH",
       icon: <Building2 className="h-5 w-5" />,
       description: "Transferencia bancaria en EE.UU.",
     },
+    */
+    // ⚠️ CRYPTOMUS DESHABILITADO TEMPORALMENTE
+    // Esperando activación de API después de pasar moderación
+    // Meta tag agregada: <meta name="cryptomus" content="96ff3fc4" />
+    // Descomentar cuando la API esté activa
+    /*
     {
       id: "crypto" as PaymentMethod,
       name: "Criptomonedas",
       icon: <Bitcoin className="h-5 w-5" />,
       description: "Bitcoin, Ethereum, USDT",
     },
+    */
   ];
 
   return (
@@ -484,116 +632,114 @@ export function CheckoutPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-2 min-[375px]:px-3 sm:px-4 py-3 min-[375px]:py-4 sm:py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
-          <h1 className="mb-8 text-3xl font-bold !text-white">Checkout</h1>
+          <h1 className="mb-3 min-[375px]:mb-4 sm:mb-8 text-xl min-[375px]:text-2xl sm:text-3xl font-bold !text-white">Checkout</h1>
 
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-3 min-[375px]:gap-4 sm:gap-8 lg:grid-cols-3">
             {/* Formulario de Pago */}
             <div className="lg:col-span-2">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-3 min-[375px]:space-y-4 sm:space-y-6">
                 {/* Información de Contacto */}
-                <Card className="p-6 !bg-white/5 border-white/20">
-                  <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
+                <Card className="p-4 min-[375px]:p-5 sm:p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-4 flex items-center gap-2 text-lg sm:text-xl font-bold !text-white">
                     <User className="h-5 w-5" />
                     Información de Contacto
                   </h2>
-
+                  
                   <div className="space-y-4">
+                    {/* Nombre Completo */}
                     <div>
-                      <Label htmlFor="fullName" className="!text-white/80">
+                      <Label htmlFor="fullName" className="!text-white/80 mb-2 block">
                         Nombre Completo *
                       </Label>
-                      <Input
-                        id="fullName"
-                        type="text"
-                        value={formData.fullName}
-                        onChange={(e) =>
-                          handleInputChange("fullName", e.target.value)
-                        }
-                        className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
-                        placeholder="Juan Pérez"
-                        required
-                      />
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
+                        <Input
+                          id="fullName"
+                          type="text"
+                          value={checkoutInfo.fullName}
+                          onChange={(e) => useCheckoutStore.getState().setCheckoutInfo({ fullName: e.target.value })}
+                          className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                          placeholder="Juan Pérez"
+                          required
+                        />
+                      </div>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div>
-                        <Label htmlFor="email" className="!text-white/80">
-                          Email *
-                        </Label>
+                    {/* Email */}
+                    <div>
+                      <Label htmlFor="email" className="!text-white/80 mb-2 block">
+                        Correo Electrónico *
+                      </Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                         <Input
                           id="email"
                           type="email"
-                          value={formData.email}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
-                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
-                          placeholder="juan@example.com"
+                          value={checkoutInfo.email}
+                          onChange={(e) => useCheckoutStore.getState().setCheckoutInfo({ email: e.target.value })}
+                          className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                          placeholder="juan@ejemplo.com"
                           required
                         />
                       </div>
+                      <p className="text-xs !text-white/50 mt-1">
+                        Tus boletos se enviarán a este correo
+                      </p>
+                    </div>
 
-                      <div>
-                        <Label htmlFor="phone" className="!text-white/80">
-                          Teléfono *
-                        </Label>
+                    {/* Teléfono */}
+                    <div>
+                      <Label htmlFor="phone" className="!text-white/80 mb-2 block">
+                        Teléfono *
+                      </Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
                         <Input
                           id="phone"
                           type="tel"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            handleInputChange("phone", e.target.value)
-                          }
-                          className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
-                          placeholder="+1 (555) 123-4567"
+                          value={checkoutInfo.phone}
+                          onChange={(e) => useCheckoutStore.getState().setCheckoutInfo({ phone: e.target.value })}
+                          className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
+                          placeholder="+57 300 1234567"
                           required
                         />
                       </div>
                     </div>
-
-                    <div>
-                      <Label
-                        htmlFor="address"
-                        className="!text-white/80 flex items-center gap-2"
-                      >
-                        <MapPin className="h-4 w-4" />
-                        Dirección *
-                      </Label>
-                      <Input
-                        id="address"
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) =>
-                          handleInputChange("address", e.target.value)
-                        }
-                        className="mt-1 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40"
-                        placeholder="Calle, número, ciudad, estado, código postal"
-                        required
-                      />
-                      {user?.address && (
-                        <p className="mt-1 text-xs !text-white/60">
-                          Usando tu dirección guardada. Puedes editarla si es
-                          necesario.
-                        </p>
-                      )}
+                  </div>
+                </Card>
+                
+                {/* Información sobre entrega digital */}
+                <Card className="p-4 min-[375px]:p-5 sm:p-6 !bg-blue-500/20 border-2 border-blue-400/50">
+                  <div className="flex items-start gap-3">
+                    <Ticket className="h-6 w-6 min-[375px]:h-7 min-[375px]:w-7 sm:h-8 sm:w-8 !text-blue-300 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="text-base min-[375px]:text-lg sm:text-xl font-bold !text-blue-100 mb-2">
+                        📧 Boletos Digitales
+                      </h3>
+                      <p className="text-sm min-[375px]:text-base sm:text-lg !text-blue-50 leading-relaxed mb-2">
+                        Tus boletos llegarán <span className="font-bold">instantáneamente</span> a tu correo con un PIN de seguridad.
+                      </p>
+                      <p className="text-xs min-[375px]:text-sm !text-blue-200 leading-relaxed">
+                        💡 <span className="font-semibold">Nota:</span> Solo necesitas agregar una dirección si pagas con tarjeta de crédito (requerido por Stripe).
+                      </p>
                     </div>
                   </div>
                 </Card>
 
                 {/* Método de Pago */}
-                <Card className="p-6 !bg-white/5 border-white/20">
-                  <h2 className="mb-6 flex items-center gap-2 text-xl font-bold !text-white">
-                    <Wallet className="h-5 w-5" />
-                    Selecciona tu Método de Pago
+                <Card className="p-2.5 min-[375px]:p-3 sm:p-4 md:p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-3 min-[375px]:mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 text-base min-[375px]:text-lg sm:text-xl font-bold !text-white">
+                    <Wallet className="h-3.5 w-3.5 min-[375px]:h-4 min-[375px]:w-4 sm:h-5 sm:w-5" />
+                    <span className="leading-tight">Método de Pago</span>
                   </h2>
 
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="grid gap-2 min-[375px]:gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3">
                     {paymentMethodOptions.map((method) => (
                       <div
                         key={method.id}
-                        className={`relative flex flex-col items-center justify-center rounded-xl border-2 p-6 cursor-pointer transition-all hover:scale-105 ${
+                        className={`relative flex flex-col items-center justify-center rounded-lg sm:rounded-xl border-2 p-2 min-[375px]:p-2.5 sm:p-3 md:p-6 cursor-pointer transition-all hover:scale-105 ${
                           paymentMethod === method.id
                             ? "border-[#c61619] !bg-[#c61619]/20 shadow-lg shadow-[#c61619]/20"
                             : "border-white/20 !bg-white/5 hover:border-white/40 hover:!bg-white/10"
@@ -604,29 +750,29 @@ export function CheckoutPage() {
                         }}
                       >
                         {paymentMethod === method.id && (
-                          <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#c61619]">
-                            <CheckCircle2 className="h-4 w-4 text-white" />
+                          <div className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 flex h-4 w-4 min-[375px]:h-5 min-[375px]:w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-[#c61619]">
+                            <CheckCircle2 className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4 text-white" />
                           </div>
                         )}
 
                         <div
-                          className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full transition-all ${
+                          className={`mb-1.5 min-[375px]:mb-2 sm:mb-3 flex h-8 w-8 min-[375px]:h-10 min-[375px]:w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full transition-all ${
                             paymentMethod === method.id
                               ? "bg-[#c61619] text-white"
                               : "bg-white/10 text-white/70"
                           }`}
                         >
-                          <div className="scale-150">{method.icon}</div>
+                          <div className="scale-75 min-[375px]:scale-100 sm:scale-150">{method.icon}</div>
                         </div>
 
                         <Label
                           htmlFor={method.id}
-                          className="text-center !text-white font-bold cursor-pointer mb-2"
+                          className="text-center !text-white font-bold cursor-pointer mb-0 min-[375px]:mb-1 sm:mb-2 text-[10px] min-[375px]:text-xs sm:text-sm leading-tight px-0.5"
                         >
                           {method.name}
                         </Label>
 
-                        <p className="text-xs text-center !text-white/60">
+                        <p className="hidden sm:block text-xs text-center !text-white/60">
                           {method.description}
                         </p>
                       </div>
@@ -635,244 +781,135 @@ export function CheckoutPage() {
                 </Card>
 
                 {/* Formulario según método de pago */}
-                <Card className="p-6 !bg-white/5 border-white/20">
-                  <h2 className="mb-4 flex items-center gap-2 text-xl font-bold !text-white">
-                    <Lock className="h-5 w-5" />
-                    Información de Pago
+                <Card className="p-2.5 min-[375px]:p-3 sm:p-4 md:p-6 !bg-white/5 border-white/20">
+                  <h2 className="mb-3 min-[375px]:mb-4 flex items-center gap-1.5 sm:gap-2 text-base min-[375px]:text-lg sm:text-xl font-bold !text-white">
+                    <Lock className="h-4 w-4 min-[375px]:h-5 min-[375px]:w-5" />
+                    <span className="leading-tight">Información de Pago</span>
                   </h2>
 
-                  {/* Tarjeta de Crédito/Débito */}
+                  {/* Tarjeta de Crédito/Débito - Redirige a Stripe Checkout */}
                   {paymentMethod === "card" && (
                     <div
                       key="card-form"
-                      className="space-y-4 animate-fade-in-up"
+                      className="space-y-2.5 min-[375px]:space-y-3 sm:space-y-4 animate-fade-in-up"
                     >
-                      {/* Logos de tarjetas aceptadas */}
-                      <div className="flex items-center justify-center gap-4 p-4 rounded-lg !bg-white/5 border border-white/10">
-                        <div className="text-xs !text-white/60">Aceptamos:</div>
-                        <div className="flex gap-3">
-                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">
-                              VISA
-                            </span>
+                      {/* Formulario de Dirección - Solo para pagos con tarjeta */}
+                      <div className="mb-4">
+                        <AddressForm onAddressValid={setIsAddressValid} />
                           </div>
-                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">
-                              MC
-                            </span>
+
+                      {/* Info sobre Stripe Checkout */}
+                      <div className="rounded-lg !bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-2 border-blue-400/30 p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20 border border-blue-400/40">
+                            <Lock className="h-5 w-5 !text-blue-300" />
                           </div>
-                          <div className="h-8 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
-                            <span className="text-xs font-bold !text-white">
-                              AMEX
-                            </span>
-                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-semibold !text-white mb-1">
+                              🔐 Pago Seguro con Stripe
+                            </h4>
+                            <p className="text-xs !text-white/80 leading-relaxed">
+                              Al hacer clic en "Proceder al Pago", serás redirigido a la plataforma segura de Stripe para completar tu pago. Tus datos de tarjeta nunca pasan por nuestros servidores.
+                            </p>
                         </div>
                       </div>
 
-                      <div>
-                        <Label
-                          htmlFor="cardNumber"
-                          className="!text-white/80 mb-2 block"
-                        >
-                          Número de Tarjeta *
-                        </Label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
-                          <Input
-                            id="cardNumber"
-                            type="text"
-                            value={formData.cardNumber}
-                            onChange={(e) =>
-                              handleCardNumberChange(e.target.value)
-                            }
-                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                            required
-                          />
+                        {/* Logos de tarjetas aceptadas */}
+                        <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-white/10">
+                          <span className="text-xs !text-white/60">Aceptamos:</span>
+                          <div className="flex gap-2">
+                            <div className="h-7 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                              <span className="text-xs font-bold !text-white">VISA</span>
                         </div>
+                            <div className="h-7 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                              <span className="text-xs font-bold !text-white">MC</span>
                       </div>
-
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                          <Label
-                            htmlFor="cardExpiry"
-                            className="!text-white/80 mb-2 block"
-                          >
-                            Vencimiento *
-                          </Label>
-                          <div className="relative">
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
-                            <Input
-                              id="cardExpiry"
-                              type="text"
-                              value={formData.cardExpiry}
-                              onChange={(e) =>
-                                handleExpiryChange(e.target.value)
-                              }
-                              className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12"
-                              placeholder="MM/YY"
-                              maxLength={5}
-                              required
-                            />
+                            <div className="h-7 px-3 flex items-center justify-center rounded bg-white/10 border border-white/20">
+                              <span className="text-xs font-bold !text-white">AMEX</span>
                           </div>
-                        </div>
-
-                        <div>
-                          <Label
-                            htmlFor="cardCVV"
-                            className="!text-white/80 mb-2 block"
-                          >
-                            CVV *
-                          </Label>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 !text-white/40 z-10" />
-                            <Input
-                              id="cardCVV"
-                              type="password"
-                              inputMode="numeric"
-                              autoComplete="new-password"
-                              value={formData.cardCVV}
-                              onChange={(e) => handleCVVChange(e.target.value)}
-                              onCopy={(e) => e.preventDefault()}
-                              onPaste={(e) => e.preventDefault()}
-                              onCut={(e) => e.preventDefault()}
-                              onContextMenu={(e) => e.preventDefault()}
-                              className="pl-10 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono tracking-widest"
-                              placeholder="•••"
-                              maxLength={4}
-                              required
-                            />
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* ACH Transfer */}
+                  {/* ACH Transfer - Optimizado 320px */}
                   {paymentMethod === "ach" && (
                     <div
                       key="ach-form"
-                      className="space-y-4 animate-fade-in-up"
+                      className="space-y-2.5 min-[375px]:space-y-3 sm:space-y-4 animate-fade-in-up"
                     >
                       {/* Info banner */}
-                      <div className="flex items-start gap-3 rounded-lg !bg-blue-500/10 p-4 border border-blue-500/20">
-                        <Building2 className="h-5 w-5 !text-blue-300 mt-0.5 flex-shrink-0" />
+                      <div className="flex items-start gap-2 min-[375px]:gap-2.5 sm:gap-3 rounded-lg !bg-blue-500/10 p-2.5 min-[375px]:p-3 sm:p-4 border border-blue-500/20">
+                        <Building2 className="h-4 w-4 min-[375px]:h-5 min-[375px]:w-5 !text-blue-300 mt-0.5 flex-shrink-0" />
                         <div>
-                          <p className="text-sm !text-blue-300 font-semibold mb-1">
-                            Transferencia Bancaria en EE.UU.
+                          <p className="text-xs min-[375px]:text-sm !text-blue-300 font-semibold mb-0.5 min-[375px]:mb-1 leading-tight">
+                            Transferencia ACH
                           </p>
-                          <p className="text-xs !text-blue-200/80">
-                            Las transferencias ACH tardan 1-3 días hábiles.
-                            Recibirás tus tickets por email una vez confirmado
-                            el pago.
+                          <p className="text-[10px] min-[375px]:text-xs !text-blue-200/80 leading-tight">
+                            Tardan 1-3 días. Recibirás tickets por email.
                           </p>
                         </div>
                       </div>
 
-                      <div>
-                        <Label
-                          htmlFor="routingNumber"
-                          className="!text-white/80 mb-2 block"
-                        >
-                          Routing Number (9 dígitos) *
-                        </Label>
-                        <div className="relative">
-                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
-                          <Input
-                            id="routingNumber"
-                            type="text"
-                            value={formData.routingNumber}
-                            onChange={(e) =>
-                              handleRoutingNumberChange(e.target.value)
-                            }
-                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
-                            placeholder="123456789"
-                            maxLength={9}
-                            required
-                          />
+                      {/* Información bancaria para recibir el pago */}
+                      <div className="rounded-lg !bg-white/5 border border-white/20 p-2.5 min-[375px]:p-3 sm:p-4 space-y-2 min-[375px]:space-y-2.5 sm:space-y-3">
+                        <h4 className="text-xs min-[375px]:text-sm font-semibold !text-white flex items-center gap-1.5 sm:gap-2">
+                          <Building2 className="h-3.5 w-3.5 min-[375px]:h-4 min-[375px]:w-4 !text-[#c61619]" />
+                          <span className="leading-tight">Cuenta Destino</span>
+                        </h4>
+                        <div className="space-y-1.5 min-[375px]:space-y-2 text-xs min-[375px]:text-sm">
+                          <div className="flex justify-between py-1.5 min-[375px]:py-2 border-b border-white/10 gap-2">
+                            <span className="!text-white/60 text-[11px] min-[375px]:text-xs sm:text-sm">Cuenta:</span>
+                            <span className="!text-white font-mono font-semibold text-right text-[11px] min-[375px]:text-xs sm:text-sm">Trackwise LLC</span>
                         </div>
-                        <p className="text-xs !text-white/50 mt-1">
-                          Número de ruta de 9 dígitos de tu banco
-                        </p>
+                          <div className="flex justify-between py-1.5 min-[375px]:py-2 border-b border-white/10 gap-2">
+                            <span className="!text-white/60 text-[11px] min-[375px]:text-xs sm:text-sm">Banco:</span>
+                            <span className="!text-white font-mono font-semibold text-right text-[11px] min-[375px]:text-xs sm:text-sm">Lead Bank</span>
                       </div>
-
-                      <div>
-                        <Label
-                          htmlFor="accountNumber"
-                          className="!text-white/80 mb-2 block"
-                        >
-                          Account Number *
-                        </Label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
-                          <Input
-                            id="accountNumber"
-                            type="text"
-                            value={formData.accountNumber}
-                            onChange={(e) =>
-                              handleAccountNumberChange(e.target.value)
-                            }
-                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono"
-                            placeholder="12345678901234"
-                            maxLength={17}
-                            required
-                          />
+                          <div className="flex justify-between py-1.5 min-[375px]:py-2 border-b border-white/10 gap-2">
+                            <span className="!text-white/60 text-[11px] min-[375px]:text-xs sm:text-sm">Routing:</span>
+                            <span className="!text-white font-mono font-semibold text-right text-[11px] min-[375px]:text-xs sm:text-sm">101019644</span>
                         </div>
-                        <p className="text-xs !text-white/50 mt-1">
-                          Número de cuenta bancaria (hasta 17 dígitos)
-                        </p>
+                          <div className="flex justify-between py-1.5 min-[375px]:py-2 gap-2">
+                            <span className="!text-white/60 text-[11px] min-[375px]:text-xs sm:text-sm">Account:</span>
+                            <span className="!text-white font-mono font-semibold text-right text-[11px] min-[375px]:text-xs sm:text-sm break-all">211494968626</span>
                       </div>
-
-                      <div>
-                        <Label className="!text-white/80 mb-3 block">
-                          Tipo de Cuenta *
-                        </Label>
-                        <RadioGroup
-                          value={formData.accountType}
-                          onValueChange={(value) =>
-                            handleInputChange("accountType", value)
-                          }
-                        >
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            <div
-                              className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                                formData.accountType === "checking"
-                                  ? "border-[#c61619] !bg-[#c61619]/10"
-                                  : "border-white/20 !bg-white/5 hover:border-white/40"
-                              }`}
-                              onClick={() =>
-                                handleInputChange("accountType", "checking")
-                              }
-                            >
-                              <RadioGroupItem value="checking" id="checking" />
-                              <Label
-                                htmlFor="checking"
-                                className="!text-white cursor-pointer font-medium flex-1"
-                              >
-                                Checking Account
-                              </Label>
                             </div>
-                            <div
-                              className={`flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                                formData.accountType === "savings"
-                                  ? "border-[#c61619] !bg-[#c61619]/10"
-                                  : "border-white/20 !bg-white/5 hover:border-white/40"
-                              }`}
-                              onClick={() =>
-                                handleInputChange("accountType", "savings")
-                              }
-                            >
-                              <RadioGroupItem value="savings" id="savings" />
-                              <Label
-                                htmlFor="savings"
-                                className="!text-white cursor-pointer font-medium flex-1"
-                              >
-                                Savings Account
-                              </Label>
+                        <div className="flex items-start gap-1.5 sm:gap-2 mt-2 min-[375px]:mt-2.5 sm:mt-3 p-2 min-[375px]:p-2.5 sm:p-3 rounded-lg !bg-yellow-500/10 border border-yellow-500/20">
+                          <Shield className="h-3.5 w-3.5 min-[375px]:h-4 min-[375px]:w-4 !text-yellow-300 mt-0.5 flex-shrink-0" />
+                          <p className="text-[10px] min-[375px]:text-xs !text-yellow-200/90 leading-tight">
+                            <strong>Importante:</strong> Transfiere a esta cuenta. Recibirás tickets por email.
+                          </p>
                             </div>
                           </div>
-                        </RadioGroup>
+
+                      {/* Instrucciones de pago */}
+                      <div className="rounded-lg !bg-white/5 border border-white/20 p-2.5 min-[375px]:p-3 sm:p-4 space-y-2 min-[375px]:space-y-2.5 sm:space-y-3">
+                        <h4 className="text-xs min-[375px]:text-sm font-semibold !text-white flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 min-[375px]:h-4 min-[375px]:w-4 !text-green-400" />
+                          <span className="leading-tight">Instrucciones</span>
+                        </h4>
+                        <ol className="space-y-1.5 min-[375px]:space-y-2 text-[11px] min-[375px]:text-xs sm:text-sm !text-white/80 list-decimal list-inside leading-tight pl-1">
+                          <li className="leading-relaxed">Transfiere ACH desde tu banco a la cuenta arriba</li>
+                          <li className="leading-relaxed">Referencia: <span className="font-mono !text-[#c61619] text-[10px] min-[375px]:text-[11px] sm:text-xs break-all">{checkoutInfo.email}</span></li>
+                          <li className="leading-relaxed">Monto: <span className="font-semibold !text-white">${total.toLocaleString()} USD</span></li>
+                          <li className="leading-relaxed">Recibirás tickets por email (1-3 días)</li>
+                        </ol>
+                      </div>
+
+                      {/* Confirmación del cliente */}
+                      <div className="flex items-start gap-2 min-[375px]:gap-2.5 sm:gap-3 p-2.5 min-[375px]:p-3 sm:p-4 rounded-lg !bg-white/5 border border-white/20">
+                        <input
+                          type="checkbox"
+                          id="ach-confirmation"
+                          className="mt-0.5 h-4 w-4 rounded border-white/20 bg-white/10 text-[#c61619] focus:ring-[#c61619] focus:ring-offset-0 flex-shrink-0"
+                          required
+                        />
+                        <label htmlFor="ach-confirmation" className="text-[11px] min-[375px]:text-xs sm:text-sm !text-white/90 leading-tight">
+                          Confirmo que realizaré la transferencia ACH y entiendo que 
+                          los tickets serán enviados una vez confirmado (1-3 días).
+                        </label>
                       </div>
                     </div>
                   )}
@@ -908,184 +945,75 @@ export function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* Crypto */}
+                  {/* Crypto - Cryptomus maneja todo */}
                   {paymentMethod === "crypto" && (
                     <div
                       key="crypto-form"
-                      className="space-y-4 animate-fade-in-up"
+                      className="space-y-5 animate-fade-in-up"
                     >
-                      <div>
-                        <Label className="!text-white/80 mb-3 block">
-                          Selecciona tu Criptomoneda *
-                        </Label>
-                        <RadioGroup
-                          value={formData.cryptoType}
-                          onValueChange={(value) =>
-                            handleInputChange("cryptoType", value)
-                          }
-                        >
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            <div
-                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
-                                formData.cryptoType === "bitcoin"
-                                  ? "border-[#c61619] !bg-[#c61619]/10"
-                                  : "border-white/20 !bg-white/5 hover:border-white/40"
-                              }`}
-                              onClick={() =>
-                                handleInputChange("cryptoType", "bitcoin")
-                              }
-                            >
-                              <RadioGroupItem
-                                value="bitcoin"
-                                id="bitcoin"
-                                className="sr-only"
-                              />
-                              <Bitcoin className="h-10 w-10 !text-orange-400 mb-2" />
-                              <Label
-                                htmlFor="bitcoin"
-                                className="!text-white cursor-pointer font-bold"
-                              >
-                                Bitcoin
-                              </Label>
-                              <span className="text-xs !text-white/60">
-                                BTC
-                              </span>
+                      <div className="rounded-lg !bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-6 border-2 border-purple-500/30 backdrop-blur">
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <Bitcoin className="h-7 w-7 text-white" />
                             </div>
-                            <div
-                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
-                                formData.cryptoType === "ethereum"
-                                  ? "border-[#c61619] !bg-[#c61619]/10"
-                                  : "border-white/20 !bg-white/5 hover:border-white/40"
-                              }`}
-                              onClick={() =>
-                                handleInputChange("cryptoType", "ethereum")
-                              }
-                            >
-                              <RadioGroupItem
-                                value="ethereum"
-                                id="ethereum"
-                                className="sr-only"
-                              />
-                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center mb-2">
-                                <span className="text-white font-bold text-xs">
-                                  ETH
-                                </span>
-                              </div>
-                              <Label
-                                htmlFor="ethereum"
-                                className="!text-white cursor-pointer font-bold"
-                              >
-                                Ethereum
-                              </Label>
-                              <span className="text-xs !text-white/60">
-                                ETH
-                              </span>
-                            </div>
-                            <div
-                              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all hover:scale-105 ${
-                                formData.cryptoType === "usdt"
-                                  ? "border-[#c61619] !bg-[#c61619]/10"
-                                  : "border-white/20 !bg-white/5 hover:border-white/40"
-                              }`}
-                              onClick={() =>
-                                handleInputChange("cryptoType", "usdt")
-                              }
-                            >
-                              <RadioGroupItem
-                                value="usdt"
-                                id="usdt"
-                                className="sr-only"
-                              />
-                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center mb-2">
-                                <span className="text-white font-bold text-xs">
-                                  ₮
-                                </span>
-                              </div>
-                              <Label
-                                htmlFor="usdt"
-                                className="!text-white cursor-pointer font-bold"
-                              >
-                                Tether
-                              </Label>
-                              <span className="text-xs !text-white/60">
-                                USDT
-                              </span>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </div>
-
-                      <div>
-                        <Label
-                          htmlFor="walletAddress"
-                          className="!text-white/80 mb-2 block"
-                        >
-                          Tu Dirección de Wallet *
-                        </Label>
-                        <div className="relative">
-                          <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 !text-white/40" />
-                          <Input
-                            id="walletAddress"
-                            type="text"
-                            value={formData.walletAddress}
-                            onChange={(e) =>
-                              handleInputChange("walletAddress", e.target.value)
-                            }
-                            className="pl-11 !bg-white/10 border-white/20 !text-white placeholder:!text-white/40 h-12 font-mono text-sm"
-                            placeholder="0x1234...5678 o bc1q..."
-                            required
-                          />
-                        </div>
-                        <p className="text-xs !text-white/50 mt-1">
-                          Esta será la dirección desde la cual realizarás el
-                          pago
-                        </p>
-                      </div>
-
-                      <div className="rounded-lg !bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-5 border border-purple-500/30 backdrop-blur">
-                        <div className="flex items-start gap-3 mb-3">
-                          <Bitcoin className="h-5 w-5 !text-purple-300 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm !text-purple-300 font-semibold mb-1">
-                              Dirección para enviar el pago
+                          <div className="flex-1">
+                            <h4 className="text-xl font-bold !text-purple-100 mb-2">
+                              💎 Pago con Criptomonedas
+                            </h4>
+                            <p className="text-sm !text-purple-200/90 leading-relaxed">
+                              Al hacer clic en <strong>"Pagar con Crypto"</strong>, serás redirigido a <strong className="!text-purple-100">Cryptomus</strong>, donde podrás seleccionar tu criptomoneda y red preferida de forma segura.
                             </p>
-                            <p className="text-xs !text-purple-200/70">
-                              Envía exactamente ${total} USD equivalente en{" "}
-                              {formData.cryptoType.toUpperCase()}
+                              </div>
+                            </div>
+
+                        <div className="space-y-3 mb-5">
+                          <div className="flex items-center gap-3 text-sm !text-purple-200/90">
+                            <div className="h-6 w-6 rounded-full bg-purple-400/20 flex items-center justify-center flex-shrink-0">
+                              <CheckCircle2 className="h-4 w-4 !text-purple-300" />
+                              </div>
+                            <span><strong>Múltiples monedas:</strong> BTC, ETH, USDT, BNB, TRX y más</span>
+                            </div>
+                          <div className="flex items-center gap-3 text-sm !text-purple-200/90">
+                            <div className="h-6 w-6 rounded-full bg-purple-400/20 flex items-center justify-center flex-shrink-0">
+                              <CheckCircle2 className="h-4 w-4 !text-purple-300" />
+                          </div>
+                            <span><strong>Redes flexibles:</strong> Elige entre Ethereum, BSC, Tron, Polygon y más</span>
+                      </div>
+                          <div className="flex items-center gap-3 text-sm !text-purple-200/90">
+                            <div className="h-6 w-6 rounded-full bg-purple-400/20 flex items-center justify-center flex-shrink-0">
+                              <CheckCircle2 className="h-4 w-4 !text-purple-300" />
+                        </div>
+                            <span><strong>Confirmación automática</strong> al recibir la transacción</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm !text-purple-200/90">
+                            <div className="h-6 w-6 rounded-full bg-purple-400/20 flex items-center justify-center flex-shrink-0">
+                              <Ticket className="h-4 w-4 !text-purple-300" />
+                            </div>
+                            <span><strong>Boletos instantáneos</strong> enviados a tu correo con PIN de seguridad</span>
+                          </div>
+                      </div>
+
+                        <div className="p-5 rounded-lg bg-gradient-to-br from-purple-900/40 to-pink-900/40 border-2 border-purple-400/40 shadow-lg">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-base !text-purple-200/90 font-semibold">
+                              Total a pagar:
+                            </span>
+                            <span className="text-3xl font-bold !text-purple-50">
+                              ${total.toLocaleString()} USD
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Info className="h-4 w-4 !text-purple-300 flex-shrink-0" />
+                            <p className="text-xs !text-purple-200/80 leading-relaxed">
+                              El equivalente exacto en tu criptomoneda seleccionada se calculará en tiempo real según el tipo de cambio actual
                             </p>
                           </div>
                         </div>
 
-                        <div className="!bg-black/50 p-4 rounded-lg border border-purple-500/30 relative">
-                          <code className="text-sm !text-white break-all font-mono block">
-                            {formData.cryptoType === "bitcoin" &&
-                              "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"}
-                            {formData.cryptoType === "ethereum" &&
-                              "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
-                            {formData.cryptoType === "usdt" &&
-                              "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"}
-                          </code>
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="absolute top-2 right-2 h-8 !bg-purple-500/20 hover:!bg-purple-500/30 !text-purple-200 border border-purple-500/30"
-                            onClick={() => {
-                              const address =
-                                formData.cryptoType === "bitcoin"
-                                  ? "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-                                  : "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
-                              navigator.clipboard.writeText(address);
-                            }}
-                          >
-                            Copiar
-                          </Button>
-                        </div>
-
-                        <div className="mt-3 flex items-center gap-2 text-xs !text-purple-200/80">
-                          <Shield className="h-4 w-4" />
+                        <div className="mt-4 flex items-center gap-2 text-xs !text-purple-200/70 bg-purple-500/10 p-3 rounded-lg border border-purple-400/20">
+                          <Shield className="h-4 w-4 !text-purple-300 flex-shrink-0" />
                           <span>
-                            Los tickets se enviarán tras confirmar la
-                            transacción blockchain
+                            Plataforma segura y confiable · Sin comisiones ocultas · Soporte 24/7
                           </span>
                         </div>
                       </div>
@@ -1116,13 +1044,23 @@ export function CheckoutPage() {
                           <Gift className="mr-2 h-5 w-5" />
                           Obtener Tickets Gratis (Prueba)
                         </>
+                      ) : paymentMethod === "card" ? (
+                        <>
+                          <Lock className="mr-2 h-5 w-5" />
+                          Proceder al Pago Seguro - ${total.toLocaleString()} USD
+                        </>
+                      ) : paymentMethod === "crypto" ? (
+                        <>
+                          <Bitcoin className="mr-2 h-5 w-5" />
+                          Pagar con Crypto - ${total.toLocaleString()} USD
+                        </>
                       ) : (
                         <>
                           <Shield className="mr-2 h-5 w-5" />
                           {paymentMethod === "ach"
                             ? "Autorizar Transferencia"
                             : "Pagar"}{" "}
-                          ${total.toLocaleString()} MXN
+                          ${total.toLocaleString()} USD
                         </>
                       )}
                     </>
@@ -1242,7 +1180,7 @@ export function CheckoutPage() {
                             Precio por entrada
                           </span>
                           <span className="font-semibold !text-white">
-                            ${ticketPrice.toLocaleString()} MXN
+                            ${ticketPrice.toLocaleString()} USD
                           </span>
                         </div>
                       </div>
@@ -1263,7 +1201,7 @@ export function CheckoutPage() {
                           </div>
                         </div>
                         <span className="font-semibold !text-white">
-                          ${subtotal.toLocaleString()} MXN
+                          ${subtotal.toLocaleString()} USD
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -1276,7 +1214,7 @@ export function CheckoutPage() {
                           </div>
                         </div>
                         <span className="font-semibold !text-white/80">
-                          ${serviceFee.toLocaleString()} MXN
+                          ${serviceFee.toLocaleString()} USD
                         </span>
                       </div>
                       <Separator className="!bg-white/30" />
@@ -1293,7 +1231,7 @@ export function CheckoutPage() {
                         >
                           {paymentMethod === "free"
                             ? "GRATIS"
-                            : `$${total.toLocaleString()} MXN`}
+                            : `$${total.toLocaleString()} USD`}
                         </span>
                       </div>
                       {paymentMethod === "free" && (
@@ -1367,7 +1305,7 @@ export function CheckoutPage() {
                   <strong>Total:</strong>{" "}
                   {paymentMethod === "free"
                     ? "GRATIS"
-                    : `$${total.toLocaleString()} MXN`}
+                    : `$${total.toLocaleString()} USD`}
                 </p>
               </div>
             </Card>

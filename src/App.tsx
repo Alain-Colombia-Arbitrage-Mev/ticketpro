@@ -25,6 +25,11 @@ const ConfirmationPage = lazy(() =>
     default: m.ConfirmationPage,
   })),
 );
+const PaymentFailedPage = lazy(() =>
+  import("./pages/PaymentFailedPage").then((m) => ({
+    default: m.PaymentFailedPage,
+  })),
+);
 const ProfilePage = lazy(() =>
   import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
 );
@@ -90,6 +95,7 @@ function AppContent() {
         {currentPage === "event-detail" && <EventDetailPage />}
         {currentPage === "checkout" && <CheckoutPage />}
         {currentPage === "confirmation" && <ConfirmationPage />}
+        {currentPage === "payment-failed" && <PaymentFailedPage />}
         {currentPage === "profile" && <ProfilePage />}
         {currentPage === "login" && <LoginPage />}
         {currentPage === "add-balance" && <AddBalancePage />}

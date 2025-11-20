@@ -9,6 +9,12 @@ export interface User {
   balance: any;
   preferredCurrency?: string;
   createdAt: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  role?: 'user' | 'hoster' | 'admin';
 }
 
 export interface Ticket {

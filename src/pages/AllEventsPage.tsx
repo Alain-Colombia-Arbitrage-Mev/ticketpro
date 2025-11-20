@@ -11,11 +11,13 @@ import { Switch } from "../components/ui/switch";
 import { Separator } from "../components/ui/separator";
 import { Card } from "../components/ui/card";
 import { CityAutocomplete } from "../components/search";
+import { PromoSlider } from "../components/events/PromoSlider";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
-import { mockEvents, categories as mockCategories } from "../data/mockEvents";
+import { useEvents } from "../hooks/useEvents";
+import { categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
 
 const ITEMS_PER_PAGE = 12;
@@ -25,6 +27,9 @@ export function AllEventsPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { addItem } = useCartStore();
+  
+  // Obtener eventos de BD (con fallback a mockEvents)
+  const { data: events = [], isLoading, error } = useEvents();
   
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>(pageData?.category || "all");
@@ -61,12 +66,12 @@ export function AllEventsPage() {
   // Extract unique cities
   const cities = useMemo(() => {
     const citiesSet = new Set<string>();
-    mockEvents.forEach(event => {
+    events.forEach(event => {
       const city = event.location.split(',').pop()?.trim() || event.location;
       citiesSet.add(city);
     });
     return Array.from(citiesSet).sort();
-  }, []);
+  }, [events]);
 
   // Extract price from string
   const extractPrice = (priceStr: string): number => {
@@ -122,7 +127,7 @@ export function AllEventsPage() {
 
   // Filter and sort events
   const filteredAndSortedEvents = useMemo(() => {
-    let result = [...mockEvents];
+    let result = [...events];
 
     // Category filter
     if (selectedCategory !== "all") {
@@ -192,7 +197,26 @@ export function AllEventsPage() {
     }
 
     return result;
-  }, [selectedCategory, selectedCities, searchQuery, sortBy, priceRange, showFeatured, showTrending, showLastTickets]);
+  }, [events, selectedCategory, selectedCities, searchQuery, sortBy, priceRange, showFeatured, showTrending, showLastTickets]);
+  
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#00FFFF] mx-auto mb-4"></div>
+            <p className="text-white text-lg">Cargando eventos...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state (aún muestra mockEvents como fallback)
+  if (error) {
+    console.warn('Error cargando eventos, usando datos de respaldo:', error);
+  }
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedEvents.length / ITEMS_PER_PAGE);
@@ -267,6 +291,11 @@ export function AllEventsPage() {
           type: "website",
         }}
       />
+
+      {/* Slider Promocional - Antes de todo */}
+      <div className="container mx-auto px-2 min-[375px]:px-3 sm:px-4 md:px-6 lg:px-8 pt-4 min-[375px]:pt-5 sm:pt-6 md:pt-8">
+        <PromoSlider />
+      </div>
 
       {/* Header con filtros y búsqueda */}
       <div className="border-b border-white/20 bg-black/95 backdrop-blur-md sticky top-0 z-20 shadow-sm">
@@ -606,12 +635,13 @@ export function AllEventsPage() {
                   className="cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
                 >
                   <div className="relative flex flex-col w-full">
-                    {/* Imagen del evento */}
-                    <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
+                    {/* Imagen del evento - Optimizada */}
+                    <div className="h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                       <img 
                         src={event.image} 
                         alt={event.title}
-                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
                       
                       {/* Badges superiores */}
@@ -660,7 +690,7 @@ export function AllEventsPage() {
                     {/* Información del evento */}
                     <div className="bg-white h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                       {/* Título */}
-                      <h3 className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                      <h3 className="font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-black mb-1 sm:mb-1.5 leading-tight line-clamp-2" style={{ fontFamily: "'Inter', sans-serif" }}>
                         {t(`event.title.${event.id}`)}
                       </h3>
 

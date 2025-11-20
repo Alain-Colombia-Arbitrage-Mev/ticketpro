@@ -27,6 +27,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
+import { useEvents } from "../hooks/useEvents";
 // URL de video desde Cloudflare R2
 const video1 =
   import.meta.env.VITE_VIDEO_URL_1 || "https://video.veltlix.com/video1.mp4";
@@ -37,6 +38,7 @@ export function EventsListPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { addItem } = useCartStore();
+  const { events = [], isLoading, error } = useEvents();
 
   // Filter states (initialize from pageData if coming from search)
   const [selectedCategory, setSelectedCategory] = useState<string>(
@@ -120,17 +122,19 @@ export function EventsListPage() {
 
   // Extract unique cities
   const cities = useMemo(() => {
+    if (!events) return [];
     const citiesSet = new Set<string>();
-    mockEvents.forEach((event) => {
+    events.forEach((event) => {
       const city = event.location.split(",").pop()?.trim() || event.location;
       citiesSet.add(city);
     });
     return Array.from(citiesSet).sort();
-  }, []);
+  }, [events]);
 
   // Filter and sort events
   const filteredAndSortedEvents = useMemo(() => {
-    let result = [...mockEvents];
+    if (!events) return [];
+    let result = [...events];
 
     // Category filter
     if (selectedCategory !== "all") {
@@ -157,7 +161,26 @@ export function EventsListPage() {
     }
 
     return result;
-  }, [selectedCategory, selectedCities, searchQuery]);
+  }, [events, selectedCategory, selectedCities, searchQuery]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#00FFFF] mx-auto mb-4"></div>
+            <p className="text-white text-lg">Cargando eventos...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state (aún muestra mockEvents como fallback)
+  if (error) {
+    console.warn('Error cargando eventos, usando datos de respaldo:', error);
+  }
 
   // Generar descripción SEO dinámica
   const seoDescription = useMemo(() => {
@@ -703,12 +726,13 @@ export function EventsListPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div key={event.id} className="relative flex flex-col w-full">
-                  {/* Imagen del evento */}
-                  <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
+                  {/* Imagen del evento - Optimizada */}
+                  <div className="h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                     <img
                       src={event.image}
                       alt={event.title}
-                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
 
                     {/* Badges superiores */}
@@ -784,8 +808,8 @@ export function EventsListPage() {
                   <div className="bg-[#e3e0e0] h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                     {/* Título */}
                     <h3
-                      className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1"
-                      style={{ fontFamily: "Germania One, sans-serif" }}
+                      className="font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-black mb-1 sm:mb-1.5 leading-tight line-clamp-2"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       {t(`event.title.${event.id}`)}
                     </h3>
@@ -839,12 +863,13 @@ export function EventsListPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9 mt-12 md:mt-[51px]">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div key={event.id} className="relative flex flex-col w-full">
-                  {/* Imagen del evento */}
-                  <div className="h-[220px] sm:h-[320px] md:h-[420px] lg:h-[544px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
+                  {/* Imagen del evento - Optimizada */}
+                  <div className="h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
                     <img
                       src={event.image}
                       alt={event.title}
-                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
 
                     {/* Badges superiores */}
@@ -911,8 +936,8 @@ export function EventsListPage() {
                   <div className="bg-white h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                     {/* Título */}
                     <h3
-                      className="font-bold text-base sm:text-lg md:text-xl lg:text-[26px] xl:text-[30px] text-black mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 leading-tight line-clamp-1"
-                      style={{ fontFamily: "Germania One, sans-serif" }}
+                      className="font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-black mb-1 sm:mb-1.5 leading-tight line-clamp-2"
+                      style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       {t(`event.title.${event.id}`)}
                     </h3>

@@ -96,15 +96,15 @@ export function EventCard({
       </div>
 
       <div className="p-4 sm:p-5">
-        <h3 className="mb-3 line-clamp-2 text-base font-semibold leading-tight text-white sm:text-lg">{title}</h3>
+        <h3 className="mb-3 line-clamp-2 text-sm font-semibold leading-tight text-white sm:text-base">{title}</h3>
         
         <div className="mb-4 space-y-2">
-          <div className="flex items-center gap-2.5 text-sm text-white/70">
-            <Calendar className="h-4 w-4 flex-shrink-0 text-white/60" />
+          <div className="flex items-center gap-2.5 text-xs text-white/70 sm:text-sm">
+            <Calendar className="h-3.5 w-3.5 flex-shrink-0 text-white/60 sm:h-4 sm:w-4" />
             <span className="line-clamp-1 font-medium">{date}</span>
           </div>
-          <div className="flex items-center gap-2.5 text-sm text-white/70">
-            <MapPin className="h-4 w-4 flex-shrink-0 text-white/60" />
+          <div className="flex items-center gap-2.5 text-xs text-white/70 sm:text-sm">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-white/60 sm:h-4 sm:w-4" />
             <span className="line-clamp-1">{location}</span>
           </div>
         </div>

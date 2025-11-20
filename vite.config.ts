@@ -121,7 +121,7 @@ export default defineConfig({
       chunkSizeWarningLimit: 1000,
     },
     server: {
-      port: 3000,
+      port: 3002,
       open: true,
       // HMR optimizado para Bun
       hmr: {
@@ -149,5 +149,17 @@ export default defineConfig({
     // Configuración para CommonJS y polyfills
     define: {
       global: 'globalThis',
+      // Remove console.log in production
+      ...(process.env.NODE_ENV === 'production' ? {
+        'console.log': '(() => {})',
+        'console.debug': '(() => {})',
+        'console.warn': '(() => {})',
+      } : {}),
+    },
+    // Silenciar warnings de SES/Lockdown que vienen de dependencias externas
+    esbuild: {
+      logOverride: {
+        'this-is-undefined-in-esm': 'silent',
+      },
     },
   });

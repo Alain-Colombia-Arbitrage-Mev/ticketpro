@@ -1,3 +1,20 @@
+/**
+ * IMPORTANTE: Este archivo contiene datos MOCK para desarrollo local.
+ * 
+ * En producción, la aplicación usa eventos de la base de datos Supabase.
+ * Los mockEvents sirven como:
+ * 1. Fallback si la BD no está disponible
+ * 2. Datos de desarrollo local sin necesidad de BD
+ * 3. Testing y desarrollo offline
+ * 
+ * Para alternar entre BD y mock:
+ * - Producción: Siempre usa BD
+ * - Desarrollo: Controlado por VITE_USE_DATABASE (true por defecto)
+ * 
+ * Los datos en mockEvents corresponden a los 20 eventos iniciales
+ * insertados en la migración 004_create_events_table.sql
+ */
+
 export interface Event {
   id: number;
   title: string;
@@ -18,7 +35,7 @@ export const mockEvents: Event[] = [
     title: "Rock Fest 2025 - Los Mejores Artistas del Rock",
     date: "15 de Noviembre, 2025",
     location: "Madison Square Garden, New York",
-    price: "$1,200 MXN",
+    price: "$1,200 USD",
     image: "https://images.unsplash.com/photo-1648260029310-5f1da359af9d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwY3Jvd2QlMjBsaWdodHN8ZW58MXx8fHwxNzYxNzEyMDg1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Concierto",
     featured: true,
@@ -29,7 +46,7 @@ export const mockEvents: Event[] = [
     title: "Festival de Música Electrónica 2025",
     date: "22 de Noviembre, 2025",
     location: "Parque Fundidora, Monterrey",
-    price: "$950 MXN",
+    price: "$950 USD",
     image: "https://images.unsplash.com/photo-1727096857692-e9dadf2bc92e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNpYyUyMGZlc3RpdmFsJTIwc3RhZ2V8ZW58MXx8fHwxNzYxNzcwMDYzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Festival",
     featured: true,
@@ -40,7 +57,7 @@ export const mockEvents: Event[] = [
     title: "Final de Basketball - Campeonato Nacional",
     date: "5 de Diciembre, 2025",
     location: "Staples Center, Los Angeles",
-    price: "$800 MXN",
+    price: "$800 USD",
     image: "https://images.unsplash.com/photo-1616353352910-15d970ac020b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYXNrZXRiYWxsJTIwZ2FtZXxlbnwxfHx8fDE3NjE3NjcxMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Deportes",
     trending: true,
@@ -50,7 +67,7 @@ export const mockEvents: Event[] = [
     title: "El Fantasma de la Ópera - Función Especial",
     date: "10 de Diciembre, 2025",
     location: "Palacio de Bellas Artes, CDMX",
-    price: "$1,500 MXN",
+    price: "$1,500 USD",
     image: "https://images.unsplash.com/photo-1523059623039-a9ed027e7fad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcGVyYSUyMGhvdXNlfGVufDF8fHx8MTc2MTc5ODc0MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Teatro",
     featured: true,
@@ -60,7 +77,7 @@ export const mockEvents: Event[] = [
     title: "Concierto Sinfónico - Beethoven en Vivo",
     date: "18 de Noviembre, 2025",
     location: "Teatro de la Ciudad, Puebla",
-    price: "$600 MXN",
+    price: "$600 USD",
     image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsaXZlJTIwY29uY2VydHxlbnwxfHx8fDE3NjE2OTgyMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Concierto",
   },
@@ -69,7 +86,7 @@ export const mockEvents: Event[] = [
     title: "Stand Up Comedy Night",
     date: "25 de Noviembre, 2025",
     location: "Teatro Metropolitano, CDMX",
-    price: "$450 MXN",
+    price: "$450 USD",
     image: "https://images.unsplash.com/photo-1534205959792-cccfa9f7f26e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb21lZHklMjBzaG93fGVufDF8fHx8MTc2MTcxNTc0M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Comedia",
     trending: true,
@@ -79,7 +96,7 @@ export const mockEvents: Event[] = [
     title: "Fútbol: Clásico Nacional",
     date: "30 de Noviembre, 2025",
     location: "Estadio Azteca, CDMX",
-    price: "$1,800 MXN",
+    price: "$1,800 USD",
     image: "https://images.unsplash.com/photo-1565483276060-e6730c0cc6a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBzdGFkaXVtfGVufDF8fHx8MTc2MTc5ODIxN3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Deportes",
     featured: true,
@@ -90,7 +107,7 @@ export const mockEvents: Event[] = [
     title: "Obra de Teatro: Romeo y Julieta",
     date: "8 de Diciembre, 2025",
     location: "Teatro Juárez, Guadalajara",
-    price: "$550 MXN",
+    price: "$550 USD",
     image: "https://images.unsplash.com/photo-1503095396549-807759245b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVhdGVyJTIwcGVyZm9ybWFuY2V8ZW58MXx8fHwxNzYxNzMzMjg3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Teatro",
   },
@@ -99,7 +116,7 @@ export const mockEvents: Event[] = [
     title: "Jazz Night - Leyendas del Jazz",
     date: "12 de Noviembre, 2025",
     location: "Auditorio Nacional, CDMX",
-    price: "$890 MXN",
+    price: "$890 USD",
     image: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXp6JTIwY29uY2VydHxlbnwxfHx8fDE3NjE3OTk3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Concierto",
     featured: true,
@@ -109,7 +126,7 @@ export const mockEvents: Event[] = [
     title: "Boxeo: Campeonato Mundial de Peso Pesado",
     date: "20 de Noviembre, 2025",
     location: "Arena Monterrey",
-    price: "$2,200 MXN",
+    price: "$2,200 USD",
     image: "https://images.unsplash.com/photo-1509563268479-0f004cf3f58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib3hpbmclMjBtYXRjaHxlbnwxfHx8fDE3NjE3NzIyODd8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Deportes",
     trending: true,
@@ -120,7 +137,7 @@ export const mockEvents: Event[] = [
     title: "Ballet Folklórico Internacional",
     date: "16 de Noviembre, 2025",
     location: "Palacio de Bellas Artes, CDMX",
-    price: "$750 MXN",
+    price: "$750 USD",
     image: "https://images.unsplash.com/photo-1718908721930-31120bc1beb5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYW5jZSUyMHBlcmZvcm1hbmNlfGVufDF8fHx8MTc2MTc1NDE0NXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Danza",
   },
@@ -129,7 +146,7 @@ export const mockEvents: Event[] = [
     title: "Festival Gastronómico Internacional",
     date: "28 de Noviembre, 2025",
     location: "Centro Histórico, CDMX",
-    price: "$350 MXN",
+    price: "$350 USD",
     image: "https://images.unsplash.com/photo-1678646142794-253fdd20fa05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwZmVzdGl2YWx8ZW58MXx8fHwxNzYxNzQ3MTkwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Familia",
     trending: true,
@@ -139,7 +156,7 @@ export const mockEvents: Event[] = [
     title: "Exposición de Arte Contemporáneo",
     date: "Hasta 31 de Diciembre, 2025",
     location: "Museo de Arte Moderno, CDMX",
-    price: "$200 MXN",
+    price: "$200 USD",
     image: "https://images.unsplash.com/photo-1600903781679-7ea3cbc564c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBleGhpYml0aW9ufGVufDF8fHx8MTc2MTc5OTc3OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Arte",
   },
@@ -148,7 +165,7 @@ export const mockEvents: Event[] = [
     title: "Tenis: ATP Tour Finals",
     date: "7 de Diciembre, 2025",
     location: "Club Deportivo, Guadalajara",
-    price: "$1,100 MXN",
+    price: "$1,100 USD",
     image: "https://images.unsplash.com/photo-1480180566821-a7d525cdfc5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW5uaXMlMjB0b3VybmFtZW50fGVufDF8fHx8MTc2MTc5OTc3OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Deportes",
   },
@@ -157,7 +174,7 @@ export const mockEvents: Event[] = [
     title: "Pop Latino Tour 2025",
     date: "14 de Noviembre, 2025",
     location: "Foro Sol, CDMX",
-    price: "$1,350 MXN",
+    price: "$1,350 USD",
     image: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsaXZlJTIwY29uY2VydHxlbnwxfHx8fDE3NjE2OTgyMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Concierto",
     featured: true,
@@ -168,7 +185,7 @@ export const mockEvents: Event[] = [
     title: "Circo del Sol - Alegría",
     date: "3 de Diciembre, 2025",
     location: "Carpa Circuito Interior, CDMX",
-    price: "$980 MXN",
+    price: "$980 USD",
     image: "https://images.unsplash.com/photo-1503095396549-807759245b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVhdGVyJTIwcGVyZm9ybWFuY2V8ZW58MXx8fHwxNzYxNzMzMjg3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Familia",
     featured: true,
@@ -178,7 +195,7 @@ export const mockEvents: Event[] = [
     title: "Indie Rock Festival USA",
     date: "23 de Noviembre, 2025",
     location: "Autódromo Hermanos Rodríguez",
-    price: "$1,050 MXN",
+    price: "$1,050 USD",
     image: "https://images.unsplash.com/photo-1648260029310-5f1da359af9d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwY3Jvd2QlMjBsaWdodHN8ZW58MXx8fHwxNzYxNzEyMDg1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Festival",
     trending: true,
@@ -188,7 +205,7 @@ export const mockEvents: Event[] = [
     title: "Musical: El Rey León",
     date: "2 de Diciembre, 2025",
     location: "Teatro Telcel, CDMX",
-    price: "$1,650 MXN",
+    price: "$1,650 USD",
     image: "https://images.unsplash.com/photo-1503095396549-807759245b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVhdGVyJTIwcGVyZm9ybWFuY2V8ZW58MXx8fHwxNzYxNzMzMjg3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Teatro",
     lastTickets: true,
@@ -198,7 +215,7 @@ export const mockEvents: Event[] = [
     title: "Reggaeton & Trap Party",
     date: "27 de Noviembre, 2025",
     location: "Arena Monterrey",
-    price: "$850 MXN",
+    price: "$850 USD",
     image: "https://images.unsplash.com/photo-1727096857692-e9dadf2bc92e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNpYyUyMGZlc3RpdmFsJTIwc3RhZ2V8ZW58MXx8fHwxNzYxNzcwMDYzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Concierto",
   },
@@ -207,7 +224,7 @@ export const mockEvents: Event[] = [
     title: "Lucha Libre - Función Estelar",
     date: "24 de Noviembre, 2025",
     location: "Arena Los Angeles, LA",
-    price: "$400 MXN",
+    price: "$400 USD",
     image: "https://images.unsplash.com/photo-1616353352910-15d970ac020b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYXNrZXRiYWxsJTIwZ2FtZXxlbnwxfHx8fDE3NjE3NjcxMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
     category: "Deportes",
     trending: true,

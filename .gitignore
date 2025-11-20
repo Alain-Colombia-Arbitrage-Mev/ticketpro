@@ -6,11 +6,12 @@ bun.lockb
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
-*.md
+
 # Testing
 coverage/
 .nyc_output
 *.test.js.snap
+.dev.vars
 
 # Production builds
 dist/
@@ -141,3 +142,77 @@ storybook-static/
 *.key
 *.cert
 .secret
+
+# Supabase
+.branches
+.temp
+.migration_status
+supabase/.env.local
+
+# Scripts y documentación temporal
+*.sh
+*.md
+!README.md
+!SECURITY.md
+!supabase/migrations/*.sql
+*.txt
+!LICENSE.txt
+
+# Scripts de configuración con información sensible
+*-secrets*.sh
+*-config*.sh
+*-setup*.sh
+*stripe*.sh
+*ses*.sh
+deploy*.sh
+test*.sh
+setup*.sh
+configure*.sh
+apply-*.sh
+
+# Archivos JS con configuración sensible
+*-secrets*.js
+*-config*.js
+*stripe*.js
+*ses*.js
+apply-migrations*.js
+check-*.js
+verify-*.js
+setup*.js
+configure*.js
+
+# Archivos SQL temporales y de desarrollo
+*.sql
+!supabase/migrations/*.sql
+actual.sql
+combined*.sql
+fix-*.sql
+insert-*.sql
+verificar*.sql
+verify*.sql
+check-*.sql
+MASTER_MIGRATION.sql
+VERIFICACION*.sql
+
+# Documentos de configuración y estado
+*CONFIG*.md
+*STATUS*.md
+*ESTADO*.md
+*DEPLOY*.md
+*SETUP*.md
+*GUIA*.md
+*DIAGNOSTICO*.md
+*INTEGRACION*.md
+*IMPLEMENTACION*.md
+*CONFIGURAR*.md
+*ACTUALIZACION*.md
+*MIGRACIONES*.md
+DEPLOY_*.txt
+ESTADO_*.txt
+RESUMEN_*.txt
+*_STATUS.md
+*_CONFIG.md
+*_SETUP.md
+
+# Archivos MCP con configuración sensible
+.mcp.json

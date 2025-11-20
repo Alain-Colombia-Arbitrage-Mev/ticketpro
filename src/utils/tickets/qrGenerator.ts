@@ -1,5 +1,15 @@
 import QRCode from 'qrcode';
-import { projectUrl } from '../supabase/info';
+
+// Función para obtener la URL del proyecto dinámicamente
+function getProjectUrl(): string {
+  const envProjectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url;
+  const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
+  const defaultProjectId = "***REMOVED***";
+  const projectId = envProjectId || defaultProjectId;
+  return envProjectUrl || `https://${projectId}.supabase.co`;
+}
+
+const projectUrl = getProjectUrl();
 
 /**
  * Genera un código QR para un ticket
