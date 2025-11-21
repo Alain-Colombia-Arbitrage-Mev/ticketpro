@@ -106,10 +106,12 @@ export function useEvents() {
       try {
         const supabase = getSupabaseClient();
         
+        // Optimización: Seleccionar solo campos necesarios en lugar de '*'
         const { data, error } = await supabase
           .from('events')
-          .select('*')
-          .eq('is_active', true);
+          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
+          .eq('is_active', true)
+          .order('id', { ascending: true }); // Ordenar en BD para mejor rendimiento
         
         if (error) {
           console.error('❌ Error fetching events from DB:', error);
@@ -156,9 +158,11 @@ export function useEvents() {
         return mockEvents;
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 1 * 60 * 1000, // 1 minuto - reducido para actualizaciones más frecuentes
+    gcTime: 5 * 60 * 1000, // 5 minutos
     retry: 1, // Solo 1 reintento antes de usar fallback
+    refetchOnWindowFocus: false, // No refetch al enfocar ventana
+    refetchOnMount: false, // No refetch al montar si hay datos en cache
   });
 }
 
@@ -180,10 +184,12 @@ export function useEventsByCategory(category?: string) {
       try {
         const supabase = getSupabaseClient();
         
+        // Optimización: Seleccionar solo campos necesarios
         let query = supabase
           .from('events')
-          .select('*')
-          .eq('is_active', true);
+          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
+          .eq('is_active', true)
+          .order('id', { ascending: true });
         
         if (category && category !== 'all') {
           query = query.eq('category', category);
@@ -225,8 +231,11 @@ export function useEventsByCategory(category?: string) {
         return filtered;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 1 * 60 * 1000, // 1 minuto
+    gcTime: 5 * 60 * 1000, // 5 minutos
     enabled: category !== undefined,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 }
 
@@ -246,9 +255,10 @@ export function useEvent(id: number) {
       try {
         const supabase = getSupabaseClient();
         
+        // Optimización: Seleccionar solo campos necesarios
         const { data, error } = await supabase
           .from('events')
-          .select('*')
+          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('id', id)
           .single();
         
