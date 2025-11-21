@@ -106,12 +106,14 @@ export function useEvents() {
       try {
         const supabase = getSupabaseClient();
         
-        // Optimización: Seleccionar solo campos necesarios en lugar de '*'
+        // Optimización AGRESIVA: Seleccionar solo campos esenciales y ordenar en BD
         const { data, error } = await supabase
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
-          .order('id', { ascending: true }); // Ordenar en BD para mejor rendimiento
+          .order('featured', { ascending: false }) // Featured primero
+          .order('id', { ascending: true }) // Luego por ID
+          .limit(50); // Limitar a 50 eventos máximo para cargar más rápido
         
         if (error) {
           console.error('❌ Error fetching events from DB:', error);
@@ -158,11 +160,12 @@ export function useEvents() {
         return mockEvents;
       }
     },
-    staleTime: 1 * 60 * 1000, // 1 minuto - reducido para actualizaciones más frecuentes
-    gcTime: 5 * 60 * 1000, // 5 minutos
-    retry: 1, // Solo 1 reintento antes de usar fallback
+    staleTime: 10 * 60 * 1000, // 10 minutos - cache más agresivo
+    gcTime: 30 * 60 * 1000, // 30 minutos - mantener en cache más tiempo
+    retry: 0, // NO reintentar, usar fallback inmediatamente si falla
     refetchOnWindowFocus: false, // No refetch al enfocar ventana
     refetchOnMount: false, // No refetch al montar si hay datos en cache
+    refetchOnReconnect: false, // No refetch al reconectar internet
   });
 }
 
@@ -184,12 +187,14 @@ export function useEventsByCategory(category?: string) {
       try {
         const supabase = getSupabaseClient();
         
-        // Optimización: Seleccionar solo campos necesarios
+        // Optimización AGRESIVA: Solo campos esenciales, ordenar en BD
         let query = supabase
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
-          .order('id', { ascending: true });
+          .order('featured', { ascending: false })
+          .order('id', { ascending: true })
+          .limit(50); // Limitar a 50 eventos
         
         if (category && category !== 'all') {
           query = query.eq('category', category);
@@ -231,11 +236,13 @@ export function useEventsByCategory(category?: string) {
         return filtered;
       }
     },
-    staleTime: 1 * 60 * 1000, // 1 minuto
-    gcTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 10 * 60 * 1000, // 10 minutos - cache más agresivo
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    retry: 0, // NO reintentar
     enabled: category !== undefined,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
 
@@ -260,9 +267,10 @@ export function useEvent(id: number) {
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('id', id)
-          .single();
+          .maybeSingle(); // Más rápido que .single()
         
         if (error) throw error;
+        if (!data) throw new Error('Evento no encontrado');
         
         return convertEventFromDB(data);
       } catch (error) {
@@ -272,7 +280,13 @@ export function useEvent(id: number) {
         return event;
       }
     },
+    staleTime: 10 * 60 * 1000, // 10 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    retry: 0, // NO reintentar
     enabled: !!id,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
 
