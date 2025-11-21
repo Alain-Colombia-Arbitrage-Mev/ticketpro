@@ -1080,6 +1080,38 @@ export function CheckoutPage() {
                   </div>
                 </Card>
 
+                {/* ⚠️ ADVERTENCIA DE SEGURIDAD - Tarjetas de Terceros */}
+                {paymentMethod === "card" && (
+                  <Card className="p-4 !bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-red-500/50 backdrop-blur">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-full bg-red-500/30 flex items-center justify-center flex-shrink-0 border-2 border-red-400/50">
+                        <Shield className="h-5 w-5 text-red-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-base font-bold !text-red-200 mb-2 flex items-center gap-2">
+                          ⚠️ Política de Seguridad
+                        </h4>
+                        <div className="space-y-2">
+                          <p className="text-sm !text-red-100/90 leading-relaxed font-medium">
+                            <strong>Asegúrese de que la tarjeta sea de su propiedad.</strong>
+                          </p>
+                          <p className="text-xs !text-red-100/80 leading-relaxed">
+                            <strong>NO aceptamos:</strong>
+                          </p>
+                          <ul className="text-xs !text-red-100/80 leading-relaxed space-y-1 ml-4">
+                            <li>• Tarjetas de terceros</li>
+                            <li>• Pagos en nombre de familiares o amigos</li>
+                            <li>• Tarjetas que no coincidan con el titular de la compra</li>
+                          </ul>
+                          <p className="text-xs !text-red-100/80 leading-relaxed mt-3 pt-3 border-t border-red-400/30">
+                            <strong className="!text-red-200">⚠️ IMPORTANTE:</strong> El uso de tarjetas de terceros se considera de <strong>alto riesgo</strong> y puede resultar en la cancelación automática de su compra sin reembolso.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
                 {/* Botón de Pago */}
                 <Button
                   type="submit"
