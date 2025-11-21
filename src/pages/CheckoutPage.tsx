@@ -1104,7 +1104,7 @@ export function CheckoutPage() {
                             <li>• Tarjetas que no coincidan con el titular de la compra</li>
                           </ul>
                           <p className="text-xs !text-red-100/80 leading-relaxed mt-3 pt-3 border-t border-red-400/30">
-                            <strong className="!text-red-200">⚠️ IMPORTANTE:</strong> El uso de tarjetas de terceros se considera de <strong>alto riesgo</strong> y puede resultar en la cancelación automática de su compra sin reembolso.
+                            <strong className="!text-red-200">⚠️ IMPORTANTE:</strong> El uso de tarjetas de terceros se considera de <strong>alto riesgo</strong> y puede resultar en la cancelación automática de su compra.
                           </p>
                         </div>
                       </div>
@@ -1218,75 +1218,75 @@ export function CheckoutPage() {
                         </div>
                       ) : (
                         <>
-                          {/* Selector principal con botones +/- */}
-                          <div className="flex items-center gap-3 mb-4">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleQuantityChange(-1)}
-                              disabled={quantity <= 1}
-                              className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
-                            >
-                              <span className="text-xl font-bold">−</span>
-                            </Button>
-                            <div className="flex-1 text-center">
-                              <div className="text-3xl font-bold !text-white mb-1">
-                                {quantity}
-                              </div>
-                              <div className="text-xs !text-white/60">
-                                {quantity === 1 ? "entrada" : "entradas"}
-                              </div>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleQuantityChange(1)}
-                              disabled={quantity >= 10}
-                              className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
-                            >
-                              <span className="text-xl font-bold">+</span>
-                            </Button>
+                      {/* Selector principal con botones +/- */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(-1)}
+                          disabled={quantity <= 1}
+                          className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
+                        >
+                          <span className="text-xl font-bold">−</span>
+                        </Button>
+                        <div className="flex-1 text-center">
+                          <div className="text-3xl font-bold !text-white mb-1">
+                            {quantity}
                           </div>
+                          <div className="text-xs !text-white/60">
+                            {quantity === 1 ? "entrada" : "entradas"}
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleQuantityChange(1)}
+                          disabled={quantity >= 10}
+                          className="h-12 w-12 !bg-white/10 border-white/30 !text-white hover:!bg-white/20 hover:border-white/40 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-all"
+                        >
+                          <span className="text-xl font-bold">+</span>
+                        </Button>
+                      </div>
 
-                          {/* Opciones rápidas de cantidad */}
-                          <div className="mb-4">
-                            <Label className="!text-white/70 mb-2 block text-xs">
-                              O selecciona rápidamente:
-                            </Label>
-                            <div className="grid grid-cols-4 gap-2">
-                              {[2, 4, 6, 8].map((quickQty) => (
-                                <button
-                                  key={quickQty}
-                                  type="button"
-                                  onClick={() => setQuantity(quickQty)}
-                                  className={`px-3 py-2 rounded-lg border-2 transition-all text-sm font-semibold ${
-                                    quantity === quickQty
-                                      ? "border-[#c61619] bg-[#c61619]/30 !text-white shadow-md"
-                                      : "border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 !text-white"
-                                  }`}
-                                >
-                                  {quickQty}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                      {/* Opciones rápidas de cantidad */}
+                      <div className="mb-4">
+                        <Label className="!text-white/70 mb-2 block text-xs">
+                          O selecciona rápidamente:
+                        </Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[2, 4, 6, 8].map((quickQty) => (
+                            <button
+                              key={quickQty}
+                              type="button"
+                              onClick={() => setQuantity(quickQty)}
+                              className={`px-3 py-2 rounded-lg border-2 transition-all text-sm font-semibold ${
+                                quantity === quickQty
+                                  ? "border-[#c61619] bg-[#c61619]/30 !text-white shadow-md"
+                                  : "border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 !text-white"
+                              }`}
+                            >
+                              {quickQty}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                         </>
                       )}
 
                       {/* Precio por entrada - Solo para compra directa */}
                       {!isCartCheckout && (
-                        <div className="rounded-lg border border-white/20 bg-white/5 p-3">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="!text-white/80">
-                              Precio por entrada
-                            </span>
-                            <span className="font-semibold !text-white">
+                      <div className="rounded-lg border border-white/20 bg-white/5 p-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="!text-white/80">
+                            Precio por entrada
+                          </span>
+                          <span className="font-semibold !text-white">
                               ${ticketPrice.toLocaleString()} USD
-                            </span>
-                          </div>
+                          </span>
                         </div>
+                      </div>
                       )}
                     </div>
 
