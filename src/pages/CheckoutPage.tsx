@@ -54,7 +54,7 @@ export function CheckoutPage() {
   const { navigate, pageData } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { clearCart, getTotalItems, getDiscount, getTotalWithDiscount } = useCartStore();
+  const { items: storeCartItems, clearCart, getTotalItems, getDiscount, getTotalWithDiscount } = useCartStore();
   const { checkoutInfo } = useCheckoutStore();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -74,40 +74,18 @@ export function CheckoutPage() {
     keys: pageData ? Object.keys(pageData) : []
   });
   
-  // Verificar si hay items del carrito
-  let cartItems = (pageData as any)?.cartItems || null;
+  // IMPORTANTE: Usar items del STORE directamente para tener datos actualizados en tiempo real
+  // Si el usuario edita cantidades en el carrito, se reflejarán aquí automáticamente
+  const isCartCheckout = storeCartItems && storeCartItems.length > 0;
+  const cartItems = isCartCheckout ? storeCartItems : null;
   
-  // Debug: Verificar cartItems antes de procesamiento
-  console.log('🛒 CheckoutPage - cartItems RAW:', {
+  // Debug: Verificar cartItems del store
+  console.log('🛒 CheckoutPage - Using STORE cartItems:', {
     cartItems,
     isArray: Array.isArray(cartItems),
-    type: typeof cartItems,
-    stringValue: typeof cartItems === 'string' ? cartItems : 'N/A'
-  });
-  
-  // Si cartItems es un string "[object Object]", significa que se serializó mal
-  // En este caso, no podemos recuperar los datos, usar null
-  if (typeof cartItems === 'string') {
-    if (cartItems === '[object Object]' || cartItems.startsWith('[object')) {
-      console.error('❌ cartItems was serialized incorrectly (.toString() instead of JSON.stringify)');
-      cartItems = null;
-    } else {
-      // Intentar parsear JSON válido
-      try {
-        cartItems = JSON.parse(cartItems);
-        console.log('✅ cartItems parsed successfully');
-      } catch (e) {
-        console.error('❌ Error parseando cartItems:', e);
-        cartItems = null;
-      }
-    }
-  }
-  
-  // Debug: Verificar cartItems después de procesamiento
-  console.log('🛒 CheckoutPage - cartItems PROCESSED:', {
-    cartItems,
-    isArray: Array.isArray(cartItems),
-    length: Array.isArray(cartItems) ? cartItems.length : 'N/A'
+    length: cartItems?.length,
+    isCartCheckout,
+    storeItemsLength: storeCartItems.length
   });
 
   // Cargar categorías y métodos de pago al montar
