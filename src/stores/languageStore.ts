@@ -396,13 +396,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'events.last_tickets': 'Últimos Boletos',
     'events.no_results': 'No se encontraron eventos',
     'events.no_results_desc': 'Intenta ajustar tus filtros de búsqueda para obtener más resultados',
-    
-    // Footer
-    'footer.description': 'La mejor plataforma para encontrar y comprar tickets de tus eventos favoritos.',
-    'footer.events': 'Eventos',
-    'footer.sell_tickets': 'Vende Tickets',
-    'footer.create_event': 'Crea un Evento',
-    
+
     // Common UI
     'ui.search': 'Buscar Eventos',
     'ui.trending': 'Tendencia',
@@ -834,13 +828,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'events.last_tickets': 'Last Tickets',
     'events.no_results': 'No events found',
     'events.no_results_desc': 'Try adjusting your search filters to get more results',
-    
-    // Footer
-    'footer.description': 'The best platform to find and buy tickets for your favorite events.',
-    'footer.events': 'Events',
-    'footer.sell_tickets': 'Sell Tickets',
-    'footer.create_event': 'Create an Event',
-    
+
     // Common UI
     'ui.search': 'Search Events',
     'ui.trending': 'Trending',
@@ -1272,13 +1260,7 @@ export const translations: Record<Language, Record<string, string>> = {
     'events.last_tickets': 'Últimos Ingressos',
     'events.no_results': 'Nenhum evento encontrado',
     'events.no_results_desc': 'Tente ajustar seus filtros de pesquisa para obter mais resultados',
-    
-    // Footer
-    'footer.description': 'A melhor plataforma para encontrar e comprar ingressos dos seus eventos favoritos.',
-    'footer.events': 'Eventos',
-    'footer.sell_tickets': 'Vender Ingressos',
-    'footer.create_event': 'Criar um Evento',
-    
+
     // Common UI
     'ui.search': 'Pesquisar Eventos',
     'ui.trending': 'Em alta',

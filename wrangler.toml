@@ -1,0 +1,16 @@
+name = "ticketpro"
+compatibility_date = "2024-01-01"
+account_id = "1993a0eaf7f6e3e6f7fd7b3b3f377d6c"
+
+# Configuración de R2 para almacenar imágenes
+[[r2_buckets]]
+binding = "IMAGES_BUCKET"
+bucket_name = "ticketpro-images"
+preview_bucket_name = "ticketpro-images-preview"
+
+[site]
+bucket = "./dist"
+
+[build]
+command = "npm run build"
+

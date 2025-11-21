@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, MapPin, DollarSign, Gift } from 'lucide-react';
 import { useRouter } from '../../hooks/useRouter';
-import navidadHorizontal from '../../assets/images/navidadHorizontal.jpg';
 
 interface PromoSlide {
   id: number;
@@ -18,7 +17,7 @@ interface PromoSlide {
 const promoSlides: PromoSlide[] = [
   {
     id: 1,
-    image: navidadHorizontal,
+    image: 'https://pub-5a13339d7d824ebb91725522933007a7.r2.dev/events/navidadHorizontal.jpg',
     title: 'NAVIDAD VICION POWER',
     subtitle: 'Participa en la rifa de 3 automóviles',
     date: 'Sábado 13 de Diciembre, 6:00 PM - 1:00 AM',
@@ -69,7 +68,7 @@ export function PromoSlider() {
         date: '13 de Diciembre, 2025',
         location: slide.location,
         price: slide.price,
-        image: '/src/assets/images/navidadHorizontal.jpg',
+        image: 'https://pub-5a13339d7d824ebb91725522933007a7.r2.dev/events/navidadHorizontal.jpg',
         category: 'Concierto',
         featured: true,
         trending: true,

@@ -149,17 +149,13 @@ export default defineConfig({
     // Configuración para CommonJS y polyfills
     define: {
       global: 'globalThis',
-      // Remove console.log in production
-      ...(process.env.NODE_ENV === 'production' ? {
-        'console.log': '(() => {})',
-        'console.debug': '(() => {})',
-        'console.warn': '(() => {})',
-      } : {}),
     },
     // Silenciar warnings de SES/Lockdown que vienen de dependencias externas
     esbuild: {
       logOverride: {
         'this-is-undefined-in-esm': 'silent',
       },
+      // Remover console.log en producción
+      drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
     },
   });
