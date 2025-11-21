@@ -143,19 +143,32 @@ export function CheckoutPage() {
     return null;
   }
 
-  const ticketPrice = parseInt(
-    pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800",
-  );
-  const subtotal = ticketPrice * quantity;
-  const serviceFee = Math.round(subtotal * 0.1);
-  const totalBeforeDiscount = subtotal + serviceFee;
-  
-  // Aplicar descuento del 10% si hay 2 o más tickets (usando cart si hay cartItems, o cantidad si es compra directa)
-  const totalItems = cartItems ? getTotalItems() : quantity;
-  const discountAmount = totalItems >= 2 ? Math.round(totalBeforeDiscount * 0.1) : 0;
-  const total = cartItems 
-    ? (discountAmount > 0 ? getTotalWithDiscount() : totalBeforeDiscount)
-    : (totalBeforeDiscount - discountAmount);
+  // Calcular totales según si es carrito o compra directa
+  let subtotal: number;
+  let serviceFee: number;
+  let totalBeforeDiscount: number;
+  let totalItems: number;
+  let discountAmount: number;
+  let total: number;
+
+  if (cartItems) {
+    // Usar cálculos del carrito
+    subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
+    serviceFee = cartItems.reduce((sum, item) => sum + item.serviceFee, 0);
+    totalBeforeDiscount = cartItems.reduce((sum, item) => sum + item.total, 0);
+    totalItems = getTotalItems();
+    discountAmount = getDiscount();
+    total = getTotalWithDiscount();
+  } else {
+    // Compra directa (un solo item)
+    const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
+    subtotal = ticketPrice * quantity;
+    serviceFee = Math.round(subtotal * 0.1);
+    totalBeforeDiscount = subtotal + serviceFee;
+    totalItems = quantity;
+    discountAmount = totalItems >= 2 ? Math.round(totalBeforeDiscount * 0.1) : 0;
+    total = totalBeforeDiscount - discountAmount;
+  }
 
   const handleQuantityChange = (delta: number) => {
     const newQty = quantity + delta;

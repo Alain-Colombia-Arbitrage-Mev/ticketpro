@@ -58,7 +58,8 @@ export function EventDetailPage() {
   const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1); // Auto-seleccionar el único ticket
 
   // Extraer precio del formato "$50 USD" -> "50"
-  const extractPrice = (priceStr: string): string => {
+  const extractPrice = (priceStr: string | undefined): string => {
+    if (!priceStr) return '0';
     const match = priceStr.match(/[\d,]+/);
     return match ? match[0].replace(/,/g, '') : '0';
   };
@@ -67,7 +68,7 @@ export function EventDetailPage() {
     { 
       id: 1, 
       name: "Entrada General", 
-      price: extractPrice(pageData.price), 
+      price: extractPrice(pageData.price || pageData.ticketPrice), 
       benefits: [
         "Acceso al evento",
         "Entrada digital por correo",
