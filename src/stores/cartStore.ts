@@ -32,6 +32,8 @@ interface CartState {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  getDiscount: () => number;
+  getTotalWithDiscount: () => number;
 }
 
 export const useCartStore = create<CartState>()(
@@ -144,6 +146,23 @@ export const useCartStore = create<CartState>()(
 
       getTotalPrice: () => {
         return get().items.reduce((sum, item) => sum + item.total, 0);
+      },
+
+      getDiscount: () => {
+        const totalItems = get().getTotalItems();
+        const totalPrice = get().getTotalPrice();
+        
+        // Aplicar 10% de descuento si hay 2 o más tickets
+        if (totalItems >= 2) {
+          return Math.round(totalPrice * 0.1);
+        }
+        return 0;
+      },
+
+      getTotalWithDiscount: () => {
+        const totalPrice = get().getTotalPrice();
+        const discount = get().getDiscount();
+        return totalPrice - discount;
       },
     }),
     {
