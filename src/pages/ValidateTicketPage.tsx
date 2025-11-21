@@ -18,6 +18,7 @@ export function ValidateTicketPage() {
     valid: boolean;
     message: string;
   } | null>(null);
+  const [securityPin, setSecurityPin] = useState('');
 
   // 🔒 PROTECCIÓN: Verificar autenticación y rol ANTES de cargar ticket
   useEffect(() => {
@@ -109,6 +110,18 @@ export function ValidateTicketPage() {
     // Verificar rol
     if (user.role !== 'hoster' && user.role !== 'admin') {
       alert('Solo los usuarios con rol de hoster o admin pueden validar tickets.');
+      return;
+    }
+
+    // Verificar PIN de seguridad
+    if (!securityPin) {
+      alert('Por favor ingresa el PIN de seguridad del ticket');
+      return;
+    }
+
+    if (securityPin !== ticket.security_pin) {
+      alert('❌ PIN de seguridad incorrecto. Por favor verifica el PIN en el ticket físico.');
+      setSecurityPin(''); // Limpiar el campo
       return;
     }
 
@@ -222,7 +235,7 @@ export function ValidateTicketPage() {
               variant="outline"
               className="w-full border-white/20 text-white hover:bg-white/10"
             >
-              Volver al Inicio
+              ← Regresar
             </Button>
           </div>
         </Card>
@@ -310,21 +323,70 @@ export function ValidateTicketPage() {
               </div>
             </Card>
 
-            {/* Botón para marcar como usado - Ya autorizado por las verificaciones previas */}
+            {/* Tarjeta visual del ticket con detalles adicionales */}
+            <Card className="p-6 !bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/30">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <QrCode className="h-5 w-5 text-purple-400" />
+                Detalles del Ticket
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white/80">
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <p className="text-xs text-white/50 mb-1">Asiento</p>
+                  <p className="text-xl font-bold text-white">{ticket.seat || 'General'}</p>
+                </div>
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <p className="text-xs text-white/50 mb-1">Puerta</p>
+                  <p className="text-xl font-bold text-white">{ticket.gate || 'Principal'}</p>
+                </div>
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <p className="text-xs text-white/50 mb-1">Clase</p>
+                  <p className="text-xl font-bold text-white">{ticket.ticket_class || 'General'}</p>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs text-white/50 mb-1">Código de Ticket</p>
+                <p className="text-2xl font-mono font-bold text-white tracking-wider">{ticket.ticket_code}</p>
+              </div>
+            </Card>
+
+            {/* Verificación PIN y Botón para marcar como usado */}
             {validationResult?.valid && ticket.status === 'issued_unused' && (
               <Card className="p-6 !bg-yellow-500/10 border-yellow-500/50">
-                <div className="text-center mb-4">
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-2">
+                    🔒 Verificación de Seguridad
+                  </h3>
+                  <p className="text-sm text-white/70 mb-4">
+                    Ingresa el PIN de seguridad que aparece en el ticket físico del comprador
+                  </p>
+                  <div className="max-w-xs mx-auto">
+                    <label className="block text-sm font-medium text-white/80 mb-2">
+                      PIN de Seguridad (4 dígitos)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={4}
+                      value={securityPin}
+                      onChange={(e) => setSecurityPin(e.target.value.replace(/\D/g, ''))}
+                      placeholder="####"
+                      className="w-full px-4 py-3 text-center text-2xl font-mono font-bold bg-black/30 border border-white/20 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div className="text-center pt-4 border-t border-white/10">
                   <p className="text-white/90 mb-2 font-semibold">
                     Este ticket está sin usar
                   </p>
                   <p className="text-sm text-white/70 mb-4">
-                    Haz clic en el botón para marcarlo como usado
+                    Después de verificar el PIN, haz clic para marcarlo como usado
                   </p>
                   <div className="flex justify-center">
                     <Button
                       onClick={handleMarkAsUsed}
-                      disabled={validating}
-                      className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold"
+                      disabled={validating || securityPin.length !== 4}
+                      className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                       size="lg"
                     >
                       {validating ? (
@@ -373,7 +435,7 @@ export function ValidateTicketPage() {
             variant="outline"
             className="border-white/20 !text-white hover:!bg-white/10"
           >
-            Volver al Inicio
+            ← Regresar
           </Button>
         </div>
       </div>
