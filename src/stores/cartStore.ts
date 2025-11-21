@@ -150,11 +150,12 @@ export const useCartStore = create<CartState>()(
 
       getDiscount: () => {
         const totalItems = get().getTotalItems();
-        const totalPrice = get().getTotalPrice();
+        const items = get().items;
         
-        // Aplicar 10% de descuento si hay 2 o más tickets
+        // Aplicar 10% de descuento sobre el SUBTOTAL si hay 2 o más tickets
         if (totalItems >= 2) {
-          return Math.round(totalPrice * 0.1);
+          const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+          return Math.round(subtotal * 0.1);
         }
         return 0;
       },

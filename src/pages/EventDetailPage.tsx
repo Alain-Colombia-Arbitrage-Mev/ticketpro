@@ -22,11 +22,15 @@ export function EventDetailPage() {
     return null;
   }
 
+  // Convertir ID a número para comparaciones consistentes
+  const eventId = typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id;
+  const isNavidadEvent = eventId === 21 || eventId === 22;
+
   // Debug: Verificar ID del evento
   console.log('🎫 EventDetailPage - Event ID:', {
-    id: pageData.id,
-    type: typeof pageData.id,
-    isNavidad: pageData.id === 21 || pageData.id === 22 || pageData.id === '21' || pageData.id === '22',
+    originalId: pageData.id,
+    eventId,
+    isNavidadEvent,
     title: pageData.title
   });
 
@@ -244,8 +248,8 @@ export function EventDetailPage() {
               <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
                   src={
-                    (pageData.id === 21 || pageData.id === 22 || pageData.id === '21' || pageData.id === '22')
-                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg?v=2'
+                    isNavidadEvent
+                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg?v=3'
                       : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt="Venue"
