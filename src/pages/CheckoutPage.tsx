@@ -67,15 +67,47 @@ export function CheckoutPage() {
   const [cryptoOrderId, setCryptoOrderId] = useState<string>("");
   const [isAddressValid, setIsAddressValid] = useState(false);
 
-  // Verificar si hay items del carrito
-  const cartItems = (pageData as any)?.cartItems || null;
+  // Debug: Verificar pageData completo
+  console.log('📦 CheckoutPage - pageData received:', {
+    pageData,
+    type: typeof pageData,
+    keys: pageData ? Object.keys(pageData) : []
+  });
   
-  // Debug: Verificar cartItems
-  console.log('🛒 CheckoutPage - cartItems:', {
+  // Verificar si hay items del carrito
+  let cartItems = (pageData as any)?.cartItems || null;
+  
+  // Debug: Verificar cartItems antes de procesamiento
+  console.log('🛒 CheckoutPage - cartItems RAW:', {
     cartItems,
     isArray: Array.isArray(cartItems),
     type: typeof cartItems,
-    length: cartItems?.length
+    stringValue: typeof cartItems === 'string' ? cartItems : 'N/A'
+  });
+  
+  // Si cartItems es un string "[object Object]", significa que se serializó mal
+  // En este caso, no podemos recuperar los datos, usar null
+  if (typeof cartItems === 'string') {
+    if (cartItems === '[object Object]' || cartItems.startsWith('[object')) {
+      console.error('❌ cartItems was serialized incorrectly (.toString() instead of JSON.stringify)');
+      cartItems = null;
+    } else {
+      // Intentar parsear JSON válido
+      try {
+        cartItems = JSON.parse(cartItems);
+        console.log('✅ cartItems parsed successfully');
+      } catch (e) {
+        console.error('❌ Error parseando cartItems:', e);
+        cartItems = null;
+      }
+    }
+  }
+  
+  // Debug: Verificar cartItems después de procesamiento
+  console.log('🛒 CheckoutPage - cartItems PROCESSED:', {
+    cartItems,
+    isArray: Array.isArray(cartItems),
+    length: Array.isArray(cartItems) ? cartItems.length : 'N/A'
   });
 
   // Cargar categorías y métodos de pago al montar
@@ -152,6 +184,9 @@ export function CheckoutPage() {
   }
 
   // Calcular totales según si es carrito o compra directa
+  // Definir ticketPrice fuera para que sea accesible en todo el componente
+  const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
+  
   let subtotal: number;
   let serviceFee: number;
   let totalBeforeDiscount: number;
@@ -180,12 +215,11 @@ export function CheckoutPage() {
     });
   } else {
     // Compra directa (un solo item)
-    const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
     subtotal = ticketPrice * quantity;
     serviceFee = Math.round(subtotal * 0.1);
     totalBeforeDiscount = subtotal + serviceFee;
     totalItems = quantity;
-    discountAmount = totalItems >= 2 ? Math.round(totalBeforeDiscount * 0.1) : 0;
+    discountAmount = totalItems >= 2 ? Math.round(subtotal * 0.1) : 0; // Descuento sobre subtotal, no sobre totalBeforeDiscount
     total = totalBeforeDiscount - discountAmount;
   }
 
