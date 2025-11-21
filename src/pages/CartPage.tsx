@@ -102,9 +102,12 @@ export function CartPage() {
     // La dirección se validará y completará en CheckoutPage
     // No requerimos dirección completa aquí
 
+    // Debug: Verificar items antes de navegar
+    console.log('🛒 CartPage - Navigating to checkout with items:', items);
+    
     // Navegar al checkout con la dirección del checkoutStore
     navigate("checkout", {
-      cartItems: items,
+      cartItems: items, // Pasar directamente el array, no serializar
       // Mantener compatibilidad con checkout de un solo item
       id: items[0].eventId,
       title: items[0].eventName,
