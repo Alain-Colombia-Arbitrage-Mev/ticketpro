@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Star, Ticket, ShoppingCart } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Ticket, ShoppingCart } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
@@ -272,51 +272,6 @@ export function EventDetailPage() {
               </div>
             </Card>
 
-            {/* Reviews */}
-            <Card className="p-3 sm:p-4 md:p-5 lg:p-6 !bg-white/5 border-white/20">
-              <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
-                <h3 className="text-base sm:text-lg md:text-xl !text-white">{t('event.detail.reviews')}</h3>
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm sm:text-base !text-white">4.8</span>
-                  <span className="text-xs sm:text-sm !text-white/60 hidden sm:inline">(234 reseñas)</span>
-                  <span className="text-xs !text-white/60 sm:hidden">(234)</span>
-                </div>
-              </div>
-              
-              <div className="space-y-3 sm:space-y-4">
-                <div className="border-b border-white/20 pb-3 sm:pb-4">
-                  <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="text-[11px] sm:text-xs md:text-sm !text-white/60">hace 2 días</span>
-                  </div>
-                  <p className="mb-1 text-sm sm:text-base !text-white">Excelente experiencia</p>
-                  <p className="text-xs sm:text-sm !text-white/70">
-                    El mejor concierto al que he asistido. La organización fue impecable y el ambiente increíble.
-                  </p>
-                </div>
-                
-                <div className="pb-3 sm:pb-4">
-                  <div className="mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4].map((i) => (
-                        <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 !text-white/30" />
-                    </div>
-                    <span className="text-[11px] sm:text-xs md:text-sm !text-white/60">hace 1 semana</span>
-                  </div>
-                  <p className="mb-1 text-sm sm:text-base !text-white">Muy bueno</p>
-                  <p className="text-xs sm:text-sm !text-white/70">
-                    Gran evento, aunque el estacionamiento estaba un poco lleno. Lo recomiendo totalmente.
-                  </p>
-                </div>
-              </div>
-            </Card>
           </div>
 
           {/* Sidebar - Ticket Selection */}
