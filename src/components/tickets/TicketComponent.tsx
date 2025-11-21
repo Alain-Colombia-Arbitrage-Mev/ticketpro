@@ -215,19 +215,19 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
 
         {/* Sección inferior blanca con patrón fondo5.svg */}
         <div className="absolute bottom-0 left-0 w-full h-[250px] bg-white overflow-hidden z-0">
-          <div 
+        <div 
             className="absolute inset-0 flex items-center justify-center"
-            style={{
+          style={{
               backgroundImage: `url(${fondo5})`,
               backgroundSize: 'contain',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               opacity: 0.15,
-              WebkitPrintColorAdjust: 'exact',
-              printColorAdjust: 'exact',
-              colorAdjust: 'exact',
-            }}
-          ></div>
+            WebkitPrintColorAdjust: 'exact',
+            printColorAdjust: 'exact',
+            colorAdjust: 'exact',
+          }}
+        ></div>
         </div>
 
         {/* QR Code a la derecha - Más arriba para no interferir */}
@@ -329,30 +329,30 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
             <div className="overflow-hidden">
               <div className="text-[10px] text-gray-500 font-semibold mb-1 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>
                 FULL NAME
-              </div>
-              <p 
+          </div>
+          <p 
                 className="text-[12px] text-gray-900 font-medium truncate"
                 style={{ fontFamily: "'Inter', sans-serif" }}
-              >
-                {ticket.buyer_full_name}
-              </p>
+          >
+            {ticket.buyer_full_name}
+          </p>
             </div>
-            
+          
             <div className="overflow-hidden">
               <div className="text-[10px] text-gray-500 font-semibold mb-1 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>
                 FULL ADDRESS
-              </div>
-              <p 
+          </div>
+          <p 
                 className="text-[12px] text-gray-900 font-medium line-clamp-2 leading-tight"
                 style={{ fontFamily: "'Inter', sans-serif" }}
-              >
-                {ticket.buyer_address || 'N/A'}
-              </p>
+          >
+            {ticket.buyer_address || 'N/A'}
+          </p>
             </div>
           </div>
           
           {/* Nota sobre el PIN - Sin revelar el número */}
-          <div 
+            <div 
             className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg max-w-[340px]"
           >
             <div className="flex items-start gap-2">
@@ -363,8 +363,8 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
                 <p className="text-[10px] text-blue-800 font-bold mb-1">🔒 PIN DE SEGURIDAD</p>
                 <p className="text-[9px] text-blue-700 leading-tight">
                   Tu PIN de 4 dígitos fue enviado a tu correo electrónico. Preséntalo al ingresar al evento.
-                </p>
-              </div>
+            </p>
+          </div>
             </div>
           </div>
         </div>

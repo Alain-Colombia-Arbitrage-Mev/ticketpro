@@ -826,19 +826,19 @@ export function EventsListPage() {
 
                     {/* Badge de precio */}
                     {!event.soldOut && (
-                      <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
-                        <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
-                          <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
-                            {t("events.card.from")}
-                          </p>
-                          <p
-                            className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight"
-                            style={{ fontFamily: "Germania One, sans-serif" }}
-                          >
-                            {event.price}
-                          </p>
-                        </div>
+                    <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                      <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
+                          {t("events.card.from")}
+                        </p>
+                        <p
+                          className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight"
+                          style={{ fontFamily: "Germania One, sans-serif" }}
+                        >
+                          {event.price}
+                        </p>
                       </div>
+                    </div>
                     )}
                   </div>
 
@@ -872,7 +872,7 @@ export function EventsListPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!event.soldOut) {
-                          handleAddToCart(event);
+                        handleAddToCart(event);
                         }
                       }}
                       disabled={event.soldOut}
@@ -977,19 +977,19 @@ export function EventsListPage() {
 
                     {/* Badge de precio */}
                     {!event.soldOut && (
-                      <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
-                        <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
-                          <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
-                            {t("events.card.from")}
-                          </p>
-                          <p
-                            className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight"
-                            style={{ fontFamily: "Germania One, sans-serif" }}
-                          >
-                            {event.price}
-                          </p>
-                        </div>
+                    <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                      <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                        <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
+                          {t("events.card.from")}
+                        </p>
+                        <p
+                          className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight"
+                          style={{ fontFamily: "Germania One, sans-serif" }}
+                        >
+                          {event.price}
+                        </p>
                       </div>
+                    </div>
                     )}
                   </div>
 
@@ -1023,7 +1023,7 @@ export function EventsListPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!event.soldOut) {
-                          handleAddToCart(event);
+                        handleAddToCart(event);
                         }
                       }}
                       disabled={event.soldOut}

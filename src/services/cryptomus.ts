@@ -279,7 +279,7 @@ class CryptomusService {
       return {
         paymentUrl: data.paymentUrl,
         invoice: data.invoice,
-      };
+    };
     } catch (error) {
       console.error('Error creating crypto payment:', error);
       throw error;

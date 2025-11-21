@@ -36,10 +36,10 @@ export function AddressForm({ onAddressValid }: AddressFormProps) {
             country: user.country 
           });
           
-          setCheckoutInfo({
-            fullName: user.name || '',
-            email: user.email || '',
-            address: user.address || '',
+        setCheckoutInfo({
+          fullName: user.name || '',
+          email: user.email || '',
+          address: user.address || '',
             city: user.city || '',
             state: user.state || '',
             zipCode: user.zipCode || '',
@@ -239,8 +239,8 @@ export function AddressForm({ onAddressValid }: AddressFormProps) {
         if (insertError) {
           console.error('❌ Error creando perfil:', insertError);
           throw insertError;
-        }
-        
+      }
+
         console.log('✅ Perfil creado con dirección en BD:', insertedData?.[0]);
       }
 
