@@ -19,11 +19,11 @@ const promoSlides: PromoSlide[] = [
     id: 1,
     image: 'https://imagenes.veltlix.com/images/navidadHorizontal.jpg',
     title: 'NAVIDAD VICION POWER',
-    subtitle: 'Participa en la rifa de 3 automóviles',
+    subtitle: 'Participa en la rifa de 2 automóviles',
     date: 'Sábado 13 de Diciembre, 6:00 PM - 1:00 AM',
     location: 'Fox Theater, San Bernardino, CA',
     price: '$50 USD',
-    promo: '🎁 ¡Gana 1 de 3 automóviles!',
+    promo: '🎁 ¡Gana 1 de 2 automóviles!',
     eventId: 21, // ID del evento premium en la BD
   },
 ];

@@ -54,7 +54,7 @@ export function CheckoutPage() {
   const { navigate, pageData } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { clearCart } = useCartStore();
+  const { clearCart, getTotalItems, getDiscount, getTotalWithDiscount } = useCartStore();
   const { checkoutInfo } = useCheckoutStore();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -148,7 +148,14 @@ export function CheckoutPage() {
   );
   const subtotal = ticketPrice * quantity;
   const serviceFee = Math.round(subtotal * 0.1);
-  const total = subtotal + serviceFee;
+  const totalBeforeDiscount = subtotal + serviceFee;
+  
+  // Aplicar descuento del 10% si hay 2 o más tickets (usando cart si hay cartItems, o cantidad si es compra directa)
+  const totalItems = cartItems ? getTotalItems() : quantity;
+  const discountAmount = totalItems >= 2 ? Math.round(totalBeforeDiscount * 0.1) : 0;
+  const total = cartItems 
+    ? (discountAmount > 0 ? getTotalWithDiscount() : totalBeforeDiscount)
+    : (totalBeforeDiscount - discountAmount);
 
   const handleQuantityChange = (delta: number) => {
     const newQty = quantity + delta;

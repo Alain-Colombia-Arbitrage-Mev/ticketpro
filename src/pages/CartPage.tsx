@@ -19,12 +19,14 @@ export function CartPage() {
   const { navigate } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { items, removeItem, updateQuantity, updateTicketType, clearCart, getTotalItems, getTotalPrice } = useCartStore();
+  const { items, removeItem, updateQuantity, updateTicketType, clearCart, getTotalItems, getTotalPrice, getDiscount, getTotalWithDiscount } = useCartStore();
   const { checkoutInfo, updateField, setCheckoutInfo, isAddressComplete } = useCheckoutStore();
   const [loading, setLoading] = useState(false);
 
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
+  const discount = getDiscount();
+  const totalWithDiscount = getTotalWithDiscount();
 
   // Cargar dirección del usuario al montar
   useEffect(() => {
@@ -376,11 +378,24 @@ export function CartPage() {
                       {formatCurrency(items.reduce((sum, item) => sum + item.serviceFee, 0), 'USD')}
                     </span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-xs min-[375px]:text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="!text-green-400">Descuento (10%)</span>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-400/50 text-[10px] px-1.5 py-0">
+                          2+ tickets
+                        </Badge>
+                      </div>
+                      <span className="!text-green-400 font-medium">
+                        -{formatCurrency(discount, 'USD')}
+                      </span>
+                    </div>
+                  )}
                   <Separator className="bg-white/20" />
                   <div className="flex justify-between">
                     <span className="text-base min-[375px]:text-lg font-semibold !text-white">{t('cart.total')}</span>
                     <span className="text-base min-[375px]:text-lg font-bold !text-[#c61619]">
-                      {formatCurrency(totalPrice, 'USD')}
+                      {formatCurrency(discount > 0 ? totalWithDiscount : totalPrice, 'USD')}
                     </span>
                   </div>
                 </div>
