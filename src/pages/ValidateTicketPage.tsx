@@ -5,7 +5,6 @@ import { validateTicket, validateTicketByHoster, Ticket } from "../utils/tickets
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { CheckCircle2, XCircle, Loader2, QrCode, Shield, LogIn } from "lucide-react";
-import { TicketComponent } from "../components/tickets/TicketComponent";
 
 export function ValidateTicketPage() {
   const { navigate } = useRouter();
@@ -364,16 +363,6 @@ export function ValidateTicketPage() {
                 </div>
               </Card>
             )}
-
-            {/* Vista previa de la boleta - Ocultar en móvil para ahorrar espacio */}
-            <div className="mt-6 sm:mt-8 hidden sm:block">
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Vista Previa de la Boleta</h3>
-              <div className="bg-white p-4 rounded-lg overflow-x-auto">
-                <div className="scale-75 sm:scale-100 origin-top-left">
-                  <TicketComponent ticket={ticket} />
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
