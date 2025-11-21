@@ -91,6 +91,7 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
 /**
  * Hook principal para obtener eventos
  * Usa BD si está disponible, sino usa mockEvents
+ * Los eventos NAVIDAD (21, 22) siempre aparecen primero
  */
 export function useEvents() {
   return useQuery({
@@ -108,9 +109,7 @@ export function useEvents() {
         const { data, error } = await supabase
           .from('events')
           .select('*')
-          .eq('is_active', true)
-          .order('featured', { ascending: false })
-          .order('date', { ascending: false });
+          .eq('is_active', true);
         
         if (error) {
           console.error('❌ Error fetching events from DB:', error);
@@ -124,7 +123,33 @@ export function useEvents() {
         }
 
         console.log(`✅ ${data.length} eventos cargados desde BD`);
-        return data.map(convertEventFromDB);
+        
+        // Convertir eventos y ordenar con NAVIDAD primero
+        const convertedEvents = data.map(convertEventFromDB);
+        
+        // Ordenamiento personalizado: NAVIDAD (21, 22) primero, luego el resto
+        const sortedEvents = convertedEvents.sort((a, b) => {
+          // Eventos NAVIDAD (21, 22) van primero
+          const isNavidadA = a.id === 21 || a.id === 22;
+          const isNavidadB = b.id === 21 || b.id === 22;
+          
+          if (isNavidadA && !isNavidadB) return -1;
+          if (!isNavidadA && isNavidadB) return 1;
+          
+          // Entre eventos NAVIDAD, 21 va antes que 22
+          if (isNavidadA && isNavidadB) {
+            return a.id - b.id;
+          }
+          
+          // Para el resto: featured primero, luego por fecha descendente
+          if (a.featured !== b.featured) {
+            return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+          }
+          
+          return 0;
+        });
+        
+        return sortedEvents;
       } catch (error) {
         console.error('❌ Error conectando a BD:', error);
         console.log('📦 Fallback a mockEvents');
@@ -139,6 +164,7 @@ export function useEvents() {
 
 /**
  * Hook para obtener eventos por categoría
+ * Los eventos NAVIDAD (21, 22) siempre aparecen primero
  */
 export function useEventsByCategory(category?: string) {
   return useQuery({
@@ -163,11 +189,34 @@ export function useEventsByCategory(category?: string) {
           query = query.eq('category', category);
         }
         
-        const { data, error } = await query.order('date', { ascending: true });
+        const { data, error } = await query;
         
         if (error) throw error;
         
-        return data ? data.map(convertEventFromDB) : mockEvents;
+        if (!data) return mockEvents;
+        
+        // Convertir eventos
+        const convertedEvents = data.map(convertEventFromDB);
+        
+        // Ordenamiento personalizado: NAVIDAD (21, 22) primero
+        const sortedEvents = convertedEvents.sort((a, b) => {
+          // Eventos NAVIDAD (21, 22) van primero
+          const isNavidadA = a.id === 21 || a.id === 22;
+          const isNavidadB = b.id === 21 || b.id === 22;
+          
+          if (isNavidadA && !isNavidadB) return -1;
+          if (!isNavidadA && isNavidadB) return 1;
+          
+          // Entre eventos NAVIDAD, 21 va antes que 22
+          if (isNavidadA && isNavidadB) {
+            return a.id - b.id;
+          }
+          
+          // Para el resto: por fecha ascendente
+          return 0;
+        });
+        
+        return sortedEvents;
       } catch (error) {
         console.error('Error fetching events by category:', error);
         const filtered = category && category !== 'all'
