@@ -11,6 +11,7 @@ export function ValidateTicketPage() {
   const { navigate } = useRouter();
   const { user } = useAuth();
   const isAuthenticated = !!user && !!user.id && !!user.email;
+  const isAuthorized = isAuthenticated && user && (user.role === 'hoster' || user.role === 'admin');
   const [loading, setLoading] = useState(true);
   const [validating, setValidating] = useState(false);
   const [ticket, setTicket] = useState<Ticket | null>(null);
@@ -19,7 +20,29 @@ export function ValidateTicketPage() {
     message: string;
   } | null>(null);
 
+  // 🔒 PROTECCIÓN: Verificar autenticación y rol ANTES de cargar ticket
   useEffect(() => {
+    if (!isAuthenticated) {
+      // No autenticado: guardar URL y redirigir a login
+      setLoading(false);
+      return;
+    }
+
+    if (!isAuthorized) {
+      // Autenticado pero sin rol correcto
+      setLoading(false);
+      setValidationResult({
+        valid: false,
+        message: 'Acceso denegado: Solo usuarios con rol de hoster o admin pueden validar tickets'
+      });
+      return;
+    }
+
+    // Usuario autorizado: proceder a validar ticket
+    loadAndValidateTicket();
+  }, [isAuthenticated, isAuthorized]);
+
+  const loadAndValidateTicket = () => {
     // Leer parámetros de la URL (tanto del hash como de la query string)
     const hash = window.location.hash;
     const urlParams = new URLSearchParams(window.location.search);
@@ -49,7 +72,7 @@ export function ValidateTicketPage() {
         message: 'No se proporcionó información del ticket'
       });
     }
-  }, []);
+  };
 
   const validateTicketOnLoad = async (ticketId?: string, code?: string) => {
     try {
@@ -152,6 +175,62 @@ export function ValidateTicketPage() {
     );
   }
 
+  // 🔒 PANTALLA DE LOGIN REQUERIDO
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <Card className="max-w-md w-full p-8 !bg-white/5 border-white/20">
+          <div className="text-center">
+            <Shield className="h-16 w-16 text-[#c61619] mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Autenticación Requerida
+            </h2>
+            <p className="text-white/80 mb-6">
+              Para validar tickets debes iniciar sesión con una cuenta de <strong>hoster</strong> o <strong>admin</strong>.
+            </p>
+            <Button
+              onClick={() => navigate("login")}
+              className="w-full bg-[#c61619] hover:bg-[#a01316] text-white"
+              size="lg"
+            >
+              <LogIn className="h-5 w-5 mr-2" />
+              Iniciar Sesión
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // 🔒 PANTALLA DE ACCESO DENEGADO
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <Card className="max-w-md w-full p-8 !bg-red-500/10 border-red-500/50">
+          <div className="text-center">
+            <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Acceso Denegado
+            </h2>
+            <p className="text-white/80 mb-2">
+              Solo usuarios con rol de <strong>hoster</strong> o <strong>admin</strong> pueden acceder a esta página.
+            </p>
+            <p className="text-white/60 text-sm mb-6">
+              Tu rol actual: <strong>{user?.role || 'usuario'}</strong>
+            </p>
+            <Button
+              onClick={() => navigate("home")}
+              variant="outline"
+              className="w-full border-white/20 text-white hover:bg-white/10"
+            >
+              Volver al Inicio
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black py-6 sm:py-12 px-4">
       <div className="container mx-auto max-w-4xl">
@@ -232,53 +311,36 @@ export function ValidateTicketPage() {
               </div>
             </Card>
 
-            {/* Botón para marcar como usado */}
+            {/* Botón para marcar como usado - Ya autorizado por las verificaciones previas */}
             {validationResult?.valid && ticket.status === 'issued_unused' && (
               <Card className="p-6 !bg-yellow-500/10 border-yellow-500/50">
                 <div className="text-center mb-4">
                   <p className="text-white/90 mb-2 font-semibold">
                     Este ticket está sin usar
                   </p>
-                  {!isAuthenticated || (user && user.role !== 'hoster' && user.role !== 'admin') ? (
-                    <div className="space-y-3">
-                      <p className="text-sm text-white/70">
-                        Debes iniciar sesión con una cuenta de hoster o admin para validar este ticket
-                      </p>
-                      <Button
-                        onClick={() => navigate("login")}
-                        className="bg-[#c61619] hover:bg-[#a01316] text-white"
-                      >
-                        <LogIn className="h-4 w-4 mr-2" />
-                        Iniciar Sesión
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-sm text-white/70 mb-4">
-                        Haz clic en el botón para marcarlo como usado
-                      </p>
-                      <div className="flex justify-center">
-                        <Button
-                          onClick={handleMarkAsUsed}
-                          disabled={validating}
-                          className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold"
-                          size="lg"
-                        >
-                          {validating ? (
-                            <>
-                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                              Procesando...
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="h-5 w-5 mr-2" />
-                              Validar y Marcar como Usado
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </>
-                  )}
+                  <p className="text-sm text-white/70 mb-4">
+                    Haz clic en el botón para marcarlo como usado
+                  </p>
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={handleMarkAsUsed}
+                      disabled={validating}
+                      className="bg-[#c61619] hover:bg-[#a01316] text-white px-8 py-3 text-lg font-semibold"
+                      size="lg"
+                    >
+                      {validating ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Procesando...
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="h-5 w-5 mr-2" />
+                          Validar y Marcar como Usado
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </Card>
             )}
