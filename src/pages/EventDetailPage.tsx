@@ -22,6 +22,14 @@ export function EventDetailPage() {
     return null;
   }
 
+  // Debug: Verificar ID del evento
+  console.log('🎫 EventDetailPage - Event ID:', {
+    id: pageData.id,
+    type: typeof pageData.id,
+    isNavidad: pageData.id === 21 || pageData.id === 22 || pageData.id === '21' || pageData.id === '22',
+    title: pageData.title
+  });
+
   // Parsear fecha del evento para formato ISO
   const parseDate = (dateStr: string): string => {
     // Formato esperado: "15 de Noviembre, 2025"
@@ -235,8 +243,8 @@ export function EventDetailPage() {
               <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
                   src={
-                    pageData.id === 21 || pageData.id === 22
-                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg'
+                    (pageData.id === 21 || pageData.id === 22 || pageData.id === '21' || pageData.id === '22')
+                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg?v=2'
                       : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt="Venue"
