@@ -163,7 +163,8 @@ serve(async (req: Request) => {
 
       // PASO 1: Crear orden en tabla orders
       const nowIso = new Date().toISOString();
-      const origin = new URL(req.url).origin;
+      // Usar la URL del frontend en producción, no la de la función
+      const origin = Deno.env.get("FRONTEND_URL") || "https://veltlix.com";
 
       // VERSIÓN 2.0 - ELIMINANDO DEPENDENCIA DE STRIPE payment_status
       console.log("=== STRIPE WEBHOOK v2.0 - NUEVO DESPLIEGUE ===");
