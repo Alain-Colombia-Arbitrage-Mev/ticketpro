@@ -129,9 +129,13 @@ export function AllEventsPage() {
   const filteredAndSortedEvents = useMemo(() => {
     let result = [...events];
 
-    // Category filter
+    // Category filter - NAVIDAD siempre visible en todas las categorías
     if (selectedCategory !== "all") {
-      result = result.filter(event => event.category === selectedCategory);
+      result = result.filter(event => {
+        // Eventos NAVIDAD (21, 22) aparecen en TODAS las categorías
+        const isNavidad = event.id === 21 || event.id === 22;
+        return isNavidad || event.category === selectedCategory;
+      });
     }
 
     // City filter
