@@ -220,9 +220,14 @@ export function EventDetailPage() {
               <h3 className="mb-2 sm:mb-3 md:mb-4 text-base sm:text-lg md:text-xl !text-white">Información del Lugar</h3>
               <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                  src={
+                    pageData.id === 21 || pageData.id === 22
+                      ? 'https://pub-5a13339d7d824ebb91725522933007a7.r2.dev/images/foxteather.jpg'
+                      : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                  }
                   alt="Venue"
                   className="h-full w-full object-cover"
+                  loading="lazy"
                 />
               </div>
               <div className="space-y-2 text-xs sm:text-sm md:text-base !text-white/70">
