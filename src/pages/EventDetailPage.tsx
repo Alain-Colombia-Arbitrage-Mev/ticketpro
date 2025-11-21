@@ -47,12 +47,26 @@ export function EventDetailPage() {
 
   const eventDateISO = parseDate(pageData.date);
 
-  const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(null);
+  const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1); // Auto-seleccionar el único ticket
+
+  // Extraer precio del formato "$50 USD" -> "50"
+  const extractPrice = (priceStr: string): string => {
+    const match = priceStr.match(/[\d,]+/);
+    return match ? match[0].replace(/,/g, '') : '0';
+  };
 
   const ticketTypes = [
-    { id: 1, name: "General", price: "800", benefits: ["Acceso general", "Estacionamiento incluido"] },
-    { id: 2, name: "VIP", price: "1,500", benefits: ["Asientos preferentes", "Acceso a zona VIP", "Meet & Greet"] },
-    { id: 3, name: "Palco", price: "3,500", benefits: ["Palco privado (4 personas)", "Servicio de mesero", "Bebidas incluidas"] },
+    { 
+      id: 1, 
+      name: "Entrada General", 
+      price: extractPrice(pageData.price), 
+      benefits: [
+        "Acceso al evento",
+        "Entrada digital por correo",
+        "PIN de seguridad único",
+        "Válido para una persona"
+      ] 
+    },
   ];
 
   const handleTicketSelection = (ticketId: number) => {
@@ -222,7 +236,7 @@ export function EventDetailPage() {
                 <ImageWithFallback
                   src={
                     pageData.id === 21 || pageData.id === 22
-                      ? 'https://pub-5a13339d7d824ebb91725522933007a7.r2.dev/images/foxteather.jpg'
+                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg'
                       : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt="Venue"
