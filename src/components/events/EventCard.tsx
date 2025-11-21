@@ -113,10 +113,10 @@ export function EventCard({
 
         {/* Botón CTA - Tema negro */}
         {!soldOut && (
-          <Button className="w-full bg-white text-black font-medium shadow-lg transition-all duration-300 hover:bg-white/90 hover:scale-105 hover:-translate-y-0.5" style={{ color: '#000000' }}>
-            <Ticket className="mr-2 h-4 w-4" style={{ color: '#000000' }} />
-            {t('event.buy')}
-          </Button>
+        <Button className="w-full bg-white text-black font-medium shadow-lg transition-all duration-300 hover:bg-white/90 hover:scale-105 hover:-translate-y-0.5" style={{ color: '#000000' }}>
+          <Ticket className="mr-2 h-4 w-4" style={{ color: '#000000' }} />
+          {t('event.buy')}
+        </Button>
         )}
       </div>
       </Card>

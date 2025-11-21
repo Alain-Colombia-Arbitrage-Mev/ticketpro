@@ -1,6 +1,6 @@
 /**
  * Environment Configuration
- * Configuración de variables de entorno
+ * Configuración de variables de entorno para PRODUCCIÓN
  */
 export const env = {
   supabase: {
@@ -8,23 +8,17 @@ export const env = {
     anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_supabase_anon_key || '',
   },
   stripe: {
-    // Variables principales: VITE_STRIPE_PUBLISHABLE_KEY_TEST y VITE_STRIPE_PUBLISHABLE_KEY_PROD
-    // También acepta VITE_Stripe_public_key como alternativa
-    publishableKeyTest: 
-      import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_TEST || 
-      import.meta.env.VITE_Stripe_public_key || 
-      '',
-    publishableKeyProd: 
+    // PRODUCCIÓN: Usar siempre la clave de producción
+    // VITE_STRIPE_PUBLISHABLE_KEY contiene pk_live_...
+    publishableKey: 
+      import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
       import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_PROD || 
       import.meta.env.VITE_Stripe_public_key || 
       '',
-    // Usa la clave según el entorno
-    get publishableKey() {
-      return import.meta.env.PROD 
-        ? this.publishableKeyProd 
-        : this.publishableKeyTest;
-    },
   },
+  // URL del frontend para producción
+  frontUrl: import.meta.env.VITE_FRONT_URL || 'https://veltlix.com',
+  
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
   mode: import.meta.env.MODE,
