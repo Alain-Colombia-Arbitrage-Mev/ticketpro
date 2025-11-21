@@ -631,8 +631,8 @@ export function AllEventsPage() {
               {currentEvents.map((event, index) => (
                 <div 
                   key={event.id} 
-                  onClick={() => navigate("event-detail", event)}
-                  className="cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+                  onClick={() => !event.soldOut && navigate("event-detail", event)}
+                  className={`transition-all duration-300 ${!event.soldOut ? 'cursor-pointer hover:scale-[1.02] hover:shadow-xl' : 'cursor-not-allowed opacity-90'}`}
                 >
                   <div className="relative flex flex-col w-full">
                     {/* Imagen del evento - Optimizada */}
@@ -644,6 +644,17 @@ export function AllEventsPage() {
                         className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                       />
                       
+                      {/* Overlay SOLD OUT */}
+                      {event.soldOut && (
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-30">
+                          <div className="bg-gradient-to-r from-gray-900 to-black px-6 py-3 rounded-lg shadow-2xl border-2 border-white/20">
+                            <p className="font-bold text-lg sm:text-xl md:text-2xl text-white tracking-wide">
+                              AGOTADO
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Badges superiores */}
                       <div className="absolute top-1.5 sm:top-2 md:top-3 left-2 sm:left-3 md:left-[23px] flex flex-col gap-1.5 sm:gap-2 md:gap-[12px] z-10">
                         {/* Badge de categoría */}
@@ -654,7 +665,7 @@ export function AllEventsPage() {
                         </div>
                         
                         {/* Badge de estado */}
-                        {event.lastTickets && (
+                        {event.lastTickets && !event.soldOut && (
                           <div className="bg-[#f9487f] h-[20px] sm:h-[22px] md:h-[27px] rounded-[20px] px-2 sm:px-3 md:px-4 flex items-center justify-center">
                             <p className="font-montserrat font-bold text-[9px] sm:text-[11px] md:text-[14px] text-white">
                               Últimos
@@ -675,16 +686,18 @@ export function AllEventsPage() {
                       )}
 
                       {/* Badge de precio */}
-                      <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
-                        <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
-                          <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
-                            {t('events.card.from')}
-                          </p>
-                          <p className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
-                            {event.price}
-                          </p>
+                      {!event.soldOut && (
+                        <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-[15px] left-2 sm:left-3 md:left-[23px] z-10">
+                          <div className="bg-white h-[42px] sm:h-[52px] md:h-[60px] lg:h-[67px] rounded-[15px] sm:rounded-[20px] px-2 sm:px-3 md:px-4 flex flex-col items-start justify-center">
+                            <p className="font-montserrat font-medium text-[9px] sm:text-[11px] md:text-[12px] lg:text-[14px] text-black">
+                              {t('events.card.from')}
+                            </p>
+                            <p className="font-bold text-[16px] sm:text-[20px] md:text-[24px] lg:text-[30px] text-black leading-tight" style={{ fontFamily: 'Germania One, sans-serif' }}>
+                              {event.price}
+                            </p>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Información del evento */}
@@ -706,14 +719,21 @@ export function AllEventsPage() {
 
                       {/* Botón de acción */}
                       <button 
-                        className="mt-auto bg-[#c61619] hover:bg-[#a01316] h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors"
+                        className={`mt-auto h-[28px] sm:h-[32px] md:h-[36px] lg:h-[40px] rounded-[7px] w-full transition-colors ${
+                          event.soldOut 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-[#c61619] hover:bg-[#a01316] cursor-pointer'
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAddToCart(event);
+                          if (!event.soldOut) {
+                            handleAddToCart(event);
+                          }
                         }}
+                        disabled={event.soldOut}
                       >
                         <p className="font-montserrat font-bold text-[9px] sm:text-[10px] md:text-[12px] lg:text-[14px] !text-white text-center">
-                          Comprar boletos
+                          {event.soldOut ? 'AGOTADO' : 'Comprar boletos'}
                         </p>
                       </button>
                     </div>
