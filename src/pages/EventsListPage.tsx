@@ -160,6 +160,24 @@ export function EventsListPage() {
       );
     }
 
+    // ✅ ORDENAMIENTO FINAL: NAVIDAD (21, 22) SIEMPRE PRIMERO
+    result.sort((a, b) => {
+      const isNavidadA = a.id === 21 || a.id === 22;
+      const isNavidadB = b.id === 21 || b.id === 22;
+      
+      // NAVIDAD va primero
+      if (isNavidadA && !isNavidadB) return -1;
+      if (!isNavidadA && isNavidadB) return 1;
+      
+      // Entre NAVIDAD: 21 antes que 22
+      if (isNavidadA && isNavidadB) {
+        return a.id - b.id;
+      }
+      
+      // Para el resto, mantener el orden original
+      return 0;
+    });
+
     return result;
   }, [events, selectedCategory, selectedCities, searchQuery]);
 
