@@ -28,6 +28,16 @@ export function CartPage() {
   const discount = getDiscount();
   const totalWithDiscount = getTotalWithDiscount();
 
+  // Debug: Verificar descuento
+  console.log('💰 CartPage - Discount Debug:', {
+    totalItems,
+    totalPrice,
+    discount,
+    totalWithDiscount,
+    shouldHaveDiscount: totalItems >= 2,
+    discountPercentage: totalItems >= 2 ? '10%' : '0%'
+  });
+
   // Cargar dirección del usuario al montar
   useEffect(() => {
     console.log('🔍 CartPage - User Debug:', {

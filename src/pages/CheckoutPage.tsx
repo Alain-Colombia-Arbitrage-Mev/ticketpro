@@ -69,6 +69,14 @@ export function CheckoutPage() {
 
   // Verificar si hay items del carrito
   const cartItems = (pageData as any)?.cartItems || null;
+  
+  // Debug: Verificar cartItems
+  console.log('🛒 CheckoutPage - cartItems:', {
+    cartItems,
+    isArray: Array.isArray(cartItems),
+    type: typeof cartItems,
+    length: cartItems?.length
+  });
 
   // Cargar categorías y métodos de pago al montar
   useEffect(() => {
@@ -151,7 +159,7 @@ export function CheckoutPage() {
   let discountAmount: number;
   let total: number;
 
-  if (cartItems) {
+  if (cartItems && Array.isArray(cartItems) && cartItems.length > 0) {
     // Usar cálculos del carrito
     subtotal = cartItems.reduce((sum, item) => sum + item.subtotal, 0);
     serviceFee = cartItems.reduce((sum, item) => sum + item.serviceFee, 0);
@@ -159,6 +167,17 @@ export function CheckoutPage() {
     totalItems = getTotalItems();
     discountAmount = getDiscount();
     total = getTotalWithDiscount();
+    
+    // Debug: Verificar descuento en checkout
+    console.log('💳 CheckoutPage - Cart Discount:', {
+      totalItems,
+      subtotal,
+      serviceFee,
+      totalBeforeDiscount,
+      discountAmount,
+      total,
+      shouldHaveDiscount: totalItems >= 2
+    });
   } else {
     // Compra directa (un solo item)
     const ticketPrice = parseInt(pageData.ticketPrice?.replace(/[^0-9]/g, "") || "800");
