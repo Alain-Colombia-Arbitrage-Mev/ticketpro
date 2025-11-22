@@ -309,8 +309,9 @@ Sistema Anti-Fraude Veltlix v2.0
     `.trim();
 
     // Enviar email usando Amazon SES
-    const awsAccessKeyId = Deno.env.get("AWS_ACCESS_KEY_ID");
-    const awsSecretAccessKey = Deno.env.get("AWS_SECRET_ACCESS_KEY");
+    // Soporta tanto AWS_ACCESS_KEY_ID como SMTP_USER
+    const awsAccessKeyId = Deno.env.get("AWS_ACCESS_KEY_ID") || Deno.env.get("SMTP_USER");
+    const awsSecretAccessKey = Deno.env.get("AWS_SECRET_ACCESS_KEY") || Deno.env.get("SMTP_PASS");
     const awsRegion = Deno.env.get("AWS_REGION") || "us-east-1";
     const sesFromEmail = Deno.env.get("SES_FROM_EMAIL") || "alerts@veltlix.com";
     
