@@ -422,6 +422,44 @@ serve(async (req: Request) => {
                   fraudReason = `Tarjeta (...${last4}) ya registrada por ${firstUser.buyer_email}`;
                   
                   console.log(`🚨 FRAUDE DETECTADO: ${fraudReason}`);
+
+                  // 📧 ENVIAR ALERTA DE FRAUDE POR EMAIL
+                  try {
+                    const alertResponse = await fetch(
+                      `${supabaseUrl}/functions/v1/send-fraud-alert`,
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${supabaseServiceKey}`,
+                        },
+                        body: JSON.stringify({
+                          fingerprint,
+                          current_buyer_email: buyerEmail,
+                          current_buyer_name: buyerFullName,
+                          original_buyer_email: firstUser.buyer_email,
+                          original_buyer_name: firstUser.buyer_name,
+                          card_last4: last4,
+                          card_brand: brand,
+                          order_id: orderId,
+                          session_id: session.id,
+                          amount: session.amount_total || 0,
+                          currency: session.currency || "usd",
+                          original_first_used: firstUser.first_used_at,
+                          alert_type: "blocked",
+                        }),
+                      }
+                    );
+
+                    if (alertResponse.ok) {
+                      console.log(`✅ Alerta de fraude enviada a info@trustwisebank.co`);
+                    } else {
+                      console.warn(`⚠️ No se pudo enviar alerta de fraude: ${await alertResponse.text()}`);
+                    }
+                  } catch (alertError) {
+                    console.warn('⚠️ Error enviando alerta de fraude:', alertError);
+                    // No fallar el webhook si el email falla
+                  }
                   
                   // Registrar intento fraudulento
                   await supabase
