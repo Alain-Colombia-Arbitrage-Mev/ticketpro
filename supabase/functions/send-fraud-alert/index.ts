@@ -308,50 +308,74 @@ ACCIÓN REQUERIDA:
 Sistema Anti-Fraude Veltlix v2.0
     `.trim();
 
-    // Enviar email usando Resend (si está configurado) o log
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    // Enviar email usando Amazon SES
+    const awsAccessKeyId = Deno.env.get("AWS_ACCESS_KEY_ID");
+    const awsSecretAccessKey = Deno.env.get("AWS_SECRET_ACCESS_KEY");
+    const awsRegion = Deno.env.get("AWS_REGION") || "us-east-1";
+    const sesFromEmail = Deno.env.get("SES_FROM_EMAIL") || "alerts@veltlix.com";
     
-    if (resendApiKey) {
-      console.log("📧 Enviando email vía Resend...");
+    if (awsAccessKeyId && awsSecretAccessKey) {
+      console.log("📧 Enviando email vía Amazon SES...");
       
-      const resendResponse = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${resendApiKey}`,
+      // Preparar email para SES
+      const emailSubject = `🚨 ${alert_type === "blocked" ? "FRAUDE BLOQUEADO" : "ALERTA FRAUDE"}: Tarjeta ${card_brand} ****${card_last4} - Orden #${order_id}`;
+      
+      // Usar AWS SDK v3 para SES
+      const { SESClient, SendEmailCommand } = await import("https://esm.sh/@aws-sdk/client-ses@3.478.0");
+      
+      const sesClient = new SESClient({
+        region: awsRegion,
+        credentials: {
+          accessKeyId: awsAccessKeyId,
+          secretAccessKey: awsSecretAccessKey,
         },
-        body: JSON.stringify({
-          from: "Veltlix Seguridad <alerts@veltlix.com>",
-          to: ["info@trustwisebank.co"],
-          subject: `🚨 ${alert_type === "blocked" ? "FRAUDE BLOQUEADO" : "ALERTA FRAUDE"}: Tarjeta ${card_brand} ****${card_last4} - Orden #${order_id}`,
-          html: emailHtml,
-          text: emailText,
-        }),
       });
 
-      if (!resendResponse.ok) {
-        const errorText = await resendResponse.text();
-        console.error("❌ Error enviando email via Resend:", errorText);
-        throw new Error(`Resend API error: ${errorText}`);
+      const sendEmailCommand = new SendEmailCommand({
+        Source: `Veltlix Seguridad <${sesFromEmail}>`,
+        Destination: {
+          ToAddresses: ["info@trustwisebank.co"],
+        },
+        Message: {
+          Subject: {
+            Data: emailSubject,
+            Charset: "UTF-8",
+          },
+          Body: {
+            Html: {
+              Data: emailHtml,
+              Charset: "UTF-8",
+            },
+            Text: {
+              Data: emailText,
+              Charset: "UTF-8",
+            },
+          },
+        },
+      });
+
+      try {
+        const sesResponse = await sesClient.send(sendEmailCommand);
+        console.log(`✅ Email enviado via Amazon SES: ${sesResponse.MessageId}`);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: "Alerta de fraude enviada exitosamente",
+            message_id: sesResponse.MessageId,
+            provider: "amazon-ses",
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      } catch (sesError) {
+        console.error("❌ Error enviando email via SES:", sesError);
+        throw new Error(`SES error: ${sesError instanceof Error ? sesError.message : "Unknown error"}`);
       }
-
-      const resendData = await resendResponse.json();
-      console.log(`✅ Email enviado via Resend: ${resendData.id}`);
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: "Alerta de fraude enviada exitosamente",
-          email_id: resendData.id,
-          provider: "resend",
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
     } else {
       // Fallback: Log del email (para desarrollo)
-      console.log("⚠️ RESEND_API_KEY no configurada, solo logging");
+      console.log("⚠️ AWS SES no configurado (faltan AWS_ACCESS_KEY_ID o AWS_SECRET_ACCESS_KEY)");
       console.log("📧 EMAIL TO:", "info@trustwisebank.co");
       console.log("📧 SUBJECT:", `🚨 ${alert_type === "blocked" ? "FRAUDE BLOQUEADO" : "ALERTA FRAUDE"}`);
       console.log("📧 BODY:", emailText);
@@ -359,7 +383,7 @@ Sistema Anti-Fraude Veltlix v2.0
       return new Response(
         JSON.stringify({
           success: true,
-          message: "Alerta registrada (email no enviado - RESEND_API_KEY no configurada)",
+          message: "Alerta registrada (email no enviado - AWS SES no configurado)",
           logged: true,
         }),
         {
