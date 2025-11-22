@@ -366,32 +366,197 @@ serve(async (req: Request) => {
             .eq("id", ticket.id);
         }
 
-        // Enviar comprobante de compra por email
+        // 🔒 CAPTURAR CARD FINGERPRINT y DETECTAR FRAUDE
+        let fraudDetected = false;
+        let fraudReason = "";
+        
         try {
-          const receiptResponse = await fetch(
-            `${supabaseUrl}/functions/v1/send-purchase-receipt`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseServiceKey}`,
-              },
-              body: JSON.stringify({
-                orderId,
-                customerEmail: buyerEmail,
-                customerName: buyerFullName || 'Cliente',
-              }),
-            }
-          );
+          if (session.payment_intent) {
+            console.log("🔍 Obteniendo fingerprint de tarjeta...");
+            
+            // Expandir PaymentIntent para obtener payment_method con fingerprint
+            const paymentIntent = await stripe.paymentIntents.retrieve(
+              session.payment_intent as string,
+              { expand: ['payment_method'] }
+            );
 
-          if (receiptResponse.ok) {
-            console.log(`Comprobante enviado a ${buyerEmail} para orden ${orderId}`);
-          } else {
-            console.warn(`No se pudo enviar comprobante: ${await receiptResponse.text()}`);
+            if (paymentIntent && paymentIntent.payment_method) {
+              const paymentMethod = paymentIntent.payment_method as Stripe.PaymentMethod;
+              
+              if (paymentMethod.card && paymentMethod.card.fingerprint) {
+                const fingerprint = paymentMethod.card.fingerprint;
+                const last4 = paymentMethod.card.last4;
+                const brand = paymentMethod.card.brand;
+                const exp_month = paymentMethod.card.exp_month;
+                const exp_year = paymentMethod.card.exp_year;
+
+                console.log(`💳 Card fingerprint: ${fingerprint}, Last4: ${last4}`);
+
+                // Buscar TODOS los registros con este fingerprint
+                const { data: allFingerprints } = await supabase
+                  .from("card_fingerprints")
+                  .select("*")
+                  .eq("fingerprint", fingerprint)
+                  .order("first_used_at", { ascending: true });
+
+                // Buscar si ya existe este fingerprint + email
+                const existingForThisEmail = allFingerprints?.find(
+                  (record: any) => record.buyer_email.toLowerCase() === buyerEmail.toLowerCase()
+                );
+
+                if (existingForThisEmail) {
+                  // Mismo usuario, actualizar use_count
+                  await supabase
+                    .from("card_fingerprints")
+                    .update({
+                      use_count: existingForThisEmail.use_count + 1,
+                      last_used_at: nowIso,
+                    })
+                    .eq("id", existingForThisEmail.id);
+                  
+                  console.log(`✅ Fingerprint actualizado (uso #${existingForThisEmail.use_count + 1})`);
+                } else if (allFingerprints && allFingerprints.length > 0) {
+                  // 🚨 FRAUDE DETECTADO: Tarjeta usada por otro usuario
+                  const firstUser = allFingerprints[0];
+                  fraudDetected = true;
+                  fraudReason = `Tarjeta (...${last4}) ya registrada por ${firstUser.buyer_email}`;
+                  
+                  console.log(`🚨 FRAUDE DETECTADO: ${fraudReason}`);
+                  
+                  // Registrar intento fraudulento
+                  await supabase
+                    .from("card_fingerprints")
+                    .insert({
+                      fingerprint,
+                      buyer_email: buyerEmail.toLowerCase(),
+                      buyer_name: buyerFullName || null,
+                      last4,
+                      brand,
+                      exp_month,
+                      exp_year,
+                      use_count: 1,
+                      is_blocked: true,
+                      blocked_reason: `Uso de tarjeta de terceros detectado. Tarjeta previamente usada por: ${firstUser.buyer_email}`,
+                      metadata: {
+                        fraud_detected: true,
+                        fraud_order_id: orderId,
+                        fraud_session_id: session.id,
+                        original_owner: firstUser.buyer_email,
+                        original_first_used: firstUser.first_used_at,
+                      },
+                    });
+
+                  // Cancelar PaymentIntent y reembolsar
+                  try {
+                    await stripe.refunds.create({
+                      payment_intent: paymentIntent.id,
+                      reason: 'fraudulent',
+                      metadata: {
+                        fraud_reason: fraudReason,
+                        original_owner: firstUser.buyer_email,
+                      },
+                    });
+                    console.log(`💰 Reembolso automático emitido por fraude`);
+                  } catch (refundError) {
+                    console.error(`❌ Error al reembolsar:`, refundError);
+                  }
+
+                  // Marcar orden como fraudulenta
+                  await supabase
+                    .from("orders")
+                    .update({
+                      payment_status: "fraud_detected",
+                      metadata: {
+                        ...orderData.metadata,
+                        fraud_detected: true,
+                        fraud_reason: fraudReason,
+                        refunded_at: nowIso,
+                      },
+                      updated_at: nowIso,
+                    })
+                    .eq("order_id", orderId);
+
+                  // Marcar tickets como cancelados
+                  if (insertedTickets && insertedTickets.length > 0) {
+                    await supabase
+                      .from("tickets")
+                      .update({ 
+                        status: "cancelled",
+                        metadata: {
+                          cancellation_reason: "fraud_detected",
+                          fraud_reason: fraudReason,
+                        },
+                        updated_at: nowIso,
+                      })
+                      .in("id", insertedTickets.map((t: any) => t.id));
+                    
+                    console.log(`❌ ${insertedTickets.length} tickets cancelados por fraude`);
+                  }
+
+                } else {
+                  // Primer uso de esta tarjeta, registrar
+                  await supabase
+                    .from("card_fingerprints")
+                    .insert({
+                      fingerprint,
+                      buyer_email: buyerEmail.toLowerCase(),
+                      buyer_name: buyerFullName || null,
+                      last4,
+                      brand,
+                      exp_month,
+                      exp_year,
+                      use_count: 1,
+                      is_blocked: false,
+                      metadata: {
+                        first_order_id: orderId,
+                        first_session_id: session.id,
+                      },
+                    });
+                  
+                  console.log(`✅ Nuevo fingerprint registrado`);
+                }
+              }
+            }
           }
-        } catch (emailError) {
-          console.warn('Error enviando comprobante:', emailError);
-          // No fallar el webhook si el email falla
+        } catch (fingerprintError) {
+          console.warn("⚠️ Error en proceso de fingerprint:", fingerprintError);
+          // No fallar el webhook si el fingerprint falla
+        }
+
+        // Enviar comprobante de compra por email (solo si NO hay fraude)
+        if (!fraudDetected) {
+          try {
+            const receiptResponse = await fetch(
+              `${supabaseUrl}/functions/v1/send-purchase-receipt`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${supabaseServiceKey}`,
+                },
+                body: JSON.stringify({
+                  orderId,
+                  customerEmail: buyerEmail,
+                  customerName: buyerFullName || 'Cliente',
+                }),
+              }
+            );
+
+            if (receiptResponse.ok) {
+              console.log(`Comprobante enviado a ${buyerEmail} para orden ${orderId}`);
+            } else {
+              console.warn(`No se pudo enviar comprobante: ${await receiptResponse.text()}`);
+            }
+          } catch (emailError) {
+            console.warn('Error enviando comprobante:', emailError);
+            // No fallar el webhook si el email falla
+          }
+        } else {
+          // Enviar notificación de fraude detectado
+          console.log(`🚨 Fraude detectado, NO se envía comprobante. Razón: ${fraudReason}`);
+          
+          // TODO: Enviar email al usuario notificando que su transacción fue cancelada por seguridad
+          // TODO: Enviar alerta al equipo de administración sobre el intento de fraude
         }
       }
 
