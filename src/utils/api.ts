@@ -181,12 +181,18 @@ class ApiClient {
   async sendMagicLink(email: string) {
     // Usar directamente Supabase OTP con redirect URL correcto
     const { getSupabaseClient } = await import('./supabase/client');
+    const { env } = await import('../config/env');
     const supabase = getSupabaseClient();
+    
+    // Forzar la URL de producción
+    const redirectUrl = env.frontUrl || 'https://veltlix.com';
     
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: 'https://veltlix.com',
+        emailRedirectTo: redirectUrl,
+        // No usar shouldCreateUser para evitar crear usuarios automáticamente
+        shouldCreateUser: false,
       },
     });
 
@@ -200,10 +206,14 @@ class ApiClient {
   async forgotPassword(email: string) {
     // Usar directamente Supabase resetPasswordForEmail con redirect URL correcto
     const { getSupabaseClient } = await import('./supabase/client');
+    const { env } = await import('../config/env');
     const supabase = getSupabaseClient();
     
+    // Forzar la URL de producción
+    const redirectUrl = `${env.frontUrl || 'https://veltlix.com'}/#/reset-password`;
+    
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://veltlix.com/#/reset-password',
+      redirectTo: redirectUrl,
     });
 
     if (error) {
