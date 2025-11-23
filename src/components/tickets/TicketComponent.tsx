@@ -46,12 +46,9 @@ export function TicketComponent({ ticket, onPrint, onDownload }: TicketComponent
   }, [ticket]);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    // Manejar fechas en formato ISO (YYYY-MM-DD) sin problemas de timezone
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    return `${day}/${month}/${year}`;
   };
 
   const handleDownload = async () => {

@@ -549,7 +549,7 @@ Este PIN es necesario para validar tu entrada en el evento.
 Detalles del Ticket:
 - Código: ${ticketCode}
 - Evento: ${eventName}
-- Fecha: ${new Date(eventDate).toLocaleDateString('es-ES')}
+- Fecha: ${eventDate.split('T')[0].split('-').reverse().join('/')}
 
 IMPORTANTE: Guarda este PIN de forma segura. Será requerido al momento de validar tu entrada.
 
@@ -581,7 +581,7 @@ El equipo de Tiquetera
               <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <p style="margin: 5px 0;"><strong>Código:</strong> ${ticketCode}</p>
                 <p style="margin: 5px 0;"><strong>Evento:</strong> ${eventName}</p>
-                <p style="margin: 5px 0;"><strong>Fecha:</strong> ${new Date(eventDate).toLocaleDateString('es-ES')}</p>
+                <p style="margin: 5px 0;"><strong>Fecha:</strong> ${eventDate.split('T')[0].split('-').reverse().join('/')}</p>
               </div>
               <p style="color: #c61619; font-weight: bold;">IMPORTANTE: Guarda este PIN de forma segura. Será requerido al momento de validar tu entrada.</p>
               <p>Si no solicitaste este PIN, por favor contacta a soporte.</p>
