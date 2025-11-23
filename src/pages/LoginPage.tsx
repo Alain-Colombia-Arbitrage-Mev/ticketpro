@@ -143,19 +143,19 @@ export function LoginPage() {
               <TabsList className="mb-6 grid w-full grid-cols-3 bg-white/5 border border-white/10 h-auto p-1 rounded-lg">
                 <TabsTrigger 
                   value="login"
-                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-white/20 transition-all py-2.5 font-medium rounded-md"
+                  className="data-[state=active]:bg-[#c61619] data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:shadow-lg data-[state=active]:shadow-red-500/30 transition-all py-2.5 font-medium rounded-md"
                 >
                   Iniciar Sesión
                 </TabsTrigger>
                 <TabsTrigger 
                   value="magic"
-                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-white/20 transition-all py-2.5 font-medium rounded-md"
+                  className="data-[state=active]:bg-[#c61619] data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:shadow-lg data-[state=active]:shadow-red-500/30 transition-all py-2.5 font-medium rounded-md"
                 >
                   Magic Link
                 </TabsTrigger>
                 <TabsTrigger 
                   value="signup"
-                  className="data-[state=active]:bg-black data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:border data-[state=active]:border-white/20 transition-all py-2.5 font-medium rounded-md"
+                  className="data-[state=active]:bg-[#c61619] data-[state=active]:text-white text-gray-400 hover:text-gray-200 data-[state=active]:shadow-lg data-[state=active]:shadow-red-500/30 transition-all py-2.5 font-medium rounded-md"
                 >
                   Registrarse
                 </TabsTrigger>
@@ -203,7 +203,7 @@ export function LoginPage() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-black text-white border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-300 font-medium"
+                      className="w-full bg-[#c61619] text-white hover:bg-[#a01316] shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300 font-medium"
                       disabled={loading}
                     >
                       {loading ? (
@@ -317,7 +317,7 @@ export function LoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-black text-white border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-300 font-medium"
+                    className="w-full bg-[#c61619] text-white hover:bg-[#a01316] shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300 font-medium"
                     disabled={loading}
                   >
                     {loading ? (
@@ -396,7 +396,7 @@ export function LoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-black text-white border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-300 font-medium"
+                    className="w-full bg-[#c61619] text-white hover:bg-[#a01316] shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300 font-medium"
                     disabled={loading}
                   >
                     {loading ? (
