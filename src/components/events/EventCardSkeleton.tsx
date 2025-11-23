@@ -1,17 +1,31 @@
 import { Card } from "../ui/card";
-import { Skeleton } from "../ui/skeleton";
 
+/**
+ * EventCardSkeleton - Loading skeleton para EventCard
+ * Mejora la percepción de velocidad mientras cargan los eventos
+ */
 export function EventCardSkeleton() {
   return (
-    <Card className="overflow-hidden border border-gray-200 bg-white shadow-sm">
-      <Skeleton className="aspect-[4/3] w-full sm:aspect-[3/4]" />
+    <Card className="overflow-hidden border border-white/20 bg-black/50 animate-pulse">
+      {/* Imagen skeleton */}
+      <div className="relative aspect-[4/3] sm:aspect-[3/4] bg-white/10" />
+      
+      {/* Contenido skeleton */}
       <div className="p-4 sm:p-5">
-        <Skeleton className="mb-3 h-6 w-3/4" />
-        <div className="mb-4 space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+        {/* Título */}
+        <div className="h-6 bg-white/10 rounded mb-3" />
+        
+        {/* Fecha y ubicación */}
+        <div className="space-y-2 mb-4">
+          <div className="h-4 bg-white/10 rounded w-3/4" />
+          <div className="h-4 bg-white/10 rounded w-2/3" />
         </div>
-        <Skeleton className="h-10 w-full" />
+        
+        {/* Precio y botón */}
+        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+          <div className="h-6 bg-white/10 rounded w-20" />
+          <div className="h-10 bg-white/10 rounded w-32" />
+        </div>
       </div>
     </Card>
   );
