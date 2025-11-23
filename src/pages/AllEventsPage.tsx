@@ -12,6 +12,7 @@ import { Separator } from "../components/ui/separator";
 import { Card } from "../components/ui/card";
 import { CityAutocomplete } from "../components/search";
 import { PromoSlider } from "../components/events/PromoSlider";
+import { EventCardSkeleton } from "../components/events/EventCardSkeleton";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
@@ -631,7 +632,14 @@ export function AllEventsPage() {
         </div>
 
         {/* Events Grid */}
-        {currentEvents.length === 0 ? (
+        {isLoading ? (
+          // Skeleton loading mientras cargan los eventos
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <EventCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : currentEvents.length === 0 ? (
           <Card className="p-20 text-center bg-black/50 border-white/20">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gray-800 to-gray-900">
               <Search className="h-10 w-10 text-white/60" />

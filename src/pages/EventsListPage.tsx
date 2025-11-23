@@ -28,6 +28,7 @@ import { useCartStore } from "../stores/cartStore";
 import { mockEvents, categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
 import { useEvents } from "../hooks/useEvents";
+import { EventCardSkeleton } from "../components/events/EventCardSkeleton";
 // URL de video desde Cloudflare R2
 const video1 =
   import.meta.env.VITE_VIDEO_URL_1 || "https://video.veltlix.com/video1.mp4";
@@ -185,19 +186,14 @@ export function EventsListPage() {
     return result;
   }, [events, selectedCategory, selectedCities, searchQuery]);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#00FFFF] mx-auto mb-4"></div>
-            <p className="text-white text-lg">Cargando eventos...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Loading state - Mostrar skeleton en lugar de spinner
+  const renderSkeletons = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <EventCardSkeleton key={i} />
+      ))}
+    </div>
+  );
 
   // Error state (aún muestra mockEvents como fallback)
   if (error) {
@@ -745,6 +741,9 @@ export function EventsListPage() {
             </div>
 
             {/* Grid de Eventos Destacados */}
+            {isLoading ? (
+              renderSkeletons()
+            ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div 
@@ -885,6 +884,7 @@ export function EventsListPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         </div>
 
@@ -905,6 +905,9 @@ export function EventsListPage() {
             </div>
 
             {/* Grid de Próximos Eventos */}
+            {isLoading ? (
+              <div className="mt-12 md:mt-[51px]">{renderSkeletons()}</div>
+            ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-9 mt-12 md:mt-[51px]">
               {filteredAndSortedEvents.slice(0, 8).map((event, index) => (
                 <div 
@@ -1036,6 +1039,7 @@ export function EventsListPage() {
                 </div>
               ))}
             </div>
+            )}
 
             {/* Botón Ver todos los eventos */}
             <div className="flex justify-center mt-12 md:mt-16">
