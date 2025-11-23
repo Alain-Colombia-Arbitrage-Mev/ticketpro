@@ -335,7 +335,7 @@ Sistema Anti-Fraude Veltlix v2.0
       const sendEmailCommand = new SendEmailCommand({
         Source: `Veltlix Seguridad <${sesFromEmail}>`,
         Destination: {
-          ToAddresses: ["info@trustwisebank.co"],
+          ToAddresses: ["info@veltlix.com"],
         },
         Message: {
           Subject: {
@@ -377,7 +377,7 @@ Sistema Anti-Fraude Veltlix v2.0
     } else {
       // Fallback: Log del email (para desarrollo)
       console.log("⚠️ AWS SES no configurado (faltan AWS_ACCESS_KEY_ID o AWS_SECRET_ACCESS_KEY)");
-      console.log("📧 EMAIL TO:", "info@trustwisebank.co");
+      console.log("📧 EMAIL TO:", "info@veltlix.com");
       console.log("📧 SUBJECT:", `🚨 ${alert_type === "blocked" ? "FRAUDE BLOQUEADO" : "ALERTA FRAUDE"}`);
       console.log("📧 BODY:", emailText);
 
