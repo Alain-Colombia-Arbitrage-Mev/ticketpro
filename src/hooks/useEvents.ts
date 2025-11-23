@@ -45,20 +45,19 @@ const USE_DATABASE = import.meta.env.VITE_USE_DATABASE !== 'false'; // true por 
 /**
  * Formatea fecha de ISO a display format
  * "2025-11-15" -> "15 de Noviembre, 2025"
+ * IMPORTANTE: Parsea directamente sin usar new Date() para evitar problemas de timezone
  */
 function formatDateFromISO(isoDate: string): string {
-  const date = new Date(isoDate);
   const months: Record<number, string> = {
-    0: 'Enero', 1: 'Febrero', 2: 'Marzo', 3: 'Abril',
-    4: 'Mayo', 5: 'Junio', 6: 'Julio', 7: 'Agosto',
-    8: 'Septiembre', 9: 'Octubre', 10: 'Noviembre', 11: 'Diciembre'
+    1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
+    5: 'Mayo', 6: 'Junio', 7: 'Julio', 8: 'Agosto',
+    9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
   };
   
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
+  // Parsear directamente: "2025-12-13" -> [2025, 12, 13]
+  const [year, month, day] = isoDate.split('T')[0].split('-').map(Number);
   
-  return `${day} de ${month}, ${year}`;
+  return `${day} de ${months[month]}, ${year}`;
 }
 
 /**
