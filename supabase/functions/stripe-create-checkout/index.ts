@@ -103,6 +103,9 @@ serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Validate each item's price against the database
+    const totalQuantity = items.reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
+    const hasDiscount = totalQuantity >= 2;
+
     for (const item of items) {
       const { data: event, error: eventError } = await supabase
         .from("events")
@@ -117,19 +120,25 @@ serve(async (req: Request) => {
         );
       }
 
-      // Calculate expected price (10% discount for 2+ tickets)
-      const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
-      const expectedPrice = totalQuantity >= 2
-        ? Number((event.base_price * 0.9).toFixed(2))
-        : event.base_price;
+      // Validate against base_price (frontend sends unit price without discount)
+      // Allow both base_price and discounted price for flexibility
+      const basePrice = event.base_price;
+      const discountedPrice = Number((basePrice * 0.9).toFixed(2));
+      const sentPrice = Number(item.price);
 
-      if (Math.abs(item.price - expectedPrice) > 0.01) {
-        console.error(`Price mismatch for event ${item.eventId}: sent ${item.price}, expected ${expectedPrice}`);
+      const matchesBase = Math.abs(sentPrice - basePrice) <= 0.01;
+      const matchesDiscounted = hasDiscount && Math.abs(sentPrice - discountedPrice) <= 0.01;
+
+      if (!matchesBase && !matchesDiscounted) {
+        console.error(`Price mismatch for event ${item.eventId}: sent ${sentPrice}, base ${basePrice}, discounted ${discountedPrice}`);
         return new Response(
           JSON.stringify({ error: "Price validation failed. Please refresh and try again." }),
           { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
         );
       }
+
+      // Use the validated base_price from DB for the actual charge (server-authoritative)
+      item.price = hasDiscount ? discountedPrice : basePrice;
     }
 
     // Crear line items para Stripe
