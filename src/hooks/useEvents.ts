@@ -110,6 +110,7 @@ export function useEvents() {
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
+          .not('title', 'ilike', '%navidad%') // Excluir eventos de Navidad (desactivados)
           .order('featured', { ascending: false }) // Featured primero
           .order('id', { ascending: true }) // Luego por ID
           .limit(50); // Limitar a 50 eventos máximo para cargar más rápido
@@ -185,6 +186,7 @@ export function useEventsByCategory(category?: string) {
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
+          .not('title', 'ilike', '%navidad%') // Excluir eventos de Navidad (desactivados)
           .order('featured', { ascending: false })
           .order('id', { ascending: true })
           .limit(50); // Limitar a 50 eventos
