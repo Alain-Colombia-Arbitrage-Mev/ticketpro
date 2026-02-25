@@ -15,17 +15,22 @@ function getSupabaseConfig() {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_supabase_anon_key;
   const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url;
 
-  // Valores por defecto (solo para desarrollo)
-  const defaultProjectId = "***REMOVED***";
-  const defaultAnonKey = "***REMOVED***";
+  if (!projectId && !projectUrl) {
+    throw new Error(
+      "Missing Supabase configuration. Set VITE_SUPABASE_PROJECT_ID or VITE_SUPABASE_PROJECT_URL in your .env file."
+    );
+  }
+  if (!anonKey) {
+    throw new Error(
+      "Missing Supabase anon key. Set VITE_SUPABASE_ANON_KEY in your .env file."
+    );
+  }
 
-  const finalProjectId = projectId || defaultProjectId;
-  const finalAnonKey = anonKey || defaultAnonKey;
-  const finalProjectUrl = projectUrl || `https://${finalProjectId}.supabase.co`;
+  const finalProjectUrl = projectUrl || `https://${projectId}.supabase.co`;
 
   return {
     projectUrl: finalProjectUrl,
-    anonKey: finalAnonKey,
+    anonKey: anonKey,
   };
 }
 

@@ -6,22 +6,28 @@ import { generateQRCode, generateTicketCode, generateTicketPin } from './qrGener
 function getProjectUrl(): string {
   const envProjectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url;
   const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
-  const defaultProjectId = "***REMOVED***";
-  const projectId = envProjectId || defaultProjectId;
-  return envProjectUrl || `https://${projectId}.supabase.co`;
+  if (!envProjectId && !envProjectUrl) {
+    throw new Error("Missing Supabase configuration. Set VITE_SUPABASE_PROJECT_ID or VITE_SUPABASE_PROJECT_URL in your .env file.");
+  }
+  return envProjectUrl || `https://${envProjectId}.supabase.co`;
 }
 
 // Función para obtener la anon key dinámicamente
 function getAnonKey(): string {
   const envAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_supabase_anon_key;
-  const defaultAnonKey = "***REMOVED***";
-  return envAnonKey || defaultAnonKey;
+  if (!envAnonKey) {
+    throw new Error("Missing Supabase anon key. Set VITE_SUPABASE_ANON_KEY in your .env file.");
+  }
+  return envAnonKey;
 }
 
 // Función para obtener el projectId dinámicamente
 function getProjectId(): string {
   const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
-  return envProjectId || "***REMOVED***";
+  if (!envProjectId) {
+    throw new Error("Missing Supabase project ID. Set VITE_SUPABASE_PROJECT_ID in your .env file.");
+  }
+  return envProjectId;
 }
 
 const projectUrl = getProjectUrl();

@@ -115,7 +115,7 @@ export function ConfirmationPage() {
         // Si hay orderId de la sesión, usarlo para buscar tickets
         if (result.ok && result.orderId) {
           const orderIdToUse = result.orderId;
-          const projectUrl = import.meta.env.VITE_supabase_project_url || 'https://***REMOVED***.supabase.co';
+          const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
           const res = await fetch(
             `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderIdToUse)}`,
           );
@@ -138,7 +138,7 @@ export function ConfirmationPage() {
       }
 
       // Usar Edge Function de Supabase en lugar de Cloudflare
-      const projectUrl = import.meta.env.VITE_supabase_project_url || 'https://***REMOVED***.supabase.co';
+      const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
       const res = await fetch(
         `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderId)}`,
       );
@@ -220,7 +220,7 @@ export function ConfirmationPage() {
     const fetchTickets = async () => {
       try {
         // Usar Edge Function de Supabase en lugar de Cloudflare
-        const projectUrl = import.meta.env.VITE_supabase_project_url || 'https://***REMOVED***.supabase.co';
+        const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
         const res = await fetch(
           `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderId)}`,
         );

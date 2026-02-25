@@ -1,11 +1,15 @@
+import { CORS_HEADERS } from "../_shared/cors.ts";
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import nodemailer from 'npm:nodemailer@6.9.7';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-};
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 interface PaymentFailedRequest {
   customerEmail: string;
@@ -25,7 +29,7 @@ interface PaymentFailedRequest {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: CORS_HEADERS });
   }
 
   try {
@@ -40,6 +44,8 @@ serve(async (req) => {
       items = [],
     }: PaymentFailedRequest = await req.json();
 
+    const safeCustomerName = escapeHtml(customerName);
+
     // Validar datos requeridos
     if (!customerEmail || !customerName) {
       return new Response(
@@ -48,7 +54,7 @@ serve(async (req) => {
         }),
         {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -71,7 +77,7 @@ serve(async (req) => {
         }),
         {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -145,7 +151,7 @@ serve(async (req) => {
           <tr>
             <td style="padding: 40px 30px;">
               <p style="color: #212529; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-                Hola <strong>${customerName}</strong>,
+                Hola <strong>${safeCustomerName}</strong>,
               </p>
               
               <p style="color: #495057; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">
@@ -336,7 +342,7 @@ Tiquetera | ${frontendUrl}
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       }
     );
 
@@ -350,7 +356,7 @@ Tiquetera | ${frontendUrl}
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       }
     );
   }

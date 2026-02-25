@@ -12,12 +12,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.10.0?target=deno";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
 
 interface CheckoutRequest {
   items: Array<{
@@ -43,7 +39,7 @@ interface CheckoutRequest {
 serve(async (req: Request) => {
   // Manejar CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return corsResponse();
   }
 
   if (req.method !== "POST") {
@@ -95,6 +91,47 @@ serve(async (req: Request) => {
       );
     }
 
+    // Server-side price validation - query actual prices from database
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: missing Supabase credentials" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      );
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Validate each item's price against the database
+    for (const item of items) {
+      const { data: event, error: eventError } = await supabase
+        .from("events")
+        .select("base_price")
+        .eq("id", item.eventId)
+        .single();
+
+      if (eventError || !event) {
+        return new Response(
+          JSON.stringify({ error: `Event not found: ${item.eventId}` }),
+          { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        );
+      }
+
+      // Calculate expected price (10% discount for 2+ tickets)
+      const totalQuantity = items.reduce((sum, i) => sum + i.quantity, 0);
+      const expectedPrice = totalQuantity >= 2
+        ? Number((event.base_price * 0.9).toFixed(2))
+        : event.base_price;
+
+      if (Math.abs(item.price - expectedPrice) > 0.01) {
+        console.error(`Price mismatch for event ${item.eventId}: sent ${item.price}, expected ${expectedPrice}`);
+        return new Response(
+          JSON.stringify({ error: "Price validation failed. Please refresh and try again." }),
+          { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        );
+      }
+    }
+
     // Crear line items para Stripe
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(item => ({
       price_data: {
@@ -116,7 +153,10 @@ serve(async (req: Request) => {
     }));
 
     // Generar order ID único
-    const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const randomBytes = new Uint8Array(8);
+    crypto.getRandomValues(randomBytes);
+    const randomStr = Array.from(randomBytes, b => b.toString(36).padStart(2, "0")).join("").substring(0, 9);
+    const orderId = `order_${Date.now()}_${randomStr}`;
 
     // Metadata completa para el webhook
     const sessionMetadata: Record<string, string> = {

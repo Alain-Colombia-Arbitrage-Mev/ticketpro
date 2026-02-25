@@ -11,17 +11,13 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
+import { verifyAuth } from "../_shared/auth.ts";
 
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return corsResponse();
   }
 
   if (req.method !== "GET") {
@@ -43,6 +39,15 @@ serve(async (req: Request) => {
           error: "Server not configured: missing SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY",
         }),
         { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      );
+    }
+
+    // Verify authentication
+    const authResult = await verifyAuth(req, supabaseUrl, supabaseServiceKey);
+    if (authResult.error || !authResult.user) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Authentication required" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
       );
     }
 
@@ -112,6 +117,32 @@ serve(async (req: Request) => {
         }),
         { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
       );
+    }
+
+    // Authorization: verify user owns these tickets or is admin/hoster
+    if (tickets && tickets.length > 0) {
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("role")
+        .eq("id", authResult.user.id)
+        .single();
+
+      const userRole = profile?.role || "user";
+      const isPrivileged = ["admin", "hoster"].includes(userRole);
+
+      // Check if user is the buyer of at least one of these tickets
+      const isOwner = tickets.some((t: any) =>
+        t.buyer_email?.toLowerCase() === authResult.user!.email?.toLowerCase()
+      );
+
+      // Note: We check buyer_email from tickets since buyer info may not be in a separate orders table query
+      if (!isOwner && !isPrivileged) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Access denied" }),
+          { status: 403, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        );
+      }
     }
 
     return new Response(

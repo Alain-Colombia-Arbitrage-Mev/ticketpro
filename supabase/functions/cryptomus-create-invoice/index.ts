@@ -12,12 +12,7 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
 
 interface CreateInvoiceRequest {
   amount: number;
@@ -198,7 +193,7 @@ function base64Encode(str: string): string {
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return corsResponse();
   }
 
   if (req.method !== 'POST') {
@@ -249,6 +244,39 @@ serve(async (req: Request) => {
         JSON.stringify({ error: 'Missing required fields: amount, orderId' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
       );
+    }
+
+    // Server-side price validation
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (supabaseUrl && supabaseServiceKey && items.length > 0) {
+      const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2.39.0");
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      let expectedTotal = 0;
+      const totalQuantity = items.reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
+
+      for (const item of items) {
+        const { data: event } = await supabase
+          .from("events")
+          .select("base_price")
+          .eq("id", item.eventId || item.event_id)
+          .single();
+
+        if (event) {
+          const unitPrice = totalQuantity >= 2
+            ? Number((event.base_price * 0.9).toFixed(2))
+            : event.base_price;
+          expectedTotal += unitPrice * (item.quantity || 1);
+        }
+      }
+
+      if (expectedTotal > 0 && Math.abs(amount - expectedTotal) > 0.01) {
+        console.error(`Price mismatch: sent ${amount}, expected ${expectedTotal}`);
+        return new Response(
+          JSON.stringify({ error: 'Price validation failed. Please refresh and try again.' }),
+          { status: 400, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } }
+        );
+      }
     }
 
     console.log(`📧 Creating Cryptomus invoice for order ${orderId}`);

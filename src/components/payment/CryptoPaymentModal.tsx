@@ -105,7 +105,7 @@ export function CryptoPaymentModal({
     setLoading(true);
     try {
       // Usar Edge Function de Supabase en lugar de Cloudflare
-      const projectUrl = import.meta.env.VITE_supabase_project_url || 'https://***REMOVED***.supabase.co';
+      const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
       const callbackUrl = `${projectUrl}/functions/v1/cryptomus-webhook`;
       const returnUrl = `${window.location.origin}/#/confirmation?order=${orderId}`;
 

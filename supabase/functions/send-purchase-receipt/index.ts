@@ -1,11 +1,15 @@
+import { CORS_HEADERS } from "../_shared/cors.ts";
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-};
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 interface ReceiptRequest {
   orderId: string;
@@ -29,12 +33,14 @@ interface Ticket {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: CORS_HEADERS });
   }
 
   try {
     const { orderId, customerEmail, customerName }: ReceiptRequest =
       await req.json();
+
+    const safeCustomerName = escapeHtml(customerName);
 
     // Validar datos requeridos
     if (!orderId || !customerEmail || !customerName) {
@@ -44,7 +50,7 @@ serve(async (req) => {
         }),
         {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -74,7 +80,7 @@ serve(async (req) => {
         }),
         {
           status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -253,7 +259,7 @@ serve(async (req) => {
                 <!-- Saludo -->
                 <tr>
                   <td style="padding: 40px 40px 25px 40px;">
-                    <h2 style="margin: 0 0 18px 0; color: #212529; font-size: 26px; font-weight: bold;">¡Hola ${customerName}! 👋</h2>
+                    <h2 style="margin: 0 0 18px 0; color: #212529; font-size: 26px; font-weight: bold;">¡Hola ${safeCustomerName}! 👋</h2>
                     <p style="margin: 0; color: #495057; font-size: 16px; line-height: 1.7;">
                       Gracias por tu compra. Tu pedido ha sido <strong style="color: #28a745;">procesado exitosamente</strong> y tus tickets digitales están listos para usar.
                     </p>
@@ -473,7 +479,7 @@ Este es un email automático, por favor no responder directamente.
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       }
     );
   } catch (error) {
@@ -486,7 +492,7 @@ Este es un email automático, por favor no responder directamente.
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
       }
     );
   }

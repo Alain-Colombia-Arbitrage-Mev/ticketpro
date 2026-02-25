@@ -16,12 +16,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, sign, merchant",
-};
+import { WEBHOOK_CORS_HEADERS, webhookCorsResponse } from "../_shared/cors.ts";
 
 type CryptomusWebhookBody = {
   uuid?: string;
@@ -203,27 +198,27 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 function randomCode(length = 12): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return result;
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, v => chars[v % chars.length]).join("");
 }
 
 function randomPin(): string {
-  return String(Math.floor(1000 + Math.random() * 9000));
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return String(1000 + (array[0] % 9000));
 }
 
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return webhookCorsResponse();
   }
 
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 405, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   }
 
@@ -240,7 +235,7 @@ serve(async (req: Request) => {
       console.error("Missing CRYPTOMUS_PAYMENT_API_KEY");
       return new Response(
         JSON.stringify({ ok: false, error: "Server configuration error" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -265,7 +260,7 @@ serve(async (req: Request) => {
       });
       return new Response(
         JSON.stringify({ ok: false, error: "Invalid signature" }),
-        { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 401, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -277,7 +272,7 @@ serve(async (req: Request) => {
       console.error("[Cryptomus] Failed to parse body:", e);
       return new Response(
         JSON.stringify({ ok: false, error: "Invalid JSON" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 400, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -294,7 +289,7 @@ serve(async (req: Request) => {
       console.warn("[Cryptomus] Ignoring unsupported status", { orderId, status });
       return new Response(
         JSON.stringify({ ok: true, ignored: true, orderId, status }),
-        { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -469,7 +464,7 @@ serve(async (req: Request) => {
           },
         } : {}),
       }),
-      { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   } catch (error) {
     console.error("[Cryptomus] Webhook handler error:", error);
@@ -478,7 +473,7 @@ serve(async (req: Request) => {
         ok: false,
         error: error instanceof Error ? error.message : "Unknown error",
       }),
-      { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   }
 });

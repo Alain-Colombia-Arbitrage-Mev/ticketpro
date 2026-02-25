@@ -14,38 +14,33 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.10.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Stripe-Signature",
-};
+import { WEBHOOK_CORS_HEADERS, webhookCorsResponse } from "../_shared/cors.ts";
 
 // Helper: generar código de ticket aleatorio
 function randomCode(length = 12): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return result;
+  const array = new Uint32Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, v => chars[v % chars.length]).join("");
 }
 
 // Helper: generar PIN de 4 dígitos
 function randomPin(): string {
-  return String(Math.floor(1000 + Math.random() * 9000));
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return String(1000 + (array[0] % 9000));
 }
 
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return webhookCorsResponse();
   }
 
   if (req.method !== "POST") {
     return new Response(
       JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 405, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   }
 
@@ -66,7 +61,7 @@ serve(async (req: Request) => {
       console.error("Missing Stripe configuration");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -74,7 +69,7 @@ serve(async (req: Request) => {
       console.error("Missing Supabase configuration");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -92,7 +87,7 @@ serve(async (req: Request) => {
     if (!signature) {
       return new Response(
         JSON.stringify({ error: "Missing stripe-signature header" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 400, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -110,7 +105,7 @@ serve(async (req: Request) => {
       console.error("Webhook signature verification failed:", err);
       return new Response(
         JSON.stringify({ error: "Invalid signature" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 400, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -136,7 +131,7 @@ serve(async (req: Request) => {
         });
         return new Response(
           JSON.stringify({ received: true, warning: "Missing metadata" }),
-          { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+          { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
         );
       }
 
@@ -148,7 +143,7 @@ serve(async (req: Request) => {
         console.error("Failed to parse items JSON:", e);
         return new Response(
           JSON.stringify({ received: true, warning: "Invalid items JSON" }),
-          { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+          { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
         );
       }
 
@@ -166,20 +161,20 @@ serve(async (req: Request) => {
       // Usar la URL del frontend en producción, no la de la función
       const origin = Deno.env.get("FRONTEND_URL") || "https://veltlix.com";
 
-      // VERSIÓN 2.0 - ELIMINANDO DEPENDENCIA DE STRIPE payment_status
-      console.log("=== STRIPE WEBHOOK v2.0 - NUEVO DESPLIEGUE ===");
-      console.log("Session ID:", session.id);
-      console.log("Stripe payment_status:", session.payment_status);
-      
-      // FORZAR 'paid' - No usar session.payment_status
-      const FORCED_STATUS = "paid"; // Siempre 'paid' para checkout completo
-      console.log("FORCED payment_status:", FORCED_STATUS);
-      
+      const paymentStatus = session.payment_status;
+      if (paymentStatus !== "paid") {
+        console.log(`Session ${session.id} payment_status is "${paymentStatus}", skipping ticket creation`);
+        return new Response(
+          JSON.stringify({ received: true, skipped: true, reason: `payment_status is ${paymentStatus}` }),
+          { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
+        );
+      }
+
       const orderData = {
         order_id: orderId,
         buyer_email: buyerEmail,
         buyer_name: buyerFullName || null,
-        payment_status: FORCED_STATUS, // HARDCODED 'paid'
+        payment_status: paymentStatus,
         payment_method: "stripe",
         total_amount: session.amount_total || 0,
         currency: session.currency || "usd",
@@ -188,7 +183,6 @@ serve(async (req: Request) => {
         metadata: {
           paymentIntent: session.payment_intent,
           customerDetails: session.customer_details,
-          webhookVersion: "2.0",
         },
         created_at: nowIso,
         updated_at: nowIso,
@@ -210,11 +204,11 @@ serve(async (req: Request) => {
         console.log(`Order ${orderId} already exists, updating status if needed`);
         
         // Actualizar si el estado es diferente
-        if (existingOrder.payment_status !== FORCED_STATUS) {
+        if (existingOrder.payment_status !== paymentStatus) {
           const { data: updated, error: updateError } = await supabase
             .from("orders")
-            .update({ 
-              payment_status: FORCED_STATUS,
+            .update({
+              payment_status: paymentStatus,
               updated_at: nowIso,
               completed_at: nowIso
             })
@@ -225,7 +219,7 @@ serve(async (req: Request) => {
           if (updateError) {
             console.error("Failed to update order:", updateError);
           } else {
-            console.log(`Order ${orderId} updated to ${FORCED_STATUS}`);
+            console.log(`Order ${orderId} updated to ${paymentStatus}`);
           }
         }
 
@@ -246,7 +240,7 @@ serve(async (req: Request) => {
               error: "Failed to create order",
               details: orderError.message 
             }),
-            { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+            { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
           );
         }
 
@@ -347,7 +341,7 @@ serve(async (req: Request) => {
               error: "Failed to create tickets",
               details: insertError.message 
             }),
-            { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+            { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
           );
         }
 
@@ -604,7 +598,7 @@ serve(async (req: Request) => {
           orderId,
           ticketsCreated: insertedTickets?.length || 0,
         }),
-        { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
       );
     }
 
@@ -613,7 +607,7 @@ serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({ received: true }),
-      { status: 200, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   } catch (error) {
     console.error("Webhook handler error:", error);
@@ -623,7 +617,7 @@ serve(async (req: Request) => {
         received: true,
         error: error instanceof Error ? error.message : "Unknown error",
       }),
-      { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      { status: 500, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
     );
   }
 });

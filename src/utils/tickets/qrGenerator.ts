@@ -4,9 +4,10 @@ import QRCode from 'qrcode';
 function getProjectUrl(): string {
   const envProjectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url;
   const envProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id;
-  const defaultProjectId = "***REMOVED***";
-  const projectId = envProjectId || defaultProjectId;
-  return envProjectUrl || `https://${projectId}.supabase.co`;
+  if (!envProjectId && !envProjectUrl) {
+    throw new Error("Missing Supabase configuration. Set VITE_SUPABASE_PROJECT_ID or VITE_SUPABASE_PROJECT_URL in your .env file.");
+  }
+  return envProjectUrl || `https://${envProjectId}.supabase.co`;
 }
 
 const projectUrl = getProjectUrl();

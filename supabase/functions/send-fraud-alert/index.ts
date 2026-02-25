@@ -1,9 +1,5 @@
+import { CORS_HEADERS } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
 
 interface FraudAlertRequest {
   fingerprint: string;
@@ -24,7 +20,7 @@ interface FraudAlertRequest {
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: CORS_HEADERS });
   }
 
   try {
@@ -367,7 +363,7 @@ Sistema Anti-Fraude Veltlix v2.0
             provider: "amazon-ses",
           }),
           {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
           }
         );
       } catch (sesError) {
@@ -388,7 +384,7 @@ Sistema Anti-Fraude Veltlix v2.0
           logged: true,
         }),
         {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
         }
       );
     }
@@ -403,7 +399,7 @@ Sistema Anti-Fraude Veltlix v2.0
       }),
       {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
       }
     );
   }

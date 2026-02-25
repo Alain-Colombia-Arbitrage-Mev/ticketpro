@@ -13,17 +13,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.10.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
+import { verifyAuth } from "../_shared/auth.ts";
 
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return corsResponse();
   }
 
   if (req.method !== "GET") {
@@ -54,6 +50,15 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ ok: false, error: "Server configuration error: missing Supabase credentials" }),
         { status: 500, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+      );
+    }
+
+    // Verify authentication
+    const authResult = await verifyAuth(req, supabaseUrl!, supabaseServiceKey!);
+    if (authResult.error || !authResult.user) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Authentication required" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
       );
     }
 
@@ -130,13 +135,33 @@ serve(async (req: Request) => {
           used_at,
           used_by,
           created_at,
-          updated_at,
-          pin
+          updated_at
         `)
         .eq("purchase_id", orderId);
 
       if (!ticketsError && ticketsData) {
         tickets = ticketsData;
+      }
+    }
+
+    // Authorization check
+    const sessionEmail = session.customer_email?.toLowerCase();
+    const userEmail = authResult.user.email?.toLowerCase();
+    if (sessionEmail && userEmail && sessionEmail !== userEmail) {
+      // Check if user is admin/hoster
+      const supabaseAdmin = createClient(supabaseUrl!, supabaseServiceKey!);
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("role")
+        .eq("id", authResult.user.id)
+        .single();
+
+      const userRole = profile?.role || "user";
+      if (!["admin", "hoster"].includes(userRole)) {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Access denied" }),
+          { status: 403, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        );
       }
     }
 

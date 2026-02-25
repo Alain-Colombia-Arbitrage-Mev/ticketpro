@@ -11,17 +11,13 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
+import { verifyRole } from "../_shared/auth.ts";
 
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return corsResponse();
   }
 
   if (req.method !== "GET" && req.method !== "POST") {
@@ -50,8 +46,22 @@ serve(async (req: Request) => {
     const url = new URL(req.url);
     const ticketId = url.searchParams.get("ticketId") || url.searchParams.get("ticket_id");
     const ticketCode = url.searchParams.get("code") || url.searchParams.get("ticket_code");
-    const markAsUsed = url.searchParams.get("markAsUsed") === "true" || 
+    const markAsUsed = url.searchParams.get("markAsUsed") === "true" ||
                        (req.method === "POST" && url.searchParams.get("action") === "validate");
+
+    // markAsUsed requires authentication with hoster/admin role
+    if (markAsUsed) {
+      const roleResult = await verifyRole(req, supabaseUrl!, supabaseServiceKey!, ["admin", "hoster"]);
+      if (roleResult.error || !roleResult.user) {
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            error: "Authentication with hoster/admin role required to mark tickets as used",
+          }),
+          { status: 401, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+        );
+      }
+    }
 
     if (!ticketId && !ticketCode) {
       return new Response(

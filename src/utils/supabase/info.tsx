@@ -16,51 +16,17 @@ const envProjectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.e
 // Service role key (solo para uso en backend, nunca exponer en frontend)
 export const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE || import.meta.env.VITE_supabase_service_role;
 
-// Valores por defecto (solo para desarrollo local, NO usar en producción)
-const defaultProjectId = "***REMOVED***";
-const defaultAnonKey = "***REMOVED***";
+// Validar que las variables de entorno estén configuradas
+if (!envProjectId) {
+  throw new Error("Missing Supabase project ID. Set VITE_SUPABASE_PROJECT_ID in your .env file.");
+}
+if (!envAnonKey) {
+  throw new Error("Missing Supabase anon key. Set VITE_SUPABASE_ANON_KEY in your .env file.");
+}
 
-// Usar variables de entorno si están disponibles, sino usar valores por defecto
-export const projectId = envProjectId || defaultProjectId;
-export const publicAnonKey = envAnonKey || defaultAnonKey;
+export const projectId = envProjectId;
+export const publicAnonKey = envAnonKey;
 
 // Construir URL del proyecto si no está proporcionada
 export const projectUrl = envProjectUrl || `https://${projectId}.supabase.co`;
 
-// Validar que las credenciales estén configuradas
-if (!projectId || !publicAnonKey) {
-  console.error('❌ ERROR: Variables de entorno de Supabase no configuradas');
-  console.error('Por favor, configura las siguientes variables en tu archivo .env:');
-  console.error('  - VITE_supabase_project_id');
-  console.error('  - VITE_supabase_anon_key');
-  console.error('  - VITE_supabase_project_url (opcional)');
-  console.error('');
-  console.error('🔧 Creando archivo .env con valores por defecto...');
-  // En desarrollo, crear .env si no existe
-  if (typeof window === 'undefined' && import.meta.env.DEV) {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const envPath = path.join(process.cwd(), '.env');
-      if (!fs.existsSync(envPath)) {
-        const envContent = `# Variables de entorno para desarrollo
-VITE_supabase_project_id=${defaultProjectId}
-VITE_supabase_anon_key=${defaultAnonKey}
-VITE_supabase_project_url=https://${defaultProjectId}.supabase.co
-VITE_SITE_URL=https://tiquetera.com
-`;
-        fs.writeFileSync(envPath, envContent);
-        console.log('✅ Archivo .env creado con valores por defecto');
-        console.log('🔄 Reinicia el servidor de desarrollo para cargar las nuevas variables');
-      }
-    } catch (err) {
-      console.warn('⚠️ No se pudo crear archivo .env automáticamente:', err.message);
-    }
-  }
-}
-
-// Advertencia en producción si se usan valores por defecto
-if (import.meta.env.PROD && (!envProjectId || !envAnonKey)) {
-  console.warn('⚠️ ADVERTENCIA: Usando valores por defecto de Supabase en producción. Configura las variables de entorno.');
-  console.warn('Variables requeridas: VITE_supabase_project_id, VITE_supabase_anon_key, VITE_supabase_project_url');
-}
