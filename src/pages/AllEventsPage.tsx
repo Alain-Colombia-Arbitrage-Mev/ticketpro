@@ -130,12 +130,12 @@ export function AllEventsPage() {
   const filteredAndSortedEvents = useMemo(() => {
     let result = [...events];
 
-    // Category filter - NAVIDAD siempre visible en todas las categorías
+    // Category filter - Open Salinas siempre visible en todas las categorías
     if (selectedCategory !== "all") {
       result = result.filter(event => {
-        // Eventos NAVIDAD (21, 22) aparecen en TODAS las categorías
-        const isNavidad = event.id === 21 || event.id === 22;
-        return isNavidad || event.category === selectedCategory;
+        // Evento prioritario (id: 1 - Open Salinas) aparece en TODAS las categorías
+        const isPriority = event.id === 1;
+        return isPriority || event.category === selectedCategory;
       });
     }
 
@@ -201,20 +201,14 @@ export function AllEventsPage() {
         break;
     }
 
-    // ✅ ORDENAMIENTO FINAL: NAVIDAD (21, 22) SIEMPRE PRIMERO
+    // ORDENAMIENTO FINAL: Open Salinas (id: 1) SIEMPRE PRIMERO
     result.sort((a, b) => {
-      const isNavidadA = a.id === 21 || a.id === 22;
-      const isNavidadB = b.id === 21 || b.id === 22;
-      
-      // NAVIDAD va primero
-      if (isNavidadA && !isNavidadB) return -1;
-      if (!isNavidadA && isNavidadB) return 1;
-      
-      // Entre NAVIDAD: 21 antes que 22
-      if (isNavidadA && isNavidadB) {
-        return a.id - b.id;
-      }
-      
+      const isPriorityA = a.id === 1;
+      const isPriorityB = b.id === 1;
+
+      if (isPriorityA && !isPriorityB) return -1;
+      if (!isPriorityA && isPriorityB) return 1;
+
       // Para el resto, mantener el orden del sort anterior
       return 0;
     });
@@ -734,7 +728,7 @@ export function AllEventsPage() {
                     <div className="bg-white h-[130px] sm:h-[170px] md:h-[220px] lg:h-[258px] rounded-b-[10px] sm:rounded-b-[13px] p-3 sm:p-4 md:p-5 lg:p-[27px] flex flex-col">
                       {/* Título */}
                       <h3 className="font-semibold text-xs sm:text-sm md:text-base lg:text-lg text-black mb-1 sm:mb-1.5 leading-tight line-clamp-2" style={{ fontFamily: "'Inter', sans-serif" }}>
-                        {t(`event.title.${event.id}`)}
+                        {t(`event.title.${event.id}`) !== `event.title.${event.id}` ? t(`event.title.${event.id}`) : event.title}
                       </h3>
 
                       {/* Fecha */}

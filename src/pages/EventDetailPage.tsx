@@ -24,13 +24,13 @@ export function EventDetailPage() {
 
   // Convertir ID a número para comparaciones consistentes
   const eventId = typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id;
-  const isNavidadEvent = eventId === 21 || eventId === 22;
+  const isPriorityEvent = eventId === 1;
 
   // Debug: Verificar ID del evento
   console.log('🎫 EventDetailPage - Event ID:', {
     originalId: pageData.id,
     eventId,
-    isNavidadEvent,
+    isPriorityEvent,
     title: pageData.title
   });
 
@@ -189,7 +189,7 @@ export function EventDetailPage() {
                 {t(`category.${pageData.category.toLowerCase()}`)}
               </Badge>
               <h1 className="mb-3 sm:mb-4 md:mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight tracking-tight !text-white">
-                {t(`event.title.${pageData.id}`)}
+                {t(`event.title.${pageData.id}`) !== `event.title.${pageData.id}` ? t(`event.title.${pageData.id}`) : pageData.title}
               </h1>
               
               <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5 !text-white/80">
@@ -248,8 +248,8 @@ export function EventDetailPage() {
               <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
                   src={
-                    isNavidadEvent
-                      ? 'https://imagenes.veltlix.com/images/foxteather.jpg?v=3'
+                    isPriorityEvent
+                      ? "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200"
                       : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt="Venue"

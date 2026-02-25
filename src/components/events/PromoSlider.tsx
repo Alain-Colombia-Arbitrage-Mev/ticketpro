@@ -17,14 +17,14 @@ interface PromoSlide {
 const promoSlides: PromoSlide[] = [
   {
     id: 1,
-    image: 'https://imagenes.veltlix.com/images/navidadHorizontal.jpg',
-    title: 'NAVIDAD VICION POWER',
-    subtitle: 'Participa en la rifa de 2 automóviles',
-    date: 'Sábado 13 de Diciembre, 6:00 PM - 1:00 AM',
-    location: 'Fox Theater, San Bernardino, CA',
-    price: '$50 USD',
-    promo: '🎁 ¡Gana 1 de 2 automóviles!',
-    eventId: 21, // ID del evento premium en la BD
+    image: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
+    title: 'Open Salinas California - Conferencia Vicion Power',
+    subtitle: 'Puertas abren: 5:00 PM | Inicio: 5:30 PM',
+    date: 'Sábado 14 de Marzo, 2026',
+    location: '940 N Main ST, Salinas, CA 93906',
+    price: '$20 USD',
+    promo: '🎶 ¡Solo 500 entradas disponibles!',
+    eventId: 1, // ID del evento prioritario
   },
 ];
 

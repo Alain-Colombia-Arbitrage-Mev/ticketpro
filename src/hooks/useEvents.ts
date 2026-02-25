@@ -90,7 +90,7 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
 /**
  * Hook principal para obtener eventos
  * Usa BD si está disponible, sino usa mockEvents
- * Los eventos NAVIDAD (21, 22) siempre aparecen primero
+ * El evento prioritario (id: 1 - Open Salinas) siempre aparece primero
  */
 export function useEvents() {
   return useQuery({
@@ -104,7 +104,7 @@ export function useEvents() {
 
       try {
         const supabase = getSupabaseClient();
-        
+
         // Optimización AGRESIVA: Seleccionar solo campos esenciales y ordenar en BD
         const { data, error } = await supabase
           .from('events')
@@ -113,7 +113,7 @@ export function useEvents() {
           .order('featured', { ascending: false }) // Featured primero
           .order('id', { ascending: true }) // Luego por ID
           .limit(50); // Limitar a 50 eventos máximo para cargar más rápido
-        
+
         if (error) {
           console.error('❌ Error fetching events from DB:', error);
           console.log('📦 Fallback a mockEvents');
@@ -126,32 +126,26 @@ export function useEvents() {
         }
 
         console.log(`✅ ${data.length} eventos cargados desde BD`);
-        
-        // Convertir eventos y ordenar con NAVIDAD primero
+
+        // Convertir eventos y ordenar con evento prioritario primero
         const convertedEvents = data.map(convertEventFromDB);
-        
-        // Ordenamiento personalizado: NAVIDAD (21, 22) primero, luego el resto
+
+        // Ordenamiento personalizado: evento prioritario (id: 1) primero
         const sortedEvents = convertedEvents.sort((a, b) => {
-          // Eventos NAVIDAD (21, 22) van primero
-          const isNavidadA = a.id === 21 || a.id === 22;
-          const isNavidadB = b.id === 21 || b.id === 22;
-          
-          if (isNavidadA && !isNavidadB) return -1;
-          if (!isNavidadA && isNavidadB) return 1;
-          
-          // Entre eventos NAVIDAD, 21 va antes que 22
-          if (isNavidadA && isNavidadB) {
-            return a.id - b.id;
-          }
-          
+          const isPriorityA = a.id === 1;
+          const isPriorityB = b.id === 1;
+
+          if (isPriorityA && !isPriorityB) return -1;
+          if (!isPriorityA && isPriorityB) return 1;
+
           // Para el resto: featured primero, luego por fecha descendente
           if (a.featured !== b.featured) {
             return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
           }
-          
+
           return 0;
         });
-        
+
         return sortedEvents;
       } catch (error) {
         console.error('❌ Error conectando a BD:', error);
@@ -170,7 +164,7 @@ export function useEvents() {
 
 /**
  * Hook para obtener eventos por categoría
- * Los eventos NAVIDAD (21, 22) siempre aparecen primero
+ * El evento prioritario (id: 1 - Open Salinas) siempre aparece primero
  */
 export function useEventsByCategory(category?: string) {
   return useQuery({
@@ -185,7 +179,7 @@ export function useEventsByCategory(category?: string) {
 
       try {
         const supabase = getSupabaseClient();
-        
+
         // Optimización AGRESIVA: Solo campos esenciales, ordenar en BD
         let query = supabase
           .from('events')
@@ -194,38 +188,31 @@ export function useEventsByCategory(category?: string) {
           .order('featured', { ascending: false })
           .order('id', { ascending: true })
           .limit(50); // Limitar a 50 eventos
-        
+
         if (category && category !== 'all') {
           query = query.eq('category', category);
         }
-        
+
         const { data, error } = await query;
-        
+
         if (error) throw error;
-        
+
         if (!data) return mockEvents;
-        
+
         // Convertir eventos
         const convertedEvents = data.map(convertEventFromDB);
-        
-        // Ordenamiento personalizado: NAVIDAD (21, 22) primero
+
+        // Ordenamiento personalizado: evento prioritario (id: 1) primero
         const sortedEvents = convertedEvents.sort((a, b) => {
-          // Eventos NAVIDAD (21, 22) van primero
-          const isNavidadA = a.id === 21 || a.id === 22;
-          const isNavidadB = b.id === 21 || b.id === 22;
-          
-          if (isNavidadA && !isNavidadB) return -1;
-          if (!isNavidadA && isNavidadB) return 1;
-          
-          // Entre eventos NAVIDAD, 21 va antes que 22
-          if (isNavidadA && isNavidadB) {
-            return a.id - b.id;
-          }
-          
-          // Para el resto: por fecha ascendente
+          const isPriorityA = a.id === 1;
+          const isPriorityB = b.id === 1;
+
+          if (isPriorityA && !isPriorityB) return -1;
+          if (!isPriorityA && isPriorityB) return 1;
+
           return 0;
         });
-        
+
         return sortedEvents;
       } catch (error) {
         console.error('Error fetching events by category:', error);
