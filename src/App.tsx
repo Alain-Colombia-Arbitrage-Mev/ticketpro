@@ -110,7 +110,7 @@ function AppContent() {
         {currentPage === "hoster-validate" && <HosterValidatePage />}
       </Suspense>
 
-      <Footer />
+      {currentPage !== "home" && <Footer />}
     </div>
   );
 }

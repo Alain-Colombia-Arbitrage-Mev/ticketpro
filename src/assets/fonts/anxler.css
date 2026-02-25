@@ -31,25 +31,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Anxler SOLO para la Landing Page */
+/* Anxler SOLO para la Landing Page — con !important para ganar a Inter */
 [data-page="home"],
 .landing-page,
 .home-page {
-  font-family: 'Anxler', sans-serif;
+  font-family: 'Anxler', sans-serif !important;
   font-weight: 300;
 }
 
-/* Anxler - Solo para Landing Page */
 [data-page="home"] h1,
 [data-page="home"] h2,
 [data-page="home"] h3,
+[data-page="home"] h4,
 .landing-page h1,
 .landing-page h2,
 .landing-page h3,
 .home-page h1,
 .home-page h2,
 .home-page h3 {
-  font-family: 'Anxler', sans-serif;
+  font-family: 'Anxler', sans-serif !important;
   font-weight: 700 !important;
 }
 
@@ -57,18 +57,19 @@ body {
 [data-page="home"] span,
 [data-page="home"] div,
 [data-page="home"] a,
+[data-page="home"] li,
 .landing-page p,
 .landing-page span,
 .home-page p,
 .home-page span {
-  font-family: 'Anxler', sans-serif;
+  font-family: 'Anxler', sans-serif !important;
   font-weight: 300;
 }
 
 [data-page="home"] button,
 .landing-page button,
 .home-page button {
-  font-family: 'Anxler', sans-serif;
+  font-family: 'Anxler', sans-serif !important;
   font-weight: 700 !important;
 }
 

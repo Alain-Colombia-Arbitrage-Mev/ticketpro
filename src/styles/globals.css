@@ -827,3 +827,306 @@ html {
 
 /* Animaciones de scroll desactivadas - causaban problemas de duplicación */
 /* Las secciones ahora usan animaciones CSS simples sin JavaScript */
+
+/* ============================================================
+   LANDING HEADER — Glass morphism wine-colored navbar
+   ============================================================ */
+
+.landing-header {
+    background: rgba(105, 20, 46, 0.25);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+.nav-link-landing {
+    font-family: "Anxler", sans-serif !important;
+    font-size: clamp(14px, 1.5vw, 22px);
+    font-weight: 400;
+    color: #fff;
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.nav-link-landing:hover {
+    opacity: 0.75;
+    transform: scale(1.05);
+}
+
+/* CTA button — red glass pill */
+.nav-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Anxler", sans-serif !important;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(209, 15, 15, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 31px;
+    padding: 8px 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.nav-cta-button:hover {
+    background: rgba(209, 15, 15, 0.5);
+    transform: scale(1.05);
+}
+
+/* Mobile menu */
+.landing-mobile-menu {
+    background: rgba(105, 20, 46, 0.85);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+}
+
+.nav-link-mobile {
+    font-family: "Anxler", sans-serif !important;
+    font-size: 18px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    background: none;
+    border: none;
+    padding: 10px 0;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.3s;
+}
+
+.nav-link-mobile:hover {
+    color: #fff;
+}
+
+/* ============================================================
+   TEXT-BEHIND-CUTOUT EFFECT — Landing Page sections
+   ============================================================ */
+
+.cutout-section {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh; /* safe viewport height — avoids mobile browser bar issues */
+    overflow: hidden;
+}
+
+/* Texto gigante DETRÁS de la imagen (z-index 1) */
+.cutout-text-behind {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Anxler", sans-serif !important;
+    font-size: clamp(48px, 13vw, 200px);
+    font-weight: 700 !important;
+    color: rgba(255, 255, 255, 0.07);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    line-height: 1;
+}
+
+.cutout-text-behind.cutout-text-xl {
+    font-size: clamp(56px, 16vw, 300px);
+}
+
+.cutout-text-behind.cutout-text-white {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Imagen cutout centrada (z-index 2) */
+.cutout-image {
+    position: relative;
+    z-index: 2;
+    width: clamp(200px, 42vw, 600px);
+    height: clamp(300px, 60vh, 800px);
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+/* Texto gigante DELANTE — solo stroke, sin fill (z-index 3) */
+.cutout-text-front {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Anxler", sans-serif !important;
+    font-size: clamp(48px, 13vw, 200px);
+    font-weight: 700 !important;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
+    line-height: 1;
+}
+
+.cutout-text-front.cutout-text-xl {
+    font-size: clamp(56px, 16vw, 300px);
+}
+
+/* Contenido superpuesto: texto + botón (z-index 4) */
+.cutout-content {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 4;
+    width: 92%;
+    max-width: 700px;
+    gap: 4px;
+}
+
+.cutout-content h2 {
+    margin-bottom: 4px !important;
+}
+
+.cutout-content p {
+    margin-bottom: 12px !important;
+}
+
+/* ---- Responsive: small phones (≤ 380px) ---- */
+@media (max-width: 380px) {
+    .cutout-section {
+        min-height: 85vh;
+        min-height: 85svh;
+    }
+
+    .cutout-image {
+        width: 180px;
+        height: 260px;
+    }
+
+    .cutout-content {
+        bottom: 2%;
+        width: 95%;
+    }
+
+    .cutout-content h2 {
+        font-size: 20px !important;
+    }
+
+    .cutout-content p {
+        font-size: 12px !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* Smaller button on tiny screens */
+    .cutout-content button[data-slot="button"] {
+        height: 44px !important;
+        width: 160px !important;
+        font-size: 15px !important;
+        padding: 0 20px !important;
+    }
+}
+
+/* ---- Responsive: phones (381–640px) ---- */
+@media (min-width: 381px) and (max-width: 640px) {
+    .cutout-section {
+        min-height: 90vh;
+        min-height: 90svh;
+    }
+
+    .cutout-image {
+        width: 220px;
+        height: 320px;
+    }
+
+    .cutout-content {
+        bottom: 3%;
+    }
+
+    .cutout-content button[data-slot="button"] {
+        height: 48px !important;
+        width: 180px !important;
+        font-size: 16px !important;
+    }
+}
+
+/* ---- Responsive: tablets (641–1024px) ---- */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .cutout-image {
+        width: clamp(280px, 38vw, 420px);
+        height: clamp(380px, 55vh, 600px);
+    }
+}
+
+/* ---- Responsive: large desktops (≥ 1440px) ---- */
+@media (min-width: 1440px) {
+    .cutout-content {
+        bottom: 6%;
+    }
+
+    .cutout-content h2 {
+        font-size: 56px !important;
+    }
+
+    .cutout-content p {
+        font-size: 20px !important;
+    }
+}
+
+/* ---- Landscape phones — prevent content overflow ---- */
+@media (max-height: 500px) and (orientation: landscape) {
+    .cutout-section {
+        min-height: 100vh;
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    .cutout-image {
+        height: 55vh;
+        width: auto;
+    }
+
+    .cutout-text-behind,
+    .cutout-text-front {
+        font-size: clamp(40px, 10vw, 120px) !important;
+    }
+
+    .cutout-content {
+        bottom: 2%;
+    }
+
+    .cutout-content h2 {
+        font-size: 22px !important;
+    }
+}
+
+/* ============================================================
+   LANDING FOOTER
+   ============================================================ */
+
+.landing-footer h3 {
+    font-family: "Anxler", sans-serif !important;
+}
+
+.landing-footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.landing-footer button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+}

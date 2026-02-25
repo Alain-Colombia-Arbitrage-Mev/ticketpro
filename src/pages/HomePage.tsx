@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useRouter } from "../hooks/useRouter";
 import { useAuth } from "../hooks/useAuth";
 import { useLanguage } from "../hooks/useLanguage";
@@ -6,38 +5,18 @@ import { SEOHead } from "../components/common";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Shield } from "lucide-react";
-import logohome from "../assets/images/logohome.svg";
 
-// URLs de videos desde Cloudflare R2
-const video1 =
-  import.meta.env.VITE_VIDEO_URL_1 || "https://video.veltlix.com/video1.mp4";
-const video2 =
-  import.meta.env.VITE_VIDEO_URL_2 || "https://video.veltlix.com/video2.mp4";
-const video3 =
-  import.meta.env.VITE_VIDEO_URL_3 || "https://video.veltlix.com/video3.mp4";
-const video4 =
-  import.meta.env.VITE_VIDEO_URL_4 || "https://video.veltlix.com/video4.mp4";
-
-/**
- * HomePage Component - Página principal basada en el diseño de Figma
- * Implementación exacta del nodo 12:197
- */
 export function HomePage() {
   const { navigate } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const video2Ref = useRef<HTMLVideoElement>(null);
-  const video3Ref = useRef<HTMLVideoElement>(null);
-  const video4Ref = useRef<HTMLVideoElement>(null);
 
-  // Verificación estricta del rol para mostrar el banner
   const isHosterOrAdmin =
     user &&
     user.role &&
     typeof user.role === "string" &&
     (user.role === "hoster" || user.role === "admin");
 
-  // Debug: solo loguear en desarrollo
   if (import.meta.env.DEV && user) {
     console.log(
       "🔍 HomePage - Usuario:",
@@ -48,36 +27,6 @@ export function HomePage() {
       isHosterOrAdmin,
     );
   }
-
-  // Lazy load videos cuando están cerca de ser visibles
-  useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: "200px", // Cargar cuando está a 200px de ser visible
-      threshold: 0.1,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.target instanceof HTMLVideoElement) {
-          const video = entry.target;
-          if (video.readyState === 0) {
-            // Si aún no se ha cargado
-            video.load();
-          }
-          observer.unobserve(video);
-        }
-      });
-    }, observerOptions);
-
-    if (video2Ref.current) observer.observe(video2Ref.current);
-    if (video3Ref.current) observer.observe(video3Ref.current);
-    if (video4Ref.current) observer.observe(video4Ref.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
 
   return (
     <div data-page="home" className="home-page">
@@ -125,12 +74,12 @@ export function HomePage() {
       />
 
       {/* Container principal */}
-      <div className="relative w-full min-h-screen bg-black overflow-x-hidden">
-        {/* Primera Sección - Hero con Video de Fondo */}
-        <section className="relative w-full min-h-screen h-screen overflow-hidden bg-black">
-          {/* Subsección: Video de fondo */}
+      <div className="relative w-full bg-black overflow-x-hidden">
+
+        {/* ============ HERO SECTION ============ */}
+        <section className="relative w-full h-[100svh] min-h-[600px] overflow-hidden bg-black">
+          {/* Video de fondo */}
           <div className="absolute inset-0">
-            {/* Video de fondo - ocupa toda la pantalla */}
             <video
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay
@@ -138,209 +87,323 @@ export function HomePage() {
               muted
               playsInline
               preload="metadata"
-              src={video1}
+              src="/images/bg1.mp4"
             />
-
-            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
-            <div className="video-mask-container">
-              <div className="video-mask"></div>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60 z-10" />
           </div>
 
-          {/* Subsección: Contenido frontal */}
-          <div className="relative z-30 h-full flex items-center justify-center py-8 sm:py-12 md:py-16">
-            <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
-              {/* Logo - responsive */}
-              <div className="w-[120px] h-[58px] sm:w-[140px] sm:h-[67px] md:w-[160px] md:h-[77px] lg:w-[180px] lg:h-[86px] shrink-0 animate-fade-in-up">
+          {/* Contenido Hero */}
+          <div className="relative z-20 h-full flex flex-col items-center justify-center px-4 text-center">
+            {/* Logo grande */}
+            <img
+              src="/images/logoveltlixgrande.png"
+              alt="Veltlix"
+              className="w-[160px] sm:w-[240px] md:w-[340px] lg:w-[420px] xl:w-[480px] mb-4 sm:mb-6 md:mb-8 object-contain animate-fade-in-up mx-auto"
+            />
+
+            {/* Mujer recortada superpuesta */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[220px] sm:w-[300px] md:w-[420px] lg:w-[520px] xl:w-[580px] z-30 pointer-events-none">
+              <img
+                src="/images/home1mujer.png"
+                alt=""
+                className="w-full h-auto object-contain"
+              />
+            </div>
+
+            {/* Texto y botón */}
+            <div className="relative z-40 text-center mt-2 sm:mt-4 md:mt-8 flex flex-col items-center px-4">
+              <h1 className="text-[26px] sm:text-[36px] md:text-[50px] lg:text-[64px] xl:text-[72px] font-bold text-white leading-[1.1] mb-2 md:mb-4 text-center">
+                Todo Empieza con un Si
+              </h1>
+              <p className="text-[13px] sm:text-[15px] md:text-[18px] lg:text-[20px] text-white/80 mb-4 sm:mb-6 md:mb-8 max-w-[520px] md:max-w-[600px] text-center">
+                Descubre los mejores eventos, vive experiencias únicas
+              </p>
+              <Button
+                variant="glass"
+                className="h-11 w-[160px] sm:h-12 sm:w-[180px] md:h-14 md:w-[216px] rounded-[31px] hover:scale-105 transition-all duration-300 text-[15px] sm:text-[17px] md:text-[20px]"
+                onClick={() => navigate("events")}
+              >
+                Ver mas
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ DESCUBRE SECTION ============ */}
+        <section className="cutout-section relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-black py-16 md:py-0">
+          {/* Video de fondo */}
+          <div className="absolute inset-0 z-0">
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              src="/images/bg2.mp4"
+            />
+            <div className="absolute inset-0 bg-black/50 z-[1]" />
+          </div>
+
+          {/* Texto gigante DETRÁS de la imagen — blanco */}
+          <div className="cutout-text-behind cutout-text-white" aria-hidden="true">
+            DESCUBRE
+          </div>
+
+          {/* Imagen cutout centrada */}
+          <div className="cutout-image">
+            <img
+              src="/images/Descubre.png"
+              alt="Descubre eventos"
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          {/* Texto gigante DELANTE (stroke only) */}
+          <div className="cutout-text-front" aria-hidden="true">
+            DESCUBRE
+          </div>
+
+          {/* Contenido superpuesto */}
+          <div className="cutout-content text-center flex flex-col items-center">
+            <h2 className="text-[24px] sm:text-[32px] md:text-[42px] lg:text-[52px] font-bold text-white leading-tight mb-2 md:mb-4 text-center">
+              Luces encendidas,<br />la multitud vibra
+            </h2>
+            <p className="text-[13px] sm:text-[15px] md:text-[18px] text-white/70 mb-6 md:mb-8 max-w-[500px] text-center">
+              Los mejores conciertos y festivales te esperan
+            </p>
+            <Button
+              variant="glass"
+              className="h-11 w-[160px] sm:h-12 sm:w-[180px] md:h-14 md:w-[216px] rounded-[31px] bg-black/20 text-white border-2 border-white backdrop-blur-[5.9px] hover:scale-105 transition-all duration-300 text-[15px] sm:text-[17px] md:text-[20px]"
+              onClick={() => navigate("events")}
+            >
+              Ver mas
+            </Button>
+          </div>
+        </section>
+
+        {/* ============ VÍVELO SECTION ============ */}
+        <section className="cutout-section relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-black py-16 md:py-0">
+          {/* Video de fondo */}
+          <div className="absolute inset-0 z-0">
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              src="/images/futbol.mp4"
+            />
+            {/* Máscara bc2 encima del video */}
+            <img
+              src="/images/bc 2.png"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover z-[1] pointer-events-none opacity-60 mix-blend-multiply"
+            />
+          </div>
+
+          <div className="cutout-text-behind cutout-text-xl cutout-text-white" aria-hidden="true">
+            VÍVELO
+          </div>
+
+          <div className="cutout-image">
+            <img
+              src="/images/vivelo.png"
+              alt="Vívelo en el estadio"
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          <div className="cutout-text-front cutout-text-xl" aria-hidden="true">
+            VÍVELO
+          </div>
+
+          <div className="cutout-content text-center flex flex-col items-center">
+            <h2 className="text-[24px] sm:text-[32px] md:text-[42px] lg:text-[52px] font-bold text-white leading-tight mb-2 md:mb-4 text-center">
+              El rugido del estadio,<br />antes del gol.
+            </h2>
+            <p className="text-[13px] sm:text-[15px] md:text-[18px] text-white/70 mb-6 md:mb-8 max-w-[500px] text-center">
+              Vive la emoción del deporte en primera fila
+            </p>
+            <Button
+              variant="glass"
+              className="h-11 w-[160px] sm:h-12 sm:w-[180px] md:h-14 md:w-[216px] rounded-[31px] bg-black/20 text-white border-2 border-white backdrop-blur-[5.9px] hover:scale-105 transition-all duration-300 text-[15px] sm:text-[17px] md:text-[20px]"
+              onClick={() => navigate("events")}
+            >
+              Ver mas
+            </Button>
+          </div>
+        </section>
+
+        {/* ============ EMOCIÓNATE SECTION ============ */}
+        <section className="cutout-section relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-black py-16 md:py-0">
+          {/* Video de fondo */}
+          <div className="absolute inset-0 z-0">
+            <video
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              src="/images/bg3.mp4"
+            />
+            {/* Máscara bc4 encima del video */}
+            <img
+              src="/images/bc4.png"
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover z-[1] pointer-events-none opacity-60 mix-blend-multiply"
+            />
+          </div>
+
+          <div className="cutout-text-behind cutout-text-white" aria-hidden="true">
+            EMOCIÓNATE
+          </div>
+
+          <div className="cutout-image">
+            <img
+              src="/images/emocionante.png"
+              alt="Emociónate"
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          <div className="cutout-text-front" aria-hidden="true">
+            EMOCIÓNATE
+          </div>
+
+          <div className="cutout-content text-center flex flex-col items-center">
+            <h2 className="text-[24px] sm:text-[32px] md:text-[42px] lg:text-[52px] font-bold text-white leading-tight mb-2 md:mb-4 text-center">
+              Ríes, lloras,<br />aplaudes.
+            </h2>
+            <p className="text-[13px] sm:text-[15px] md:text-[18px] text-white/70 mb-6 md:mb-8 max-w-[500px] text-center">
+              Momentos que se quedan contigo para siempre
+            </p>
+            <Button
+              variant="glass"
+              className="h-11 w-[160px] sm:h-12 sm:w-[180px] md:h-14 md:w-[216px] rounded-[31px] bg-black/20 text-white border-2 border-white backdrop-blur-[5.9px] hover:scale-105 transition-all duration-300 text-[15px] sm:text-[17px] md:text-[20px]"
+              onClick={() => navigate("events")}
+            >
+              Ver mas
+            </Button>
+          </div>
+        </section>
+
+        {/* ============ FOOTER ============ */}
+        <footer className="landing-footer relative w-full bg-black border-t border-white/10 pt-14 sm:pt-20 md:pt-24 pb-8 sm:pb-10 px-6 sm:px-10 md:px-20 lg:px-28">
+          <div className="max-w-[1700px] mx-auto">
+            {/* Grid principal */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-16 lg:gap-24 mb-14 sm:mb-16 md:mb-20">
+              {/* Logo + Tagline */}
+              <div className="col-span-2 md:col-span-1">
                 <img
-                  src={logohome}
-                  alt="vetlix.com"
-                  className="w-full h-full object-contain"
+                  src="/images/logoveltlixgrande.png"
+                  alt="Veltlix"
+                  className="w-[140px] sm:w-[180px] md:w-[200px] mb-5 object-contain"
                 />
-              </div>
-
-              {/* Grupo de textos con efectos - responsive */}
-              <div className="text-center text-white shrink-0 animate-fade-in-up px-4">
-                {/* Título con efecto de brillo */}
-                <h1 className="font-germania text-[28px] sm:text-[36px] md:text-[42px] lg:text-[48px] font-normal leading-tight sm:leading-normal mb-2 sm:mb-0 hover:scale-105 transition-transform duration-500 hover:text-shadow-glow">
-                  {t("home.hero.title")}
-                </h1>
-
-                {/* Subtítulo con efecto sutil */}
-                <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
-                  {t("home.hero.subtitle")}
+                <p className="text-white/50 text-[15px] sm:text-[16px] md:text-[18px] leading-relaxed max-w-[400px]">
+                  La mejor plataforma para encontrar y comprar tickets de tus eventos favoritos.
                 </p>
               </div>
 
-              {/* Botón Ver más con efecto de pulso - responsive */}
-              <div className="shrink-0 animate-pulse-button">
-                <Button
-                  variant="glass"
-                  className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
-                  {t("home.hero.button")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Segunda Sección - Sin Logo */}
-        <section className="relative w-full min-h-screen h-screen overflow-hidden bg-black">
-          {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0">
-            {/* Video de fondo - ocupa toda la pantalla */}
-            <video
-              ref={video2Ref}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="none"
-              src={video2}
-            />
-
-            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
-            <div className="video-mask-container">
-              <div className="video-mask"></div>
-            </div>
-          </div>
-
-          {/* Subsección: Contenido frontal (sin logo) */}
-          <div className="relative z-30 h-full flex items-center justify-center">
-            <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
-              {/* Grupo de textos con efectos - responsive */}
-              <div className="text-center text-white shrink-0 animate-fade-in-up px-4">
-                {/* Título con efecto de brillo */}
-                <h1 className="font-germania text-[28px] sm:text-[36px] md:text-[42px] lg:text-[48px] font-normal leading-tight sm:leading-normal mb-2 sm:mb-0 hover:scale-105 transition-transform duration-500 hover:text-shadow-glow">
-                  {t("home.section2.title")}
-                </h1>
-
-                {/* Subtítulo con efecto sutil */}
-                <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
-                  {t("home.section2.subtitle")}
-                </p>
+              {/* Eventos */}
+              <div>
+                <h3 className="text-white font-bold text-[18px] sm:text-[20px] mb-5 sm:mb-6">Eventos</h3>
+                <ul className="space-y-3 sm:space-y-4">
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Conciertos
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Deportes
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Teatro
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Festivales
+                    </button>
+                  </li>
+                </ul>
               </div>
 
-              {/* Botón Ver más con efecto de pulso - responsive */}
-              <div className="shrink-0 animate-pulse-button">
-                <Button
-                  variant="glass"
-                  className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
-                  {t("home.hero.button")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Tercera Sección - Sin Logo */}
-        <section className="relative w-full min-h-screen h-screen overflow-hidden bg-black">
-          {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0">
-            {/* Video de fondo - ocupa toda la pantalla */}
-            <video
-              ref={video3Ref}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="none"
-              src={video3}
-            />
-
-            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
-            <div className="video-mask-container">
-              <div className="video-mask"></div>
-            </div>
-          </div>
-
-          {/* Subsección: Contenido frontal (sin logo) */}
-          <div className="relative z-30 h-full flex items-center justify-center">
-            <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
-              {/* Grupo de textos con efectos - responsive */}
-              <div className="text-center text-white shrink-0 animate-fade-in-up px-4">
-                {/* Título con efecto de brillo */}
-                <h1 className="font-germania text-[28px] sm:text-[36px] md:text-[42px] lg:text-[48px] font-normal leading-tight sm:leading-normal mb-2 sm:mb-0 hover:scale-105 transition-transform duration-500 hover:text-shadow-glow">
-                  {t("home.section3.title")}
-                </h1>
-
-                {/* Subtítulo con efecto sutil */}
-                <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
-                  {t("home.section3.subtitle")}
-                </p>
+              {/* Ayuda */}
+              <div>
+                <h3 className="text-white font-bold text-[18px] sm:text-[20px] mb-5 sm:mb-6">Ayuda</h3>
+                <ul className="space-y-3 sm:space-y-4">
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Centro de Ayuda
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Contacto
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Política de Reembolso
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Términos y Condiciones
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Privacidad
+                    </button>
+                  </li>
+                </ul>
               </div>
 
-              {/* Botón Ver más con efecto de pulso - responsive */}
-              <div className="shrink-0 animate-pulse-button">
-                <Button
-                  variant="glass"
-                  className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
-                  {t("home.hero.button")}
-                </Button>
+              {/* Organizadores */}
+              <div>
+                <h3 className="text-white font-bold text-[18px] sm:text-[20px] mb-5 sm:mb-6">Organizadores</h3>
+                <ul className="space-y-3 sm:space-y-4">
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Vende Tickets
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Crea un Evento
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Recursos
+                    </button>
+                  </li>
+                  <li>
+                    <button onClick={() => navigate("events")} className="text-white/50 hover:text-white text-[15px] sm:text-[17px] md:text-[18px] transition-colors">
+                      Pricing
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Cuarta Sección - Sin Logo con Efectos */}
-        <section className="relative w-full min-h-screen h-screen overflow-hidden bg-black">
-          {/* Subsección: Video de fondo */}
-          <div className="absolute inset-0">
-            {/* Video de fondo - ocupa toda la pantalla */}
-            <video
-              ref={video4Ref}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="none"
-              src={video4}
-            />
-
-            {/* Máscara con viñeta oscura - óvalo transparente en centro */}
-            <div className="video-mask-container">
-              <div className="video-mask"></div>
+            {/* Copyright */}
+            <div className="border-t border-white/10 pt-8 text-center">
+              <p className="text-white/40 text-[14px] sm:text-[16px] md:text-[18px]">
+                © {new Date().getFullYear()} Veltlix. Todos los derechos reservados.
+              </p>
             </div>
           </div>
+        </footer>
 
-          {/* Subsección: Contenido frontal (sin logo) con efectos */}
-          <div className="relative z-30 h-full flex items-center justify-center">
-            <div className="hero-content-front flex flex-col items-center w-full max-w-[1502px] px-4 sm:px-6 md:px-8 gap-4 sm:gap-6 md:gap-8">
-              {/* Grupo de textos con efectos - responsive */}
-              <div className="text-center text-white shrink-0 animate-fade-in-up px-4">
-                {/* Título con efecto de brillo */}
-                <h1 className="font-germania text-[28px] sm:text-[36px] md:text-[42px] lg:text-[48px] font-normal leading-tight sm:leading-normal mb-2 sm:mb-0 hover:scale-105 transition-transform duration-500 hover:text-shadow-glow">
-                  {t("home.section4.title")}
-                </h1>
-
-                {/* Subtítulo con efecto sutil */}
-                <p className="font-montserrat font-semibold text-[14px] sm:text-[16px] md:text-[18px] lg:text-[20px] leading-snug sm:leading-normal opacity-90 hover:opacity-100 transition-opacity duration-300">
-                  {t("home.section4.subtitle")}
-                </p>
-              </div>
-
-              {/* Botón Ver más con efecto de pulso - responsive */}
-              <div className="shrink-0 animate-pulse-button">
-                <Button
-                  variant="glass"
-                  className="h-12 w-[180px] sm:h-12 sm:w-[190px] md:h-14 md:w-[216px] px-6 sm:px-7 md:px-9 rounded-[31px] hover:scale-110 transition-all duration-300 text-[16px] sm:text-[18px] md:text-[20px]"
-                  onClick={() => navigate("events")}
-                >
-                  {t("home.hero.button")}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );
