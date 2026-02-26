@@ -23,14 +23,16 @@ export function EventDetailPage() {
   const eventId = pageData?.id ? (typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id) : null;
 
   // Cargar datos del evento desde cache/BD
-  const { data: eventData, isLoading, error } = useEvent(eventId!);
+  const { data: eventData, isLoading, error } = useEvent(eventId ?? 0);
+
+  // Todos los hooks ANTES de cualquier return condicional
+  const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1);
 
   if (!eventId) {
     navigate("home");
     return null;
   }
 
-  // Mostrar loading mientras carga
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -51,13 +53,11 @@ export function EventDetailPage() {
 
   // Parsear fecha del evento para formato ISO
   const parseDate = (dateStr: string): string => {
-    // Formato esperado: "15 de Noviembre, 2025"
     const months: Record<string, string> = {
       'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04',
       'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08',
       'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
     };
-    
     const parts = dateStr.toLowerCase().split(',');
     if (parts.length === 2) {
       const year = parts[1].trim();
@@ -73,8 +73,6 @@ export function EventDetailPage() {
   };
 
   const eventDateISO = parseDate(eventData.date);
-
-  const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1); // Auto-seleccionar el único ticket
 
   // Extraer precio del formato "$50 USD" -> "50"
   const extractPrice = (priceStr: string | undefined): string => {
