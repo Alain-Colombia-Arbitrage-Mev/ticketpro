@@ -13,6 +13,7 @@ import { useCartStore } from "../stores/cartStore";
 import { useCheckoutStore } from "../stores/checkoutStore";
 import { ImageWithFallback } from "../components/media";
 import { formatCurrency } from "../utils/currency";
+import { saveLoginReturn } from "../utils/loginReturn";
 import { toast } from "sonner";
 
 export function CartPage() {
@@ -91,6 +92,7 @@ export function CartPage() {
 
   const handleCheckout = () => {
     if (!user) {
+      saveLoginReturn("cart");
       navigate("login");
       return;
     }
@@ -137,7 +139,7 @@ export function CartPage() {
             <p className="!text-white/70 mb-6">{t('cart.login_required_desc')}</p>
             <Button
               className="bg-[#c61619] hover:bg-[#a01316] text-white"
-              onClick={() => navigate("login")}
+              onClick={() => { saveLoginReturn("cart"); navigate("login"); }}
             >
               {t('nav.login')}
             </Button>

@@ -11,6 +11,17 @@ import { Lock, Mail, User, Wand2, Check, KeyRound } from "lucide-react";
 import { motion } from "motion/react";
 import logo2 from "../assets/images/logo2.svg";
 
+function getReturnPage(): { page: string; data?: any } {
+  try {
+    const raw = sessionStorage.getItem("login_return");
+    if (raw) {
+      sessionStorage.removeItem("login_return");
+      return JSON.parse(raw);
+    }
+  } catch { /* ignore */ }
+  return { page: "home" };
+}
+
 export function LoginPage() {
   const { signIn, signUp, sendMagicLink, forgotPassword } = useAuth();
   const { navigate } = useRouter();
@@ -45,11 +56,10 @@ export function LoginPage() {
 
       await signIn(normalizedEmail, loginPassword);
 
-      console.log('✅ Login exitoso, redirigiendo al home...');
-      
-      // Pequeño delay para asegurar que el estado del usuario se actualice
+      // Redirigir a la página de retorno (checkout, evento, etc.) o home
+      const returnTo = getReturnPage();
       setTimeout(() => {
-        navigate("home");
+        navigate(returnTo.page as any, returnTo.data);
       }, 100);
     } catch (err: any) {
       console.error('❌ Error en handleLogin:', err);
@@ -68,7 +78,8 @@ export function LoginPage() {
 
     try {
       await signUp(signupEmail, signupPassword, signupName);
-      navigate("home");
+      const returnTo = getReturnPage();
+      navigate(returnTo.page as any, returnTo.data);
     } catch (err: any) {
       setError(err.message || "Error al crear cuenta");
     } finally {

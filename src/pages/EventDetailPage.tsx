@@ -10,6 +10,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { SEOHead } from "../components/common";
+import { saveLoginReturn } from "../utils/loginReturn";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();
@@ -88,6 +89,7 @@ export function EventDetailPage() {
 
   const handleAddToCart = () => {
     if (!user) {
+      saveLoginReturn("event-detail", pageData);
       navigate("login");
       return;
     }
