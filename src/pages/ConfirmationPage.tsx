@@ -21,6 +21,17 @@ import { motion } from "motion/react";
 import { TicketComponent } from "../components/tickets/TicketComponent";
 import { Ticket as TicketType } from "../utils/tickets/ticketService";
 import { stripeService } from "../services/stripe";
+import { getSupabaseClient } from "../utils/supabase/client";
+import { env } from "../config/env";
+
+/** Get the current user's JWT or fall back to the anon key */
+async function getAuthToken(): Promise<string> {
+  try {
+    const { data } = await getSupabaseClient().auth.getSession();
+    if (data.session?.access_token) return data.session.access_token;
+  } catch { /* ignore */ }
+  return env.supabase.anonKey;
+}
 
 export function ConfirmationPage() {
   const { navigate, pageData } = useRouter();
@@ -116,8 +127,14 @@ export function ConfirmationPage() {
         if (result.ok && result.orderId) {
           const orderIdToUse = result.orderId;
           const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
+          const token = await getAuthToken();
           const res = await fetch(
             `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderIdToUse)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
           );
           if (res.ok) {
             const json = await res.json();
@@ -139,8 +156,14 @@ export function ConfirmationPage() {
 
       // Usar Edge Function de Supabase en lugar de Cloudflare
       const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
+      const token2 = await getAuthToken();
       const res = await fetch(
         `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderId)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token2}`,
+          },
+        },
       );
       if (res.ok) {
         const json = await res.json();
@@ -221,8 +244,14 @@ export function ConfirmationPage() {
       try {
         // Usar Edge Function de Supabase en lugar de Cloudflare
         const projectUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL || import.meta.env.VITE_supabase_project_url || `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || import.meta.env.VITE_supabase_project_id}.supabase.co`;
+        const token = await getAuthToken();
         const res = await fetch(
           `${projectUrl}/functions/v1/orders-tickets/${encodeURIComponent(orderId)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
         if (!active) return;
         if (res.ok) {

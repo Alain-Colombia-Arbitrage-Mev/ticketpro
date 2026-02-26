@@ -4,6 +4,7 @@
  */
 
 import { env } from "../config/env";
+import { getSupabaseClient } from "../utils/supabase/client";
 
 export interface StripeCheckoutItem {
   eventId: string;
@@ -143,13 +144,20 @@ class StripeService {
     }
 
     try {
+      // Use the user's JWT when available, fall back to anon key
+      let token = env.supabase.anonKey;
+      try {
+        const { data } = await getSupabaseClient().auth.getSession();
+        if (data.session?.access_token) token = data.session.access_token;
+      } catch { /* ignore */ }
+
       const response = await fetch(
         `${this.supabaseUrl}/functions/v1/stripe-verify-session/${sessionId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${env.supabase.anonKey}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
