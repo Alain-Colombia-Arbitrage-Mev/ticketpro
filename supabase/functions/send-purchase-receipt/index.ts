@@ -231,7 +231,7 @@ serve(async (req) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>✅ Comprobante de Compra - Tiquetera</title>
+        <title>✅ Comprobante de Compra - Veltlix</title>
       </head>
       <body style="margin: 0; padding: 0; background: linear-gradient(135deg, #f4f4f4 0%, #e9ecef 100%); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
         <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -243,7 +243,7 @@ serve(async (req) => {
                 <!-- Header con logo y título -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #c61619 0%, #a01316 100%); padding: 40px; text-align: center; position: relative;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 36px; font-weight: bold; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">🎟️ TIQUETERA</h1>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 36px; font-weight: bold; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">🎟️ VELTLIX</h1>
                     <p style="margin: 12px 0 0 0; color: #ffebee; font-size: 16px; letter-spacing: 1px;">✅ Comprobante de Compra</p>
                   </td>
                 </tr>
@@ -359,7 +359,7 @@ serve(async (req) => {
                     </p>
                     <p style="margin: 0; color: #6c757d; font-size: 14px; line-height: 1.6;">
                       Saludos cordiales,<br>
-                      <strong style="color: #c61619; font-size: 16px;">El equipo de Tiquetera 🎟️</strong>
+                      <strong style="color: #c61619; font-size: 16px;">El equipo de Veltlix 🎟️</strong>
                     </p>
                   </td>
                 </tr>
@@ -368,7 +368,7 @@ serve(async (req) => {
                 <tr>
                   <td style="background-color: #212529; padding: 25px 40px; text-align: center;">
                     <p style="margin: 0; color: #adb5bd; font-size: 12px; line-height: 1.6;">
-                      © ${new Date().getFullYear()} <strong>Tiquetera</strong>. Todos los derechos reservados.<br>
+                      © ${new Date().getFullYear()} <strong>Veltlix</strong>. Todos los derechos reservados.<br>
                       Este es un email automático, por favor no responder directamente.<br>
                       <a href="#" style="color: #6c757d; text-decoration: none;">Términos y Condiciones</a> | <a href="#" style="color: #6c757d; text-decoration: none;">Política de Privacidad</a>
                     </p>
@@ -384,7 +384,7 @@ serve(async (req) => {
     `;
 
     const emailText = `
-🎟️ TIQUETERA - COMPROBANTE DE COMPRA
+🎟️ VELTLIX - COMPROBANTE DE COMPRA
 =========================================
 
 ✨ ¡COMPRA EXITOSA! ✨
@@ -432,9 +432,9 @@ Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos
 respondiendo a este email o visitando nuestro centro de ayuda.
 
 Saludos cordiales,
-El equipo de Tiquetera 🎟️
+El equipo de Veltlix 🎟️
 
-© ${new Date().getFullYear()} Tiquetera. Todos los derechos reservados.
+© ${new Date().getFullYear()} Veltlix. Todos los derechos reservados.
 Este es un email automático, por favor no responder directamente.
     `.trim();
 
@@ -451,7 +451,7 @@ Este es un email automático, por favor no responder directamente.
         },
         body: JSON.stringify({
           to: customerEmail,
-          subject: `✅ Comprobante de Compra - Orden ${orderId} - Tiquetera`,
+          subject: `✅ Comprobante de Compra - Orden ${orderId} - Veltlix`,
           text: emailText,
           html: emailHtml,
         }),

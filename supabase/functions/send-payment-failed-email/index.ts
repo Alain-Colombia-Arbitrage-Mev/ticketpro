@@ -250,7 +250,7 @@ serve(async (req) => {
                 Este es un correo automático de notificación. Por favor no respondas a este mensaje.
               </p>
               <p style="color: #6c757d; font-size: 12px; line-height: 1.5; margin: 0;">
-                <strong>Tiquetera</strong> | ${frontendUrl}<br>
+                <strong>Veltlix</strong> | ${frontendUrl}<br>
                 © ${new Date().getFullYear()} Todos los derechos reservados
               </p>
               <div style="margin-top: 15px;">
@@ -304,7 +304,7 @@ Para contactar soporte: ${frontendUrl}/#/contact
 
 --
 Este es un correo automático. Por favor no respondas a este mensaje.
-Tiquetera | ${frontendUrl}
+Veltlix | ${frontendUrl}
 © ${new Date().getFullYear()} Todos los derechos reservados
     `;
 
@@ -323,7 +323,7 @@ Tiquetera | ${frontendUrl}
 
     // Enviar email
     const info = await transporter.sendMail({
-      from: `"Tiquetera - Soporte" <${fromEmail}>`,
+      from: `"Veltlix - Soporte" <${fromEmail}>`,
       to: customerEmail,
       subject: '⚠️ Problema con tu Pago - Acción Requerida',
       text: textContent,

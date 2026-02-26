@@ -121,7 +121,7 @@ serve(async (req) => {
         );
       }
 
-      const fromEmail = Deno.env.get('EMAIL_FROM') || 'noreply@tiquetera.com';
+      const fromEmail = Deno.env.get('EMAIL_FROM') || 'noreply@veltlix.com';
       
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -164,7 +164,7 @@ serve(async (req) => {
         );
       }
 
-      const fromEmail = Deno.env.get('EMAIL_FROM') || 'noreply@tiquetera.com';
+      const fromEmail = Deno.env.get('EMAIL_FROM') || 'noreply@veltlix.com';
       
       const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
         method: 'POST',
