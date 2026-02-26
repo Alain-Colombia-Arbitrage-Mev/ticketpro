@@ -325,7 +325,7 @@ export function CheckoutPage() {
               }))
             : [
                 {
-                  eventId: pageData.id || 1,
+                  eventId: pageData.id || 9999,
                   eventName: pageData.title || "Evento",
                   eventDate: pageData.date || new Date().toISOString().split("T")[0],
                   eventTime: pageData.time,
@@ -404,7 +404,7 @@ export function CheckoutPage() {
             }))
           : [
               {
-                eventId: pageData.id || 1,
+                eventId: pageData.id || 9999,
                 eventName: pageData.title || "Evento",
                 eventDate:
                   pageData.date || new Date().toISOString().split("T")[0],
@@ -522,7 +522,7 @@ export function CheckoutPage() {
         // Procesar un solo item (compatibilidad con checkout directo)
         for (let i = 0; i < quantity; i++) {
           const ticketData: TicketData = {
-            eventId: pageData.id || 1,
+            eventId: pageData.id || 9999,
             eventName: pageData.title || "Evento",
             eventDate: pageData.date || new Date().toISOString().split("T")[0],
             eventTime: pageData.time,
@@ -1481,7 +1481,7 @@ export function CheckoutPage() {
                 }))
               : [
                   {
-                    eventId: pageData.id || 1,
+                    eventId: pageData.id || 9999,
                     eventName: pageData.title || "Evento",
                     eventDate:
                       pageData.date || new Date().toISOString().split("T")[0],

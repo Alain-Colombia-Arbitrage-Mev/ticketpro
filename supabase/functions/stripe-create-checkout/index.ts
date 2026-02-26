@@ -106,23 +106,35 @@ serve(async (req: Request) => {
     const totalQuantity = items.reduce((sum: number, i: any) => sum + (i.quantity || 1), 0);
     const hasDiscount = totalQuantity >= 2;
 
-    for (const item of items) {
-      const { data: event, error: eventError } = await supabase
-        .from("events")
-        .select("base_price")
-        .eq("id", item.eventId)
-        .single();
+    // Evento prioritario hardcoded (no existe en BD)
+    const PRIORITY_EVENTS: Record<string, number> = {
+      "9999": 20, // Open Salinas California - $20 USD
+    };
 
-      if (eventError || !event) {
-        return new Response(
-          JSON.stringify({ error: `Event not found: ${item.eventId}` }),
-          { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
-        );
+    for (const item of items) {
+      const eventIdStr = String(item.eventId);
+      let basePrice: number;
+
+      if (PRIORITY_EVENTS[eventIdStr] !== undefined) {
+        // Evento prioritario — precio fijo, no consultar BD
+        basePrice = PRIORITY_EVENTS[eventIdStr];
+      } else {
+        const { data: event, error: eventError } = await supabase
+          .from("events")
+          .select("base_price")
+          .eq("id", item.eventId)
+          .single();
+
+        if (eventError || !event) {
+          return new Response(
+            JSON.stringify({ error: `Event not found: ${item.eventId}` }),
+            { status: 400, headers: { "Content-Type": "application/json", ...CORS_HEADERS } }
+          );
+        }
+        basePrice = event.base_price;
       }
 
       // Validate against base_price (frontend sends unit price without discount)
-      // Allow both base_price and discounted price for flexibility
-      const basePrice = event.base_price;
       const discountedPrice = Number((basePrice * 0.9).toFixed(2));
       const sentPrice = Number(item.price);
 
