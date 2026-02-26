@@ -17,7 +17,7 @@ interface PromoSlide {
 const promoSlides: PromoSlide[] = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
+    image: '/images/events/SALINAS 2.png',
     title: 'Open Salinas California - Conferencia Vicion Power',
     subtitle: 'Puertas abren: 5:00 PM | Inicio: 5:30 PM',
     date: 'Sábado 14 de Marzo, 2026',
@@ -68,7 +68,7 @@ export function PromoSlider() {
         date: '14 de Marzo, 2026',
         location: slide.location,
         price: slide.price,
-        image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080',
+        image: '/images/events/SALINAS 2.png',
         category: 'Conferencia',
         featured: true,
         trending: true,

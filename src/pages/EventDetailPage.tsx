@@ -251,7 +251,7 @@ export function EventDetailPage() {
                 <ImageWithFallback
                   src={
                     isPriorityEvent
-                      ? "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200"
+                      ? "/images/events/SALINAS 2.png"
                       : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
                   }
                   alt="Venue"
