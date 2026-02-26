@@ -90,6 +90,15 @@
         <script>
             // Tema negro siempre activo
             document.documentElement.classList.add("dark");
+            // Auto-reload when chunk files are missing after a new deploy
+            window.addEventListener("error", function(e) {
+                if (e.message && e.message.includes("Failed to fetch dynamically imported module")) {
+                    if (!sessionStorage.getItem("chunk_reload")) {
+                        sessionStorage.setItem("chunk_reload", "1");
+                        window.location.reload();
+                    }
+                }
+            });
         </script>
     </head>
 
