@@ -24,7 +24,7 @@ export function EventDetailPage() {
 
   // Convertir ID a número para comparaciones consistentes
   const eventId = typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id;
-  const isPriorityEvent = eventId === 1;
+  const isPriorityEvent = eventId === 9999;
 
   // Debug: Verificar ID del evento
   console.log('🎫 EventDetailPage - Event ID:', {
@@ -97,7 +97,7 @@ export function EventDetailPage() {
       const ticketPrice = parseInt(selectedTicket.price.replace(/[^0-9]/g, ""));
       
       addItem({
-        eventId: pageData.id || 1,
+        eventId: pageData.id || 9999,
         eventName: pageData.title,
         eventDate: eventDateISO.split('T')[0],
         eventTime: pageData.time,

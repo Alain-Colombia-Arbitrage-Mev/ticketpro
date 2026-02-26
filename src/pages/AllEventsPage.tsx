@@ -134,7 +134,7 @@ export function AllEventsPage() {
     if (selectedCategory !== "all") {
       result = result.filter(event => {
         // Evento prioritario (id: 1 - Open Salinas) aparece en TODAS las categorías
-        const isPriority = event.id === 1;
+        const isPriority = event.id === 9999;
         return isPriority || event.category === selectedCategory;
       });
     }
@@ -203,8 +203,8 @@ export function AllEventsPage() {
 
     // ORDENAMIENTO FINAL: Open Salinas (id: 1) SIEMPRE PRIMERO
     result.sort((a, b) => {
-      const isPriorityA = a.id === 1;
-      const isPriorityB = b.id === 1;
+      const isPriorityA = a.id === 9999;
+      const isPriorityB = b.id === 9999;
 
       if (isPriorityA && !isPriorityB) return -1;
       if (!isPriorityA && isPriorityB) return 1;

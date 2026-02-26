@@ -24,7 +24,7 @@ const promoSlides: PromoSlide[] = [
     location: '940 N Main ST, Salinas, CA 93906',
     price: '$20 USD',
     promo: '🎶 ¡Solo 500 entradas disponibles!',
-    eventId: 1, // ID del evento prioritario
+    eventId: 9999, // ID del evento prioritario
   },
 ];
 

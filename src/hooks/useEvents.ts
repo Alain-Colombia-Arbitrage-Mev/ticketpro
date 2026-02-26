@@ -2,6 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import { getSupabaseClient } from '../utils/supabase/client';
 import { mockEvents } from '../data/mockEvents';
 
+// ★ EVENTO PRIORITARIO — Open Salinas California (siempre visible en todas las páginas)
+const OPEN_SALINAS_EVENT: Event = {
+  id: 9999,
+  title: "Open Salinas California - Conferencia Vicion Power",
+  date: "14 de Marzo, 2026",
+  location: "940 N Main ST, Salinas, CA 93906",
+  price: "$20 USD",
+  image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
+  category: "Conferencia",
+  featured: true,
+  trending: true,
+};
+
 // Tipo de evento de la BD
 export interface EventFromDB {
   id: number;
@@ -41,6 +54,18 @@ export interface Event {
 
 // Flag para alternar entre BD y mock (útil para desarrollo)
 const USE_DATABASE = import.meta.env.VITE_USE_DATABASE !== 'false'; // true por defecto
+
+/**
+ * Inyecta Open Salinas como primer evento de la lista.
+ * Elimina duplicados si ya existe (por id o título similar).
+ */
+function injectPriorityEvent(events: Event[]): Event[] {
+  const filtered = events.filter(e =>
+    e.id !== OPEN_SALINAS_EVENT.id &&
+    !e.title.toLowerCase().includes('open salinas')
+  );
+  return [OPEN_SALINAS_EVENT, ...filtered];
+}
 
 /**
  * Formatea fecha de ISO a display format
@@ -96,10 +121,10 @@ export function useEvents() {
   return useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      // Si no se debe usar BD, retornar mockEvents directamente
+      // Si no se debe usar BD, retornar mockEvents con Open Salinas
       if (!USE_DATABASE) {
         console.log('📦 Usando mockEvents (modo desarrollo)');
-        return mockEvents;
+        return injectPriorityEvent(mockEvents);
       }
 
       try {
@@ -118,40 +143,30 @@ export function useEvents() {
         if (error) {
           console.error('❌ Error fetching events from DB:', error);
           console.log('📦 Fallback a mockEvents');
-          return mockEvents;
+          return injectPriorityEvent(mockEvents);
         }
 
         if (!data || data.length === 0) {
           console.warn('⚠️ No hay eventos en BD, usando mockEvents');
-          return mockEvents;
+          return injectPriorityEvent(mockEvents);
         }
 
         console.log(`✅ ${data.length} eventos cargados desde BD`);
 
-        // Convertir eventos y ordenar con evento prioritario primero
-        const convertedEvents = data.map(convertEventFromDB);
-
-        // Ordenamiento personalizado: evento prioritario (id: 1) primero
-        const sortedEvents = convertedEvents.sort((a, b) => {
-          const isPriorityA = a.id === 1;
-          const isPriorityB = b.id === 1;
-
-          if (isPriorityA && !isPriorityB) return -1;
-          if (!isPriorityA && isPriorityB) return 1;
-
-          // Para el resto: featured primero, luego por fecha descendente
+        // Convertir eventos de BD y ordenar featured primero
+        const convertedEvents = data.map(convertEventFromDB).sort((a, b) => {
           if (a.featured !== b.featured) {
             return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
           }
-
           return 0;
         });
 
-        return sortedEvents;
+        // Inyectar Open Salinas siempre como primer evento
+        return injectPriorityEvent(convertedEvents);
       } catch (error) {
         console.error('❌ Error conectando a BD:', error);
         console.log('📦 Fallback a mockEvents');
-        return mockEvents;
+        return injectPriorityEvent(mockEvents);
       }
     },
     staleTime: 10 * 60 * 1000, // 10 minutos - cache más agresivo
@@ -175,21 +190,20 @@ export function useEventsByCategory(category?: string) {
         const filtered = category && category !== 'all'
           ? mockEvents.filter(e => e.category === category)
           : mockEvents;
-        return filtered;
+        return injectPriorityEvent(filtered);
       }
 
       try {
         const supabase = getSupabaseClient();
 
-        // Optimización AGRESIVA: Solo campos esenciales, ordenar en BD
         let query = supabase
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
-          .not('title', 'ilike', '%navidad%') // Excluir eventos de Navidad (desactivados)
+          .not('title', 'ilike', '%navidad%')
           .order('featured', { ascending: false })
           .order('id', { ascending: true })
-          .limit(50); // Limitar a 50 eventos
+          .limit(50);
 
         if (category && category !== 'all') {
           query = query.eq('category', category);
@@ -199,29 +213,16 @@ export function useEventsByCategory(category?: string) {
 
         if (error) throw error;
 
-        if (!data) return mockEvents;
+        if (!data) return injectPriorityEvent(mockEvents);
 
-        // Convertir eventos
         const convertedEvents = data.map(convertEventFromDB);
-
-        // Ordenamiento personalizado: evento prioritario (id: 1) primero
-        const sortedEvents = convertedEvents.sort((a, b) => {
-          const isPriorityA = a.id === 1;
-          const isPriorityB = b.id === 1;
-
-          if (isPriorityA && !isPriorityB) return -1;
-          if (!isPriorityA && isPriorityB) return 1;
-
-          return 0;
-        });
-
-        return sortedEvents;
+        return injectPriorityEvent(convertedEvents);
       } catch (error) {
         console.error('Error fetching events by category:', error);
         const filtered = category && category !== 'all'
           ? mockEvents.filter(e => e.category === category)
           : mockEvents;
-        return filtered;
+        return injectPriorityEvent(filtered);
       }
     },
     staleTime: 10 * 60 * 1000, // 10 minutos - cache más agresivo
