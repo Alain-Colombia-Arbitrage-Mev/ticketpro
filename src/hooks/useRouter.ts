@@ -6,21 +6,23 @@
 import { useEffect } from 'react';
 import { useRouterStore } from '../stores/routerStore';
 
+// Initialize once globally (not per component mount)
+let _initialized = false;
+
 export function useRouter() {
   const { currentPage, pageData, navigate, initialize } = useRouterStore();
-  
-  // Inicializar el router una vez cuando el hook se monta
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (!_initialized && typeof window !== 'undefined') {
+      _initialized = true;
       const cleanup = initialize();
       return cleanup;
     }
-  }, [initialize]);
-  
+  }, []);
+
   return {
     currentPage,
     pageData,
     navigate,
   };
 }
-

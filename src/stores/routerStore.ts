@@ -13,14 +13,20 @@ interface RouterState {
   initialize: () => (() => void) | undefined;
 }
 
+// Flag to prevent hashchange listener from overwriting programmatic navigation
+let _programmaticNav = false;
+
 export const useRouterStore = create<RouterState>((set) => ({
   currentPage: "home",
   pageData: null,
 
   navigate: (page: Page, data?: any) => {
-    set({ currentPage: page, pageData: data });
+    // Update store state immediately
+    set({ currentPage: page, pageData: data ?? null });
+
     if (typeof window !== 'undefined') {
-      // Si hay datos, incluirlos en la URL como query params
+      // Build the hash URL
+      let hash: string;
       if (data && Object.keys(data).length > 0) {
         const params = new URLSearchParams();
         Object.entries(data).forEach(([key, value]) => {
@@ -28,26 +34,35 @@ export const useRouterStore = create<RouterState>((set) => ({
             params.append(key, String(value));
           }
         });
-        window.location.hash = `#/${page}?${params.toString()}`;
+        hash = `#/${page}?${params.toString()}`;
       } else {
-        window.location.hash = `#/${page}`;
+        hash = `#/${page}`;
       }
+
+      // Mark as programmatic so hashchange listener skips the store update
+      _programmaticNav = true;
+      window.location.hash = hash;
+      // Reset flag after the event loop processes the hashchange
+      setTimeout(() => { _programmaticNav = false; }, 0);
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   },
 
   initialize: () => {
     if (typeof window === 'undefined') return;
-    
+
+    const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed"];
+
     const handleHashChange = () => {
+      // Skip if this was triggered by navigate() — state is already correct
+      if (_programmaticNav) return;
+
       const fullHash = window.location.hash;
-      // Remover # y / inicial si existe
       const hashWithParams = fullHash.replace(/^#\/?/, '');
       const hash = hashWithParams.split('?')[0] as Page;
-      const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed"];
 
       if (hash && validPages.includes(hash)) {
-        // Extraer parámetros de la URL si existen
         const params = new URLSearchParams(hashWithParams.split('?')[1] || '');
         const pageData: any = {};
         params.forEach((value, key) => {
@@ -63,18 +78,15 @@ export const useRouterStore = create<RouterState>((set) => ({
       }
     };
 
-    // Verificar hash inicial
+    // Parse initial hash on load
     handleHashChange();
 
-    // Escuchar cambios en el hash
     window.addEventListener('hashchange', handleHashChange);
     window.addEventListener('popstate', handleHashChange);
-    
-    // Retornar función de cleanup (será manejada por el hook)
+
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
       window.removeEventListener('popstate', handleHashChange);
     };
   },
 }));
-

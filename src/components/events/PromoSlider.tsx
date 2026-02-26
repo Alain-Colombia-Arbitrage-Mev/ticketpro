@@ -24,7 +24,29 @@ const promoSlides: PromoSlide[] = [
     location: '940 N Main ST, Salinas, CA 93906',
     price: '$20 USD',
     promo: '🎶 ¡Solo 500 entradas disponibles!',
-    eventId: 9999, // ID del evento prioritario
+    eventId: 9999,
+  },
+  {
+    id: 2,
+    image: '/images/events/SALINAS 3.png',
+    title: 'Open Salinas California - Conferencia Vicion Power',
+    subtitle: 'Puertas abren: 5:00 PM | Inicio: 5:30 PM',
+    date: 'Sábado 14 de Marzo, 2026',
+    location: '940 N Main ST, Salinas, CA 93906',
+    price: '$20 USD',
+    promo: '🎶 Anuncio Importante',
+    eventId: 9999,
+  },
+  {
+    id: 3,
+    image: '/images/events/SALINAS 4.png',
+    title: 'Open Salinas California - Conferencia Vicion Power',
+    subtitle: 'Puertas abren: 5:00 PM | Inicio: 5:30 PM',
+    date: 'Sábado 14 de Marzo, 2026',
+    location: '940 N Main ST, Salinas, CA 93906',
+    price: '$20 USD',
+    promo: '🎶 Vicion Power',
+    eventId: 9999,
   },
 ];
 
