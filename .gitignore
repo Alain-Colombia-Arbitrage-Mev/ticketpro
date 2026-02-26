@@ -216,3 +216,4 @@ RESUMEN_*.txt
 
 # Archivos MCP con configuración sensible
 .mcp.json
+public/images/Veltlix.fig
