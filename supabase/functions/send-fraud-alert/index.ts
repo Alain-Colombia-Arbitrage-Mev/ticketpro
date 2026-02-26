@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
 
               <!-- Quick Links -->
               <div style="margin: 20px 0; text-align: center;">
-                <a href="https://supabase.com/dashboard/project/***REMOVED***/editor" 
+                <a href="https://supabase.com/dashboard"
                    style="display: inline-block; margin: 5px; padding: 12px 24px; background-color: #10b981; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">
                   Ver en Supabase
                 </a>
