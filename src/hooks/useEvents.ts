@@ -9,7 +9,7 @@ const OPEN_SALINAS_EVENT: Event = {
   date: "14 de Marzo, 2026",
   location: "940 N Main ST, Salinas, CA 93906",
   price: "$20 USD",
-  image: "/images/events/SALINAS 2.png",
+  image: "/images/events/salinassquare.png",
   category: "Conferencia",
   featured: true,
   trending: true,
