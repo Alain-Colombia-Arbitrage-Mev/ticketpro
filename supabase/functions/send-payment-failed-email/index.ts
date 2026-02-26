@@ -323,7 +323,7 @@ Veltlix | ${frontendUrl}
 
     // Enviar email
     const info = await transporter.sendMail({
-      from: `"Veltlix - Soporte" <${fromEmail}>`,
+      from: `"veltlix.com" <${fromEmail}>`,
       to: customerEmail,
       subject: '⚠️ Problema con tu Pago - Acción Requerida',
       text: textContent,

@@ -81,7 +81,7 @@ serve(async (req) => {
 
         // Enviar email
         const info = await transporter.sendMail({
-          from: fromEmail,
+          from: `"veltlix.com" <${fromEmail}>`,
           to: to,
           subject: subject,
           text: text,
@@ -130,7 +130,7 @@ serve(async (req) => {
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: fromEmail,
+          from: `"veltlix.com" <${fromEmail}>`,
           to: [to],
           subject: subject,
           text: text,

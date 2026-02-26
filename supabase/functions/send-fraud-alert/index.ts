@@ -329,7 +329,7 @@ Sistema Anti-Fraude Veltlix v2.0
       });
 
       const sendEmailCommand = new SendEmailCommand({
-        Source: `Veltlix Seguridad <${sesFromEmail}>`,
+        Source: `"veltlix.com" <${sesFromEmail}>`,
         Destination: {
           ToAddresses: ["info@veltlix.com"],
         },
