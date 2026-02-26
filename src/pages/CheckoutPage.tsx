@@ -553,9 +553,9 @@ export function CheckoutPage() {
             buyerAddress: "", // Se puede agregar campo de dirección si es necesario
             ticketType: pageData.ticketType || "General",
             seatNumber: pageData.seatNumber || undefined,
-            seatType: pageData.seatType || "numerado", // numerado, general, preferencial
+            seatType: pageData.seatType || "general",
             gateNumber: pageData.gateNumber || undefined,
-            ticketClass: pageData.ticketClass || "VIP",
+            ticketClass: pageData.ticketClass || "General",
             ticketCategoryId: ticketCategory?.id,
             price: ticketPrice,
             pricePaid: total, // Precio total pagado (incluye fees)

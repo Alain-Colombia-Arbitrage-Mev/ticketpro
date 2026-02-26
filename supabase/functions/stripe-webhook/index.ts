@@ -278,7 +278,7 @@ serve(async (req: Request) => {
           buyer_address: item.buyerAddress ?? null,
           ticket_type: item.ticketType ?? "General",
           seat_number: item.seatNumber ?? null,
-          seat_type: item.seatType ?? "numerado",
+          seat_type: item.seatType ?? "general",
           gate_number: item.gateNumber ?? null,
           ticket_class: item.ticketClass ?? item.ticketType ?? "General",
           ticket_category_id: item.ticketCategoryId ?? null,
