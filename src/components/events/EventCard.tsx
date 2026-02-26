@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Calendar, MapPin, Ticket, TrendingUp, Clock } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -20,9 +21,9 @@ interface EventCardProps {
 
 /**
  * EventCard Component - Tarjeta de evento individual
- * Muestra información del evento con imagen, fecha, ubicación, precio y badges
+ * Memoized para evitar re-renders innecesarios en listas
  */
-export function EventCard({
+export const EventCard = memo(function EventCard({
   title,
   date,
   location,
@@ -122,4 +123,4 @@ export function EventCard({
       </Card>
     </>
   );
-}
+});

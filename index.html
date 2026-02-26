@@ -73,6 +73,18 @@
         <!-- Favicon -->
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+        <!-- Preload fuentes críticas -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preload" href="/src/assets/fonts/Anxler.woff2" as="font" type="font/woff2" crossorigin />
+
+        <!-- Preload video hero (LCP) -->
+        <link rel="preload" href="/images/bg1.mp4" as="video" type="video/mp4" />
+
+        <!-- DNS prefetch para servicios externos -->
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://***REMOVED***.supabase.co" />
+
         <!-- Título por defecto (será reemplazado dinámicamente por SEOHead) -->
         <title>vetlix.com - Tu plataforma de eventos y boletos</title>
         <script>

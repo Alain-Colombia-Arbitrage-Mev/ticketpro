@@ -89,12 +89,18 @@ export default defineConfig({
         output: {
           // Code splitting optimizado
           manualChunks: (id) => {
-            // Vendor chunks
             if (id.includes('node_modules')) {
-              // NO separar React - mantenerlo en el bundle principal para evitar errores de useLayoutEffect
-              // Esto asegura que React esté siempre disponible cuando se necesite
+              // React en bundle principal (evitar errores de useLayoutEffect)
               if (id.includes('react') || id.includes('react-dom') || id.includes('react/jsx-runtime')) {
-                return undefined; // Mantener en el bundle principal
+                return undefined;
+              }
+              // Supabase (cargado async)
+              if (id.includes('@supabase')) {
+                return 'vendor-supabase';
+              }
+              // Stripe (solo se necesita en checkout)
+              if (id.includes('stripe')) {
+                return 'vendor-stripe';
               }
               if (id.includes('@radix-ui')) {
                 return 'vendor-radix';
@@ -105,7 +111,10 @@ export default defineConfig({
               if (id.includes('motion')) {
                 return 'vendor-motion';
               }
-              // Otros vendor libraries
+              // TanStack Query
+              if (id.includes('@tanstack')) {
+                return 'vendor-query';
+              }
               return 'vendor';
             }
           },

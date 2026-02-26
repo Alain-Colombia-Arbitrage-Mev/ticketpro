@@ -86,7 +86,7 @@ export function HomePage() {
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
               src="/images/bg1.mp4"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black z-10" />
@@ -140,7 +140,7 @@ export function HomePage() {
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               src="/images/bg2.mp4"
             />
             <div className="absolute inset-0 bg-black/50 z-[1]" />
@@ -156,6 +156,7 @@ export function HomePage() {
             <img
               src="/images/Descubre.png"
               alt="Descubre eventos"
+              loading="lazy"
               className="w-full h-full object-contain"
             />
           </div>
@@ -193,7 +194,7 @@ export function HomePage() {
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               src="/images/futbol.mp4"
             />
             {/* Máscara bc2 encima del video */}
@@ -212,6 +213,7 @@ export function HomePage() {
             <img
               src="/images/vivelo.png"
               alt="Vívelo en el estadio"
+              loading="lazy"
               className="w-full h-full object-contain"
             />
           </div>
@@ -247,7 +249,7 @@ export function HomePage() {
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="none"
               src="/images/bg3.mp4"
             />
             {/* Máscara bc4 encima del video */}
@@ -266,6 +268,7 @@ export function HomePage() {
             <img
               src="/images/emocionante.png"
               alt="Emociónate"
+              loading="lazy"
               className="w-full h-full object-contain"
             />
           </div>
