@@ -226,13 +226,7 @@ export function CartPage() {
                     <div className="flex-1 min-w-0">
                       <div className="mb-2 sm:mb-3 md:mb-4">
                         <h3 className="text-sm min-[375px]:text-base sm:text-lg md:text-xl font-semibold !text-white mb-1 sm:mb-2 hover:!text-[#c61619] transition-colors cursor-pointer line-clamp-2"
-                            onClick={() => navigate("event-detail", {
-                              id: item.eventId,
-                              title: item.eventName,
-                              date: item.eventDate,
-                              location: item.eventLocation,
-                              image: item.eventImage,
-                            })}
+                            onClick={() => navigate("event-detail", { id: item.eventId })}
                           >
                           {item.eventName}
                         </h3>

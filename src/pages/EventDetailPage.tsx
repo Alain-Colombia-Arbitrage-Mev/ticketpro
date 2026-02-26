@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Ticket, ShoppingCart } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Ticket, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
@@ -11,6 +11,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { SEOHead } from "../components/common";
 import { saveLoginReturn } from "../utils/loginReturn";
+import { useEvent } from "../hooks/useEvents";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();
@@ -18,22 +19,35 @@ export function EventDetailPage() {
   const { user } = useAuth();
   const { addItem } = useCartStore();
 
-  if (!pageData) {
+  // Solo necesitamos el ID de la URL
+  const eventId = pageData?.id ? (typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id) : null;
+
+  // Cargar datos del evento desde cache/BD
+  const { data: eventData, isLoading, error } = useEvent(eventId!);
+
+  if (!eventId) {
     navigate("home");
     return null;
   }
 
-  // Convertir ID a número para comparaciones consistentes
-  const eventId = typeof pageData.id === 'string' ? parseInt(pageData.id) : pageData.id;
-  const isPriorityEvent = eventId === 9999;
+  // Mostrar loading mientras carga
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-white mx-auto mb-4" />
+          <p className="text-white/70">Cargando evento...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Debug: Verificar ID del evento
-  console.log('🎫 EventDetailPage - Event ID:', {
-    originalId: pageData.id,
-    eventId,
-    isPriorityEvent,
-    title: pageData.title
-  });
+  if (error || !eventData) {
+    navigate("home");
+    return null;
+  }
+
+  const isPriorityEvent = eventId === 9999;
 
   // Parsear fecha del evento para formato ISO
   const parseDate = (dateStr: string): string => {
@@ -58,7 +72,7 @@ export function EventDetailPage() {
     return new Date().toISOString();
   };
 
-  const eventDateISO = parseDate(pageData.date);
+  const eventDateISO = parseDate(eventData.date);
 
   const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1); // Auto-seleccionar el único ticket
 
@@ -70,16 +84,16 @@ export function EventDetailPage() {
   };
 
   const ticketTypes = [
-    { 
-      id: 1, 
-      name: "Entrada General", 
-      price: extractPrice(pageData.price || pageData.ticketPrice), 
+    {
+      id: 1,
+      name: "Entrada General",
+      price: extractPrice(eventData.price),
       benefits: [
         "Acceso al evento",
         "Entrada digital por correo",
         "PIN de seguridad único",
         "Válido para una persona"
-      ] 
+      ]
     },
   ];
 
@@ -89,7 +103,7 @@ export function EventDetailPage() {
 
   const handleAddToCart = () => {
     if (!user) {
-      saveLoginReturn("event-detail", pageData);
+      saveLoginReturn("event-detail", { id: eventId });
       navigate("login");
       return;
     }
@@ -97,14 +111,14 @@ export function EventDetailPage() {
     const selectedTicket = ticketTypes.find(t => t.id === selectedTicketType);
     if (selectedTicket) {
       const ticketPrice = parseInt(selectedTicket.price.replace(/[^0-9]/g, ""));
-      
+
       addItem({
-        eventId: pageData.id || 9999,
-        eventName: pageData.title,
+        eventId: eventData.id,
+        eventName: eventData.title,
         eventDate: eventDateISO.split('T')[0],
-        eventTime: pageData.time,
-        eventLocation: pageData.location,
-        eventImage: pageData.image,
+        eventTime: undefined,
+        eventLocation: eventData.location,
+        eventImage: eventData.image,
         ticketType: selectedTicket.name,
         ticketPrice: ticketPrice,
         quantity: 1,
@@ -122,21 +136,21 @@ export function EventDetailPage() {
     <div className="min-h-screen bg-black">
       <SEOHead
         seo={{
-          title: `${pageData.title} - vetlix.com`,
-          description: `Compra boletos para ${pageData.title}. ${pageData.date} en ${pageData.location}. ${pageData.category}. Precio desde ${pageData.price}. No te lo pierdas, compra tus tickets ahora.`,
-          keywords: `${pageData.title}, ${pageData.category}, eventos ${pageData.location}, boletos ${pageData.location}, ${pageData.date}`,
-          image: pageData.image,
-          url: typeof window !== 'undefined' ? `${window.location.origin}#event-detail?id=${pageData.id}` : undefined,
+          title: `${eventData.title} - vetlix.com`,
+          description: `Compra boletos para ${eventData.title}. ${eventData.date} en ${eventData.location}. ${eventData.category}. Precio desde ${eventData.price}. No te lo pierdas, compra tus tickets ahora.`,
+          keywords: `${eventData.title}, ${eventData.category}, eventos ${eventData.location}, boletos ${eventData.location}, ${eventData.date}`,
+          image: eventData.image,
+          url: typeof window !== 'undefined' ? `${window.location.origin}#event-detail?id=${eventId}` : undefined,
           type: "event",
           event: {
-            name: pageData.title,
+            name: eventData.title,
             startDate: eventDateISO,
             location: {
-              name: pageData.location,
-              address: pageData.location,
+              name: eventData.location,
+              address: eventData.location,
             },
-            price: pageData.price,
-            image: pageData.image,
+            price: eventData.price,
+            image: eventData.image,
           },
         }}
       />
@@ -157,8 +171,8 @@ export function EventDetailPage() {
       {/* Hero Image */}
       <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-96 lg:h-[32rem]">
         <ImageWithFallback
-          src={isPriorityEvent ? "/images/events/SALINAS 3.png" : pageData.image}
-          alt={pageData.title}
+          src={isPriorityEvent ? "/images/events/SALINAS 3.png" : eventData.image}
+          alt={eventData.title}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -173,7 +187,7 @@ export function EventDetailPage() {
           </Button>
         </div>
 
-        {pageData.featured && (
+        {eventData.featured && (
           <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
             <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-500 font-medium shadow-lg">
               ⭐ Destacado
@@ -188,10 +202,10 @@ export function EventDetailPage() {
           <div className="lg:col-span-2">
             <div className="mb-4 sm:mb-6 md:mb-8">
               <Badge className="mb-2 sm:mb-3 md:mb-4 border-0 !bg-[#c61619] hover:!bg-[#a01316] font-bold !text-white text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 shadow-md transition-all uppercase tracking-wider">
-                {t(`category.${pageData.category.toLowerCase()}`)}
+                {t(`category.${eventData.category.toLowerCase()}`)}
               </Badge>
               <h1 className="mb-3 sm:mb-4 md:mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight tracking-tight !text-white">
-                {t(`event.title.${pageData.id}`) !== `event.title.${pageData.id}` ? t(`event.title.${pageData.id}`) : pageData.title}
+                {t(`event.title.${eventId}`) !== `event.title.${eventId}` ? t(`event.title.${eventId}`) : eventData.title}
               </h1>
               
               <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5 !text-white/80">
@@ -201,7 +215,7 @@ export function EventDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs font-medium !text-white/60">{t('event.detail.date')}</p>
-                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{pageData.date}</p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{eventData.date}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -219,7 +233,7 @@ export function EventDetailPage() {
                   </div>
                   <div>
                     <p className="text-[10px] sm:text-xs font-medium !text-white/60">{t('event.detail.location')}</p>
-                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{pageData.location}</p>
+                    <p className="text-xs sm:text-sm md:text-base font-medium !text-white">{eventData.location}</p>
                   </div>
                 </div>
               </div>
@@ -263,7 +277,7 @@ export function EventDetailPage() {
                 <div className="flex items-start gap-2">
                   <MapPin className="mt-0.5 sm:mt-1 h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 !text-white" />
                   <div>
-                    <p className="text-xs sm:text-sm md:text-base !text-white">{pageData.location}</p>
+                    <p className="text-xs sm:text-sm md:text-base !text-white">{eventData.location}</p>
                     <p className="text-[11px] sm:text-xs md:text-sm">Av. Principal #123, Col. Centro</p>
                   </div>
                 </div>

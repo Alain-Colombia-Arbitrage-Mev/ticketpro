@@ -655,7 +655,7 @@ export function AllEventsPage() {
               {currentEvents.map((event, index) => (
                 <div 
                   key={event.id} 
-                  onClick={() => !event.soldOut && navigate("event-detail", event)}
+                  onClick={() => !event.soldOut && navigate("event-detail", { id: event.id })}
                   className={`transition-all duration-300 ${!event.soldOut ? 'cursor-pointer hover:scale-[1.02] hover:shadow-xl' : 'cursor-not-allowed opacity-90'}`}
                 >
                   <div className="relative flex flex-col w-full">

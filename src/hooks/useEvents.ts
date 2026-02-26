@@ -242,6 +242,11 @@ export function useEvent(id: number) {
   return useQuery({
     queryKey: ['events', id],
     queryFn: async () => {
+      // Evento prioritario siempre disponible
+      if (id === OPEN_SALINAS_EVENT.id) {
+        return OPEN_SALINAS_EVENT;
+      }
+
       if (!USE_DATABASE) {
         const event = mockEvents.find(e => e.id === id);
         if (!event) throw new Error('Evento no encontrado');
@@ -250,17 +255,16 @@ export function useEvent(id: number) {
 
       try {
         const supabase = getSupabaseClient();
-        
-        // Optimización: Seleccionar solo campos necesarios
+
         const { data, error } = await supabase
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('id', id)
-          .maybeSingle(); // Más rápido que .single()
-        
+          .maybeSingle();
+
         if (error) throw error;
         if (!data) throw new Error('Evento no encontrado');
-        
+
         return convertEventFromDB(data);
       } catch (error) {
         console.error('Error fetching event:', error);

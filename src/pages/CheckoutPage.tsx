@@ -693,7 +693,7 @@ export function CheckoutPage() {
         <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
-            onClick={() => navigate("event-detail", pageData)}
+            onClick={() => navigate("event-detail", { id: pageData?.id || pageData?.eventId })}
             className="gap-2 !text-white hover:!bg-white/10"
           >
             <ChevronLeft className="h-4 w-4 !text-white" />

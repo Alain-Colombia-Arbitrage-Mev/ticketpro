@@ -84,19 +84,7 @@ export function PromoSlider() {
   const handleViewEvent = (slide: PromoSlide) => {
     if (slide.eventId) {
       // Navegar directamente al detalle del evento
-      navigate('event-detail', {
-        id: slide.eventId,
-        title: slide.title,
-        date: '14 de Marzo, 2026',
-        location: slide.location,
-        price: slide.price,
-        image: '/images/events/SALINAS 2.png',
-        category: 'Conferencia',
-        featured: true,
-        trending: true,
-        soldOut: false,
-        lastTickets: false,
-      });
+      navigate('event-detail', { id: slide.eventId });
     } else {
       navigate('all-events');
     }

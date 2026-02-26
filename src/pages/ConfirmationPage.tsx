@@ -42,15 +42,23 @@ export function ConfirmationPage() {
   }, []);
   const { user } = useAuth();
 
-  // Obtener parámetros de URL de Stripe
-  const urlParams = new URLSearchParams(window.location.hash.split("?")[1] || "");
-  const sessionId: string | null =
-    (pageData as any)?.session_id ||
-    urlParams.get("session_id") ||
-    null;
+  // Capturar session_id de la URL al montar y limpiar la URL
+  const [sessionId, setSessionId] = React.useState<string | null>(null);
+  const [paymentCanceled, setPaymentCanceled] = React.useState(false);
 
-  // Verificar si el pago fue cancelado o falló
-  const paymentCanceled = urlParams.get("canceled") === "true";
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.hash.split("?")[1] || "");
+    const sid = (pageData as any)?.session_id || urlParams.get("session_id") || null;
+    const canceled = urlParams.get("canceled") === "true";
+
+    if (sid) setSessionId(sid);
+    if (canceled) setPaymentCanceled(true);
+
+    // Limpiar la URL — quitar session_id y params sensibles
+    if (urlParams.toString()) {
+      window.history.replaceState(null, "", `${window.location.pathname}#/confirmation`);
+    }
+  }, []);
 
   // Debug removed for security
 
