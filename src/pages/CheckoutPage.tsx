@@ -50,8 +50,28 @@ import { stripeService } from "../services/stripe";
 
 type PaymentMethod = "card" | "ach" | "crypto" | "free";
 
+// Persist checkout context across Stripe redirects
+const CHECKOUT_STORAGE_KEY = "checkout_context";
+
+function saveCheckoutContext(data: any) {
+  try {
+    sessionStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(data));
+  } catch { /* ignore */ }
+}
+
+function loadCheckoutContext(): any | null {
+  try {
+    const raw = sessionStorage.getItem(CHECKOUT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearCheckoutContext() {
+  try { sessionStorage.removeItem(CHECKOUT_STORAGE_KEY); } catch { /* ignore */ }
+}
+
 export function CheckoutPage() {
-  const { navigate, pageData } = useRouter();
+  const { navigate, pageData: rawPageData } = useRouter();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { items: storeCartItems, clearCart, getTotalItems, getDiscount, getTotalWithDiscount } = useCartStore();
@@ -67,26 +87,24 @@ export function CheckoutPage() {
   const [cryptoOrderId, setCryptoOrderId] = useState<string>("");
   const [isAddressValid, setIsAddressValid] = useState(false);
 
-  // Debug: Verificar pageData completo
-  console.log('📦 CheckoutPage - pageData received:', {
-    pageData,
-    type: typeof pageData,
-    keys: pageData ? Object.keys(pageData) : []
-  });
-  
+  // Restore checkout context from sessionStorage if pageData is missing/incomplete
+  // This handles the case where Stripe redirects back with only ?canceled=true
+  const pageData = React.useMemo(() => {
+    // If rawPageData has event info (id or title), it's a fresh navigation — save it
+    if (rawPageData && (rawPageData.id || rawPageData.title)) {
+      saveCheckoutContext(rawPageData);
+      return rawPageData;
+    }
+    // Otherwise try to restore from sessionStorage (e.g. after Stripe cancel redirect)
+    const saved = loadCheckoutContext();
+    if (saved) return saved;
+    // Fallback to whatever rawPageData we have
+    return rawPageData;
+  }, [rawPageData]);
+
   // IMPORTANTE: Usar items del STORE directamente para tener datos actualizados en tiempo real
-  // Si el usuario edita cantidades en el carrito, se reflejarán aquí automáticamente
   const isCartCheckout = storeCartItems && storeCartItems.length > 0;
   const cartItems = isCartCheckout ? storeCartItems : null;
-  
-  // Debug: Verificar cartItems del store
-  console.log('🛒 CheckoutPage - Using STORE cartItems:', {
-    cartItems,
-    isArray: Array.isArray(cartItems),
-    length: cartItems?.length,
-    isCartCheckout,
-    storeItemsLength: storeCartItems.length
-  });
 
   // Cargar categorías y métodos de pago al montar
   useEffect(() => {
@@ -603,6 +621,7 @@ export function CheckoutPage() {
 
   const handleCloseSuccess = () => {
     setShowSuccessModal(false);
+    clearCheckoutContext();
     // Navegar a confirmación con los tickets creados
     navigate("confirmation", {
       tickets: createdTickets,

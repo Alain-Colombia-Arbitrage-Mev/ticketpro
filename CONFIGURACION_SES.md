@@ -112,7 +112,7 @@ npx supabase functions logs send-fraud-alert --tail
 ### 2. Invocar manualmente (testing)
 
 ```bash
-curl -X POST https://***REMOVED***.supabase.co/functions/v1/send-fraud-alert \
+curl -X POST https://hxmdzhkkuhsetqucbpia.supabase.co/functions/v1/send-fraud-alert \
   -H "Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>" \
   -H "Content-Type: application/json" \
   -d '{

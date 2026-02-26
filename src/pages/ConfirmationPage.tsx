@@ -35,6 +35,11 @@ async function getAuthToken(): Promise<string> {
 
 export function ConfirmationPage() {
   const { navigate, pageData } = useRouter();
+
+  // Clear checkout context on successful payment landing
+  React.useEffect(() => {
+    try { sessionStorage.removeItem("checkout_context"); } catch { /* ignore */ }
+  }, []);
   const { user } = useAuth();
 
   // Obtener parámetros de URL de Stripe

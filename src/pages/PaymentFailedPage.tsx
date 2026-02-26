@@ -14,12 +14,9 @@ export function PaymentFailedPage() {
     new URLSearchParams(window.location.hash.split("?")[1] || "").get("session_id");
 
   const handleRetryPayment = () => {
-    // Volver al checkout para reintentar el pago
-    if (pageData) {
-      navigate("checkout", pageData);
-    } else {
-      navigate("home");
-    }
+    // Volver al checkout — el contexto se restaura desde sessionStorage automáticamente
+    // Solo necesitamos navegar; CheckoutPage recupera los datos del evento
+    navigate("checkout");
   };
 
   const handleContactSupport = () => {
