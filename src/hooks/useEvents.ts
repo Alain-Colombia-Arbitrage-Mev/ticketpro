@@ -60,10 +60,13 @@ const USE_DATABASE = import.meta.env.VITE_USE_DATABASE !== 'false'; // true por 
  * Elimina duplicados si ya existe (por id o título similar).
  */
 function injectPriorityEvent(events: Event[]): Event[] {
-  const filtered = events.filter(e =>
-    e.id !== OPEN_SALINAS_EVENT.id &&
-    !e.title.toLowerCase().includes('open salinas')
-  );
+  const filtered = events
+    .filter(e =>
+      e.id !== OPEN_SALINAS_EVENT.id &&
+      !e.title.toLowerCase().includes('open salinas')
+    )
+    // All events except Open Salinas are sold out
+    .map(e => ({ ...e, soldOut: true }));
   return [OPEN_SALINAS_EVENT, ...filtered];
 }
 
@@ -130,42 +133,39 @@ export function useEvents() {
       try {
         const supabase = getSupabaseClient();
 
-        // Optimización AGRESIVA: Seleccionar solo campos esenciales y ordenar en BD
-        const { data, error } = await supabase
+        // Race the DB query against a 4-second timeout so users see content fast
+        const queryPromise = supabase
           .from('events')
           .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
-          .not('title', 'ilike', '%navidad%') // Excluir eventos de Navidad (desactivados)
-          .order('featured', { ascending: false }) // Featured primero
-          .order('id', { ascending: true }) // Luego por ID
-          .limit(50); // Limitar a 50 eventos máximo para cargar más rápido
+          .not('title', 'ilike', '%navidad%')
+          .order('featured', { ascending: false })
+          .order('id', { ascending: true })
+          .limit(20);
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('DB timeout')), 4000)
+        );
+
+        const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
         if (error) {
-          console.error('❌ Error fetching events from DB:', error);
-          console.log('📦 Fallback a mockEvents');
           return injectPriorityEvent(mockEvents);
         }
 
         if (!data || data.length === 0) {
-          console.warn('⚠️ No hay eventos en BD, usando mockEvents');
           return injectPriorityEvent(mockEvents);
         }
 
-        console.log(`✅ ${data.length} eventos cargados desde BD`);
-
-        // Convertir eventos de BD y ordenar featured primero
-        const convertedEvents = data.map(convertEventFromDB).sort((a, b) => {
+        const convertedEvents = data.map(convertEventFromDB).sort((a: Event, b: Event) => {
           if (a.featured !== b.featured) {
             return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
           }
           return 0;
         });
 
-        // Inyectar Open Salinas siempre como primer evento
         return injectPriorityEvent(convertedEvents);
       } catch (error) {
-        console.error('❌ Error conectando a BD:', error);
-        console.log('📦 Fallback a mockEvents');
         return injectPriorityEvent(mockEvents);
       }
     },
@@ -203,22 +203,24 @@ export function useEventsByCategory(category?: string) {
           .not('title', 'ilike', '%navidad%')
           .order('featured', { ascending: false })
           .order('id', { ascending: true })
-          .limit(50);
+          .limit(20);
 
         if (category && category !== 'all') {
           query = query.eq('category', category);
         }
 
-        const { data, error } = await query;
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('DB timeout')), 4000)
+        );
+
+        const { data, error } = await Promise.race([query, timeoutPromise]) as any;
 
         if (error) throw error;
-
         if (!data) return injectPriorityEvent(mockEvents);
 
         const convertedEvents = data.map(convertEventFromDB);
         return injectPriorityEvent(convertedEvents);
       } catch (error) {
-        console.error('Error fetching events by category:', error);
         const filtered = category && category !== 'all'
           ? mockEvents.filter(e => e.category === category)
           : mockEvents;

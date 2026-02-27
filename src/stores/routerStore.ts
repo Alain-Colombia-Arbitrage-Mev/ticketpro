@@ -54,6 +54,29 @@ export const useRouterStore = create<RouterState>((set) => ({
 
     const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed"];
 
+    // Detect path-based URLs (e.g. /all-events) and convert to hash-based (#/all-events)
+    // This handles direct navigation or shared links without the hash prefix
+    const convertPathToHash = () => {
+      const pathname = window.location.pathname;
+      // Remove leading slash to get the page name
+      const pathPage = pathname.replace(/^\//, '').split('?')[0] as Page;
+
+      if (pathPage && validPages.includes(pathPage)) {
+        // Preserve any query params from the original URL
+        const search = window.location.search;
+        const hashUrl = search
+          ? `#/${pathPage}${search}`
+          : `#/${pathPage}`;
+
+        // Replace the URL so the browser doesn't keep the bad path
+        _programmaticNav = true;
+        window.history.replaceState(null, '', '/' + hashUrl);
+        setTimeout(() => { _programmaticNav = false; }, 0);
+        return true;
+      }
+      return false;
+    };
+
     const handleHashChange = () => {
       // Skip if this was triggered by navigate() — state is already correct
       if (_programmaticNav) return;
@@ -77,6 +100,9 @@ export const useRouterStore = create<RouterState>((set) => ({
         set({ currentPage: 'home', pageData: null });
       }
     };
+
+    // On initial load: convert path-based URL to hash if needed
+    convertPathToHash();
 
     // Parse initial hash on load
     handleHashChange();

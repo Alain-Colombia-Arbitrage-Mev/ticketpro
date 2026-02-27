@@ -55,6 +55,11 @@ export function getSupabaseClient(): SupabaseClient {
         storage: typeof window !== 'undefined' ? window.localStorage : undefined,
         storageKey: 'supabase.auth.token',
         flowType: 'pkce',
+        // Use a simple in-memory lock to avoid Navigator.locks timeout errors.
+        // Navigator.locks can deadlock in SPAs with concurrent auth calls.
+        lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<any>) => {
+          return await fn();
+        },
       },
       global: {
         headers: {
