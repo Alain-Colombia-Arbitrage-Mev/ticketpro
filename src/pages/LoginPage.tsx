@@ -19,7 +19,7 @@ function getReturnPage(): { page: string; data?: any } {
       return JSON.parse(raw);
     }
   } catch { /* ignore */ }
-  return { page: "events" };
+  return { page: "all-events" };
 }
 
 export function LoginPage() {
