@@ -46,6 +46,7 @@ interface SummaryData {
 
 interface OrderRow {
   id: string;
+  order_id: string;
   buyer_email: string;
   total_amount: number;
   payment_status: string;
@@ -70,7 +71,7 @@ interface LogRow {
   order_id: string;
   buyer_email: string;
   amount: number;
-  status: string;
+  payment_status: string;
   created_at: string;
 }
 
@@ -103,7 +104,9 @@ const STATUS_COLORS: Record<string, string> = {
   refunded: "#8b5cf6",
   cancelled: "#6b7280",
   active: "#22c55e",
-  used: "#3b82f6",
+  issued_unused: "#3b82f6",
+  issued_used: "#a855f7",
+  used: "#a855f7",
   expired: "#6b7280",
   succeeded: "#22c55e",
 };
@@ -295,11 +298,13 @@ function OverviewTab() {
             .eq("payment_status", "fraud_detected"),
         ]);
 
-      const totalRevenue =
+      // total_amount is stored in cents from Stripe, convert to dollars
+      const totalRevenueCents =
         revenueRes.data?.reduce(
           (sum: number, o: { total_amount: number }) => sum + (o.total_amount || 0),
           0,
         ) || 0;
+      const totalRevenue = totalRevenueCents / 100;
 
       setSummary({
         totalRevenue,
@@ -508,7 +513,7 @@ function OrdersTab() {
     try {
       let query = supabase
         .from("orders")
-        .select("id, buyer_email, total_amount, payment_status, payment_method, created_at", {
+        .select("id, order_id, buyer_email, total_amount, payment_status, payment_method, created_at", {
           count: "exact",
         })
         .order("created_at", { ascending: false })
@@ -516,7 +521,7 @@ function OrdersTab() {
 
       if (search.trim()) {
         query = query.or(
-          `buyer_email.ilike.%${search.trim()}%,id.eq.${search.trim()}`,
+          `buyer_email.ilike.%${search.trim()}%,order_id.ilike.%${search.trim()}%`,
         );
       }
       if (statusFilter) {
@@ -615,14 +620,14 @@ function OrdersTab() {
                       key={order.id}
                       className="bg-[#1a1a1a] hover:bg-[#222] transition-colors"
                     >
-                      <td className="px-4 py-3 text-white/80 font-mono text-xs">
-                        {order.id.substring(0, 8)}...
+                      <td className="px-4 py-3 text-white/80 font-mono text-xs max-w-[180px] truncate" title={order.order_id}>
+                        {order.order_id || order.id.substring(0, 8)}
                       </td>
                       <td className="px-4 py-3 text-white/80">
                         {order.buyer_email}
                       </td>
                       <td className="px-4 py-3 text-right text-white font-medium">
-                        {formatCurrency(order.total_amount || 0)}
+                        {formatCurrency((order.total_amount || 0) / 100)}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={order.payment_status} />
@@ -717,7 +722,7 @@ function TicketsTab() {
         <SelectFilter
           value={statusFilter}
           onChange={setStatusFilter}
-          options={["active", "used", "expired", "cancelled"]}
+          options={["issued_unused", "issued_used", "cancelled", "expired"]}
           label="Filter by ticket status"
         />
       </div>
@@ -820,7 +825,7 @@ function LogsTab() {
       const { data, count, error: err } = await supabase
         .from("transaction_logs")
         .select(
-          "id, event_type, stripe_event_id, order_id, buyer_email, amount, status, created_at",
+          "id, event_type, stripe_event_id, order_id, buyer_email, amount, payment_status, created_at",
           { count: "exact" },
         )
         .order("created_at", { ascending: false })
@@ -908,11 +913,11 @@ function LogsTab() {
                         {log.buyer_email || "-"}
                       </td>
                       <td className="px-4 py-3 text-right text-white font-medium">
-                        {log.amount ? formatCurrency(log.amount) : "-"}
+                        {log.amount ? formatCurrency(log.amount / 100) : "-"}
                       </td>
                       <td className="px-4 py-3">
-                        {log.status ? (
-                          <StatusBadge status={log.status} />
+                        {log.payment_status ? (
+                          <StatusBadge status={log.payment_status} />
                         ) : (
                           <span className="text-white/30">-</span>
                         )}
@@ -992,14 +997,14 @@ function MarketingTab() {
             const existing = contactMap.get(o.buyer_email);
             if (existing) {
               existing.order_count += 1;
-              existing.total_spend += o.total_amount || 0;
+              existing.total_spend += (o.total_amount || 0) / 100;
               if (o.created_at > existing.last_purchase) {
                 existing.last_purchase = o.created_at;
               }
             } else {
               contactMap.set(o.buyer_email, {
                 order_count: 1,
-                total_spend: o.total_amount || 0,
+                total_spend: (o.total_amount || 0) / 100,
                 first_purchase: o.created_at,
                 last_purchase: o.created_at,
               });
@@ -1213,18 +1218,18 @@ const TABS: { key: Tab; label: string; icon: typeof LayoutDashboard }[] = [
 ];
 
 export function AdminDashboardPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { navigate } = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
-  // Auth guard
+  // Auth guard — wait for auth to finish loading before redirecting
   useEffect(() => {
-    if (user && user.role !== "admin" && user.role !== "hoster") {
+    if (!loading && (!user || (user.role !== "admin" && user.role !== "hoster"))) {
       navigate("home");
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
-  if (!user || (user.role !== "admin" && user.role !== "hoster")) {
+  if (loading || !user || (user.role !== "admin" && user.role !== "hoster")) {
     return <LoadingState />;
   }
 
