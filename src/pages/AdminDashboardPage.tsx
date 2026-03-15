@@ -23,7 +23,6 @@ import {
   ChevronRight,
   RefreshCw,
   LayoutDashboard,
-  ClipboardList,
   FileText,
   Users,
   Loader2,
@@ -141,6 +140,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function formatDate(iso: string) {
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -151,10 +151,16 @@ function formatDate(iso: string) {
 }
 
 function formatShortDate(iso: string) {
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
+}
+
+// Sanitize search input for PostgREST .or() filters (commas/parens break syntax)
+function sanitizeSearch(input: string): string {
+  return input.replace(/[,()]/g, "").trim();
 }
 
 function formatCurrency(amount: number) {
@@ -288,7 +294,8 @@ function OverviewTab() {
           supabase
             .from("orders")
             .select("total_amount")
-            .in("payment_status", ["paid", "completed"]),
+            .in("payment_status", ["paid", "completed"])
+            .limit(10000),
           supabase
             .from("tickets")
             .select("*", { count: "exact", head: true }),
@@ -338,7 +345,8 @@ function OverviewTab() {
       // Status distribution
       const { data: allOrders } = await supabase
         .from("orders")
-        .select("payment_status");
+        .select("payment_status")
+        .limit(10000);
 
       if (allOrders) {
         const byStatus: Record<string, number> = {};
@@ -520,9 +528,8 @@ function OrdersTab() {
         .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       if (search.trim()) {
-        query = query.or(
-          `buyer_email.ilike.%${search.trim()}%,order_id.ilike.%${search.trim()}%`,
-        );
+        const q = sanitizeSearch(search);
+        if (q) query = query.or(`buyer_email.ilike.%${q}%,order_id.ilike.%${q}%`);
       }
       if (statusFilter) {
         query = query.eq("payment_status", statusFilter);
@@ -681,9 +688,8 @@ function TicketsTab() {
         .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       if (search.trim()) {
-        query = query.or(
-          `buyer_email.ilike.%${search.trim()}%,ticket_code.ilike.%${search.trim()}%`,
-        );
+        const q = sanitizeSearch(search);
+        if (q) query = query.or(`buyer_email.ilike.%${q}%,ticket_code.ilike.%${q}%`);
       }
       if (statusFilter) {
         query = query.eq("status", statusFilter);
@@ -722,7 +728,7 @@ function TicketsTab() {
         <SelectFilter
           value={statusFilter}
           onChange={setStatusFilter}
-          options={["issued_unused", "issued_used", "cancelled", "expired"]}
+          options={["issued_unused", "issued_used", "cancelled"]}
           label="Filter by ticket status"
         />
       </div>
@@ -913,7 +919,7 @@ function LogsTab() {
                         {log.buyer_email || "-"}
                       </td>
                       <td className="px-4 py-3 text-right text-white font-medium">
-                        {log.amount ? formatCurrency(log.amount / 100) : "-"}
+                        {log.amount ? formatCurrency(Number(log.amount) / 100) : "-"}
                       </td>
                       <td className="px-4 py-3">
                         {log.payment_status ? (
@@ -974,7 +980,8 @@ function MarketingTab() {
           .from("orders")
           .select("buyer_email, total_amount, created_at")
           .in("payment_status", ["paid", "completed"])
-          .order("created_at", { ascending: true });
+          .order("created_at", { ascending: true })
+          .limit(10000);
 
         if (ordersErr) throw ordersErr;
 
