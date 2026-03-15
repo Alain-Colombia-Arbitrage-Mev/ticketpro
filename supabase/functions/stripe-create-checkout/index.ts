@@ -190,7 +190,7 @@ serve(async (req: Request) => {
 
     // Crear Checkout Session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_configuration: "pmc_1TAPHm3DyQT0Q7hGSf7MqjuA",
       line_items: lineItems,
       mode: "payment",
       success_url: successUrl,

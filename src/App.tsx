@@ -70,6 +70,11 @@ const HosterValidatePage = lazy(() =>
     default: m.HosterValidatePage,
   })),
 );
+const AdminDashboardPage = lazy(() =>
+  import("./pages/AdminDashboardPage").then((m) => ({
+    default: m.AdminDashboardPage,
+  })),
+);
 
 // Componente de carga
 const PageLoader = () => (
@@ -108,6 +113,7 @@ function AppContent() {
         {currentPage === "my-tickets" && <MyTicketsPage />}
         {currentPage === "cart" && <CartPage />}
         {currentPage === "hoster-validate" && <HosterValidatePage />}
+        {currentPage === "admin-dashboard" && <AdminDashboardPage />}
       </Suspense>
 
       {currentPage !== "home" && <Footer />}

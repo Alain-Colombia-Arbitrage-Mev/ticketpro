@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 
-export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "payment-failed" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact" | "validate-ticket" | "my-tickets" | "cart" | "hoster-validate";
+export type Page = "home" | "events" | "all-events" | "event-detail" | "checkout" | "profile" | "confirmation" | "payment-failed" | "login" | "add-balance" | "wallet" | "terms" | "privacy" | "refund-policy" | "contact" | "validate-ticket" | "my-tickets" | "cart" | "hoster-validate" | "admin-dashboard";
 
 interface RouterState {
   currentPage: Page;
@@ -52,7 +52,7 @@ export const useRouterStore = create<RouterState>((set) => ({
   initialize: () => {
     if (typeof window === 'undefined') return;
 
-    const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed"];
+    const validPages: Page[] = ["home", "events", "all-events", "event-detail", "checkout", "profile", "confirmation", "login", "add-balance", "wallet", "terms", "privacy", "refund-policy", "contact", "validate-ticket", "my-tickets", "cart", "hoster-validate", "payment-failed", "admin-dashboard"];
 
     // Detect path-based URLs (e.g. /all-events) and convert to hash-based (#/all-events)
     // This handles direct navigation or shared links without the hash prefix

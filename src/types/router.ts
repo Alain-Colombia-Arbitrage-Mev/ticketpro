@@ -21,5 +21,6 @@ export type Page =
   | "validate-ticket"
   | "my-tickets"
   | "cart"
-  | "hoster-validate";
+  | "hoster-validate"
+  | "admin-dashboard";
 

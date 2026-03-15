@@ -7,6 +7,7 @@ import {
   LogIn,
   ShoppingCart,
   X,
+  Shield,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -147,6 +148,18 @@ export function Header() {
 
               {isAuthenticated ? (
                 <>
+                  {(user?.role === 'admin' || user?.role === 'hoster') && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full focus-visible-ring transition-all duration-300 hover:!bg-white/10 hover:scale-110 !text-white h-9 w-9"
+                      onClick={() => handleNavigation("admin-dashboard")}
+                      aria-label="Admin Dashboard"
+                      title="Admin Dashboard"
+                    >
+                      <Shield className="h-5 w-5 !text-white" />
+                    </Button>
+                  )}
                   <button
                     onClick={() => handleNavigation("wallet")}
                     className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm px-3 py-1.5 transition-all duration-300 hover:border-white/40 hover:bg-white/10 hover:scale-105"
@@ -295,6 +308,15 @@ export function Header() {
                       </span>
                     )}
                   </button>
+                  {(user?.role === 'admin' || user?.role === 'hoster') && (
+                    <button
+                      onClick={() => handleNavigation("admin-dashboard")}
+                      className="nav-link-mobile flex items-center gap-2"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin
+                    </button>
+                  )}
                   <button
                     onClick={() => handleNavigation("profile")}
                     className="nav-link-mobile"

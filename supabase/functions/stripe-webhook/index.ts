@@ -31,6 +31,45 @@ function randomPin(): string {
   return String(1000 + (array[0] % 9000));
 }
 
+// Helper: log transaction to transaction_logs table
+async function logTransaction(
+  supabase: any,
+  data: {
+    event_type: string;
+    stripe_event_id: string;
+    order_id?: string;
+    order_uuid?: string;
+    buyer_email?: string;
+    amount?: number;
+    currency?: string;
+    payment_intent_id?: string;
+    payment_status?: string;
+    metadata?: Record<string, any>;
+  }
+) {
+  try {
+    const { error } = await supabase
+      .from("transaction_logs")
+      .insert({
+        event_type: data.event_type,
+        stripe_event_id: data.stripe_event_id,
+        order_id: data.order_id || null,
+        order_uuid: data.order_uuid || null,
+        buyer_email: data.buyer_email || null,
+        amount: data.amount || null,
+        currency: data.currency || "usd",
+        payment_intent_id: data.payment_intent_id || null,
+        payment_status: data.payment_status || null,
+        metadata: data.metadata || null,
+      });
+    if (error) {
+      console.warn("Failed to log transaction:", error.message);
+    }
+  } catch (e) {
+    console.warn("logTransaction error:", e);
+  }
+}
+
 serve(async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
@@ -247,6 +286,20 @@ serve(async (req: Request) => {
         createdOrder = newOrder;
         console.log(`Order created: ${createdOrder.id}`);
       }
+
+      // Log checkout completion to transaction_logs
+      await logTransaction(supabase, {
+        event_type: "checkout.session.completed",
+        stripe_event_id: event.id,
+        order_id: orderId,
+        order_uuid: createdOrder.id,
+        buyer_email: buyerEmail,
+        amount: session.amount_total || 0,
+        currency: session.currency || "usd",
+        payment_intent_id: session.payment_intent as string || undefined,
+        payment_status: paymentStatus,
+        metadata: { sessionId: session.id },
+      });
 
       // PASO 2: Crear tickets vinculados a la orden
       const ticketRecords = expandedItems.map((item) => {
@@ -508,6 +561,20 @@ serve(async (req: Request) => {
                     })
                     .eq("order_id", orderId);
 
+                  // Log fraud detection
+                  await logTransaction(supabase, {
+                    event_type: "fraud_detected",
+                    stripe_event_id: event.id,
+                    order_id: orderId,
+                    order_uuid: createdOrder.id,
+                    buyer_email: buyerEmail,
+                    amount: session.amount_total || 0,
+                    currency: session.currency || "usd",
+                    payment_intent_id: (session.payment_intent as string) || undefined,
+                    payment_status: "fraud_detected",
+                    metadata: { reason: fraudReason, refunded: true },
+                  });
+
                   // Marcar tickets como cancelados
                   if (insertedTickets && insertedTickets.length > 0) {
                     await supabase
@@ -602,7 +669,132 @@ serve(async (req: Request) => {
       );
     }
 
-    // Otros eventos (solo log)
+    // Handle payment_intent.payment_failed
+    if (event.type === "payment_intent.payment_failed") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const failureMessage = paymentIntent.last_payment_error?.message || "Unknown failure";
+
+      // Find order by payment_intent
+      const { data: failedOrder } = await supabase
+        .from("orders")
+        .select("id, order_id, buyer_email")
+        .eq("stripe_payment_intent_id", paymentIntent.id)
+        .maybeSingle();
+
+      if (failedOrder) {
+        await supabase
+          .from("orders")
+          .update({ payment_status: "failed", updated_at: new Date().toISOString() })
+          .eq("id", failedOrder.id);
+      }
+
+      await logTransaction(supabase, {
+        event_type: "payment_intent.payment_failed",
+        stripe_event_id: event.id,
+        order_id: failedOrder?.order_id,
+        order_uuid: failedOrder?.id,
+        buyer_email: failedOrder?.buyer_email || paymentIntent.receipt_email || undefined,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        payment_intent_id: paymentIntent.id,
+        payment_status: "failed",
+        metadata: { failure_message: failureMessage },
+      });
+
+      console.log(`Payment failed for PI ${paymentIntent.id}: ${failureMessage}`);
+
+      return new Response(
+        JSON.stringify({ received: true }),
+        { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
+      );
+    }
+
+    // Handle charge.refunded
+    if (event.type === "charge.refunded") {
+      const charge = event.data.object as Stripe.Charge;
+      const paymentIntentId = charge.payment_intent as string;
+
+      const { data: refundedOrder } = await supabase
+        .from("orders")
+        .select("id, order_id, buyer_email")
+        .eq("stripe_payment_intent_id", paymentIntentId)
+        .maybeSingle();
+
+      if (refundedOrder) {
+        await supabase
+          .from("orders")
+          .update({ payment_status: "refunded", updated_at: new Date().toISOString() })
+          .eq("id", refundedOrder.id);
+
+        // Cancel associated tickets
+        await supabase
+          .from("tickets")
+          .update({ status: "cancelled", updated_at: new Date().toISOString() })
+          .eq("order_uuid", refundedOrder.id);
+      }
+
+      await logTransaction(supabase, {
+        event_type: "charge.refunded",
+        stripe_event_id: event.id,
+        order_id: refundedOrder?.order_id,
+        order_uuid: refundedOrder?.id,
+        buyer_email: refundedOrder?.buyer_email || charge.billing_details?.email || undefined,
+        amount: charge.amount_refunded,
+        currency: charge.currency,
+        payment_intent_id: paymentIntentId,
+        payment_status: "refunded",
+        metadata: { refund_id: charge.refunds?.data?.[0]?.id },
+      });
+
+      console.log(`Charge refunded: ${charge.id}`);
+
+      return new Response(
+        JSON.stringify({ received: true }),
+        { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
+      );
+    }
+
+    // Handle checkout.session.expired
+    if (event.type === "checkout.session.expired") {
+      const expiredSession = event.data.object as Stripe.Checkout.Session;
+      const expiredOrderId = expiredSession.metadata?.orderId;
+
+      if (expiredOrderId) {
+        const { data: expiredOrder } = await supabase
+          .from("orders")
+          .select("id")
+          .eq("order_id", expiredOrderId)
+          .maybeSingle();
+
+        if (expiredOrder) {
+          await supabase
+            .from("orders")
+            .update({ payment_status: "cancelled", updated_at: new Date().toISOString() })
+            .eq("id", expiredOrder.id);
+        }
+
+        await logTransaction(supabase, {
+          event_type: "checkout.session.expired",
+          stripe_event_id: event.id,
+          order_id: expiredOrderId,
+          order_uuid: expiredOrder?.id,
+          buyer_email: expiredSession.customer_email || expiredSession.metadata?.buyerEmail || undefined,
+          amount: expiredSession.amount_total || 0,
+          currency: expiredSession.currency || "usd",
+          payment_status: "cancelled",
+          metadata: { sessionId: expiredSession.id },
+        });
+      }
+
+      console.log(`Checkout session expired: ${expiredSession.id}`);
+
+      return new Response(
+        JSON.stringify({ received: true }),
+        { status: 200, headers: { "Content-Type": "application/json", ...WEBHOOK_CORS_HEADERS } }
+      );
+    }
+
+    // Unhandled events
     console.log(`Event ${event.type} received but not handled`);
 
     return new Response(
