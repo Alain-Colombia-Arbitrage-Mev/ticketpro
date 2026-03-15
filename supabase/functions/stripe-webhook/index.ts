@@ -215,7 +215,7 @@ serve(async (req: Request) => {
         buyer_name: buyerFullName || null,
         payment_status: paymentStatus,
         payment_method: "stripe",
-        total_amount: session.amount_total || 0,
+        total_amount: (session.amount_total || 0) / 100, // Convert cents to dollars
         currency: session.currency || "usd",
         items: items,
         stripe_session_id: session.id,

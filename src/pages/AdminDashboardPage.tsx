@@ -305,13 +305,11 @@ function OverviewTab() {
             .eq("payment_status", "fraud_detected"),
         ]);
 
-      // total_amount is stored in cents from Stripe, convert to dollars
-      const totalRevenueCents =
+      const totalRevenue =
         revenueRes.data?.reduce(
-          (sum: number, o: { total_amount: number }) => sum + (o.total_amount || 0),
+          (sum: number, o: { total_amount: number }) => sum + (Number(o.total_amount) || 0),
           0,
         ) || 0;
-      const totalRevenue = totalRevenueCents / 100;
 
       setSummary({
         totalRevenue,
@@ -634,7 +632,7 @@ function OrdersTab() {
                         {order.buyer_email}
                       </td>
                       <td className="px-4 py-3 text-right text-white font-medium">
-                        {formatCurrency((order.total_amount || 0) / 100)}
+                        {formatCurrency(Number(order.total_amount) || 0)}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={order.payment_status} />
@@ -919,7 +917,7 @@ function LogsTab() {
                         {log.buyer_email || "-"}
                       </td>
                       <td className="px-4 py-3 text-right text-white font-medium">
-                        {log.amount ? formatCurrency(Number(log.amount) / 100) : "-"}
+                        {log.amount ? formatCurrency(Number(log.amount) / 100) : "-"}{/* logs still in cents from Stripe events */}
                       </td>
                       <td className="px-4 py-3">
                         {log.payment_status ? (
@@ -1004,14 +1002,14 @@ function MarketingTab() {
             const existing = contactMap.get(o.buyer_email);
             if (existing) {
               existing.order_count += 1;
-              existing.total_spend += (o.total_amount || 0) / 100;
+              existing.total_spend += Number(o.total_amount) || 0;
               if (o.created_at > existing.last_purchase) {
                 existing.last_purchase = o.created_at;
               }
             } else {
               contactMap.set(o.buyer_email, {
                 order_count: 1,
-                total_spend: (o.total_amount || 0) / 100,
+                total_spend: Number(o.total_amount) || 0,
                 first_purchase: o.created_at,
                 last_purchase: o.created_at,
               });
