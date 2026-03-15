@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   BarChart,
   Bar,
@@ -27,7 +27,7 @@ import {
   Users,
   Loader2,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
+// Using plain buttons with explicit colors — shadcn Button relies on CSS vars that don't work in this dark panel
 import { supabase } from "../utils/supabase/client";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter } from "../hooks/useRouter";
@@ -190,29 +190,25 @@ function Pagination({
         {totalCount} result{totalCount !== 1 ? "s" : ""}
       </p>
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 !text-white/60 hover:!text-white hover:bg-white/10 disabled:opacity-30"
+        <button
+          className="flex items-center justify-center h-8 w-8 rounded-lg text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
           aria-label="Previous page"
         >
           <ChevronLeft className="h-4 w-4" />
-        </Button>
+        </button>
         <span className="text-sm text-white/60">
           {page} / {totalPages}
         </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 !text-white/60 hover:!text-white hover:bg-white/10 disabled:opacity-30"
+        <button
+          className="flex items-center justify-center h-8 w-8 rounded-lg text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 transition-colors"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
           aria-label="Next page"
         >
           <ChevronRight className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
     </div>
   );
@@ -1091,14 +1087,14 @@ function MarketingTab() {
             placeholder="Search by email..."
           />
         </div>
-        <Button
+        <button
           onClick={handleExportCSV}
           disabled={filteredContacts.length === 0}
-          className="!bg-[#c61619] hover:!bg-[#a51215] !text-white gap-2"
+          className="flex items-center gap-2 rounded-lg bg-[#c61619] hover:bg-[#a51215] text-white px-4 py-2 text-sm font-medium disabled:opacity-50 transition-colors"
         >
           <Download className="h-4 w-4" />
           Export CSV
-        </Button>
+        </button>
       </div>
 
       {loading ? (
@@ -1200,14 +1196,13 @@ function ErrorState({
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <AlertTriangle className="h-10 w-10 text-[#c61619]" />
       <p className="text-white/60 text-sm text-center max-w-md">{message}</p>
-      <Button
+      <button
         onClick={onRetry}
-        variant="ghost"
-        className="!text-white/70 hover:!text-white hover:bg-white/10 gap-2"
+        className="flex items-center gap-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 px-4 py-2 text-sm font-medium transition-colors"
       >
         <RefreshCw className="h-4 w-4" />
         Retry
-      </Button>
+      </button>
     </div>
   );
 }
@@ -1239,7 +1234,7 @@ export function AdminDashboardPage() {
   }
 
   return (
-    <main className="dark min-h-screen bg-[#0a0a0a] px-4 py-6 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#0a0a0a] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
