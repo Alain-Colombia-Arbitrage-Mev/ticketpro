@@ -188,6 +188,40 @@ serve(async (req: Request) => {
       ...metadata,
     };
 
+    // Buscar o crear Stripe Customer por email (agrupa todas las transacciones)
+    let customerId: string | undefined;
+    try {
+      const existingCustomers = await stripe.customers.list({
+        email: buyerEmail,
+        limit: 1,
+      });
+
+      if (existingCustomers.data.length > 0) {
+        customerId = existingCustomers.data[0].id;
+        // Actualizar nombre si cambió
+        if (buyerFullName && existingCustomers.data[0].name !== buyerFullName) {
+          await stripe.customers.update(customerId, { name: buyerFullName });
+        }
+      } else {
+        const newCustomer = await stripe.customers.create({
+          email: buyerEmail,
+          name: buyerFullName || undefined,
+          metadata: { source: "veltlix_checkout", first_order: orderId },
+        });
+        customerId = newCustomer.id;
+      }
+      console.log(`Stripe Customer: ${customerId} for ${buyerEmail}`);
+    } catch (custErr) {
+      console.warn("Customer lookup/create failed, proceeding without:", custErr);
+    }
+
+    // Statement descriptor: primeros 22 chars del evento (Stripe limit)
+    const firstEventName = items[0]?.eventName || "Event";
+    const dynamicDescriptor = firstEventName
+      .replace(/[^a-zA-Z0-9 ]/g, "")
+      .substring(0, 22)
+      .trim();
+
     // Crear Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_configuration: "pmc_1TAPHm3DyQT0Q7hGSf7MqjuA",
@@ -195,9 +229,16 @@ serve(async (req: Request) => {
       mode: "payment",
       success_url: successUrl,
       cancel_url: cancelUrl,
-      customer_email: buyerEmail,
+      ...(customerId ? { customer: customerId } : { customer_email: buyerEmail }),
       metadata: sessionMetadata,
+      payment_intent_data: {
+        metadata: sessionMetadata, // Persiste en el PaymentIntent directamente
+        statement_descriptor_suffix: dynamicDescriptor,
+        receipt_email: buyerEmail,
+      },
       expires_at: Math.floor(Date.now() / 1000) + 1800, // 30 minutos
+    }, {
+      idempotencyKey: orderId, // Previene cobros duplicados en retries
     });
 
     console.log(`Checkout session created: ${session.id} for order ${orderId}`);
