@@ -106,3 +106,22 @@ UPDATE public.orders
 SET stripe_payment_intent_id = metadata->>'paymentIntent'
 WHERE stripe_payment_intent_id IS NULL
   AND metadata->>'paymentIntent' IS NOT NULL;
+
+-- Step 7: Fix RLS policy on orders — use auth.jwt() instead of querying auth.users
+-- (authenticated role does not have SELECT on auth.users, causing "permission denied")
+DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
+CREATE POLICY "Users can view their own orders"
+  ON public.orders
+  FOR SELECT
+  USING (auth.uid() = buyer_id OR buyer_email = (auth.jwt()->>'email'));
+
+-- Step 8: Fix card_fingerprints RLS — use profiles instead of auth.users metadata
+DROP POLICY IF EXISTS "Admin can view card fingerprints" ON public.card_fingerprints;
+CREATE POLICY "Admin can view card fingerprints"
+  ON public.card_fingerprints
+  FOR SELECT
+  USING (EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role IN ('admin', 'hoster')
+  ));

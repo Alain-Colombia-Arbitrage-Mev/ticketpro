@@ -193,7 +193,7 @@ function Pagination({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30"
+          className="h-8 w-8 !text-white/60 hover:!text-white hover:bg-white/10 disabled:opacity-30"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
           aria-label="Previous page"
@@ -206,7 +206,7 @@ function Pagination({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30"
+          className="h-8 w-8 !text-white/60 hover:!text-white hover:bg-white/10 disabled:opacity-30"
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
           aria-label="Next page"
@@ -260,7 +260,7 @@ function SelectFilter({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-white/10 bg-[#0f0f0f] px-3 py-2 text-sm text-white focus:border-[#c61619]/50 focus:outline-none focus:ring-1 focus:ring-[#c61619]/30"
+      className="rounded-lg border border-white/10 bg-[#0f0f0f] px-3 py-2 text-sm text-white focus:border-[#c61619]/50 focus:outline-none focus:ring-1 focus:ring-[#c61619]/30 [&>option]:bg-[#1a1a1a] [&>option]:text-white"
       aria-label={label}
     >
       <option value="">All statuses</option>
@@ -1094,7 +1094,7 @@ function MarketingTab() {
         <Button
           onClick={handleExportCSV}
           disabled={filteredContacts.length === 0}
-          className="bg-[#c61619] hover:bg-[#a51215] text-white gap-2"
+          className="!bg-[#c61619] hover:!bg-[#a51215] !text-white gap-2"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -1203,7 +1203,7 @@ function ErrorState({
       <Button
         onClick={onRetry}
         variant="ghost"
-        className="text-white/70 hover:text-white gap-2"
+        className="!text-white/70 hover:!text-white hover:bg-white/10 gap-2"
       >
         <RefreshCw className="h-4 w-4" />
         Retry
@@ -1239,7 +1239,7 @@ export function AdminDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] px-4 py-6 sm:px-6 lg:px-8">
+    <main className="dark min-h-screen bg-[#0a0a0a] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
