@@ -78,7 +78,10 @@ export default defineConfig({
       },
     },
     build: {
-      target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+      // ES2022 is natively supported by all evergreen browsers (Chrome 94+, Firefox 93+,
+      // Safari 15+, Edge 94+). Using a lower target forces esbuild to downlevel modern
+      // destructuring patterns used by newer Radix UI, which esbuild refuses to do.
+      target: 'es2022',
       outDir: 'dist',
       minify: 'esbuild',
       cssMinify: 'lightningcss',
