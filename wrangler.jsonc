@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ticketproadmin",
+  "compatibility_date": "2026-04-21",
+  "assets": {
+    "directory": "./dist",
+    // SPA fallback: any unmatched route returns index.html so React router can handle it
+    "not_found_handling": "single-page-application"
+  }
+}
