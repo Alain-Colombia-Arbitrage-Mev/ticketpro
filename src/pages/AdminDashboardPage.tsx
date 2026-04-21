@@ -26,15 +26,24 @@ import {
   FileText,
   Users,
   Loader2,
+  Calendar,
+  Radio,
+  Shield,
 } from "lucide-react";
 // Using plain buttons with explicit colors — shadcn Button relies on CSS vars that don't work in this dark panel
 import { supabase } from "../utils/supabase/client";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter } from "../hooks/useRouter";
+import { EventsTab } from "../components/admin/EventsTab";
+import { TicketsAdminTab } from "../components/admin/TicketsAdminTab";
+import { ValidationsLiveTab } from "../components/admin/ValidationsLiveTab";
+import { RolesTab } from "../components/admin/RolesTab";
+import { ExportCsvButton } from "../components/admin/ExportCsvButton";
+import { CsvColumn } from "../utils/exportCsv";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "orders" | "tickets" | "logs" | "marketing";
+type Tab = "overview" | "events" | "orders" | "tickets" | "live" | "roles" | "logs" | "marketing";
 
 interface SummaryData {
   totalRevenue: number;
@@ -50,16 +59,6 @@ interface OrderRow {
   total_amount: number;
   payment_status: string;
   payment_method: string;
-  created_at: string;
-}
-
-interface TicketRow {
-  id: string;
-  ticket_code: string;
-  event_name: string;
-  buyer_email: string;
-  status: string;
-  price: number;
   created_at: string;
 }
 
@@ -573,6 +572,11 @@ function OrdersTab() {
           ]}
           label="Filter by order status"
         />
+        <ExportCsvButton
+          filenamePrefix="ordenes"
+          columns={ORDER_CSV_COLUMNS}
+          fetchRows={() => fetchAllOrders(search, statusFilter)}
+        />
       </div>
 
       {loading ? (
@@ -657,156 +661,29 @@ function OrdersTab() {
   );
 }
 
-// ─── Tab: Tickets ────────────────────────────────────────────────────────────
+const ORDER_CSV_COLUMNS: CsvColumn<OrderRow>[] = [
+  { key: "created_at", header: "Fecha", get: (r) => r.created_at },
+  { key: "order_id", header: "Orden ID", get: (r) => r.order_id || r.id },
+  { key: "buyer_email", header: "Email", get: (r) => r.buyer_email },
+  { key: "total_amount", header: "Monto", get: (r) => Number(r.total_amount ?? 0).toFixed(2) },
+  { key: "payment_status", header: "Estado pago", get: (r) => r.payment_status },
+  { key: "payment_method", header: "Método", get: (r) => r.payment_method ?? "" },
+];
 
-function TicketsTab() {
-  const [tickets, setTickets] = useState<TicketRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const fetchTickets = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      let query = supabase
-        .from("tickets")
-        .select(
-          "id, ticket_code, event_name, buyer_email, status, price, created_at",
-          { count: "exact" },
-        )
-        .order("created_at", { ascending: false })
-        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-
-      if (search.trim()) {
-        const q = sanitizeSearch(search);
-        if (q) query = query.or(`buyer_email.ilike.%${q}%,ticket_code.ilike.%${q}%`);
-      }
-      if (statusFilter) {
-        query = query.eq("status", statusFilter);
-      }
-
-      const { data, count, error: err } = await query;
-      if (err) throw err;
-      setTickets(data || []);
-      setTotalCount(count || 0);
-    } catch (err: any) {
-      setError(err.message || "Failed to load tickets");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search, statusFilter]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => fetchTickets(), 300);
-    return () => clearTimeout(timer);
-  }, [fetchTickets]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, statusFilter]);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search by email or ticket code..."
-          />
-        </div>
-        <SelectFilter
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={["issued_unused", "issued_used", "cancelled"]}
-          label="Filter by ticket status"
-        />
-      </div>
-
-      {loading ? (
-        <LoadingState />
-      ) : error ? (
-        <ErrorState message={error} onRetry={fetchTickets} />
-      ) : (
-        <>
-          <div className="overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full text-sm" role="table">
-              <thead>
-                <tr className="border-b border-white/10 bg-[#111]">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                    Ticket Code
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                    Event
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider hidden md:table-cell">
-                    Buyer Email
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider hidden lg:table-cell">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {tickets.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-12 text-center text-white/40"
-                    >
-                      No tickets found
-                    </td>
-                  </tr>
-                ) : (
-                  tickets.map((ticket) => (
-                    <tr
-                      key={ticket.id}
-                      className="bg-[#1a1a1a] hover:bg-[#222] transition-colors"
-                    >
-                      <td className="px-4 py-3 text-white/80 font-mono text-xs">
-                        {ticket.ticket_code}
-                      </td>
-                      <td className="px-4 py-3 text-white/80 max-w-[200px] truncate">
-                        {ticket.event_name}
-                      </td>
-                      <td className="px-4 py-3 text-white/60 hidden md:table-cell">
-                        {ticket.buyer_email}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={ticket.status} />
-                      </td>
-                      <td className="px-4 py-3 text-right text-white font-medium">
-                        {formatCurrency(ticket.price || 0)}
-                      </td>
-                      <td className="px-4 py-3 text-white/50 text-xs hidden lg:table-cell">
-                        {formatDate(ticket.created_at)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <Pagination
-            page={page}
-            totalCount={totalCount}
-            pageSize={PAGE_SIZE}
-            onPageChange={setPage}
-          />
-        </>
-      )}
-    </div>
-  );
+async function fetchAllOrders(search: string, statusFilter: string): Promise<OrderRow[]> {
+  let query = supabase
+    .from("orders")
+    .select("id, order_id, buyer_email, total_amount, payment_status, payment_method, created_at")
+    .order("created_at", { ascending: false })
+    .limit(10_000);
+  if (search.trim()) {
+    const q = sanitizeSearch(search);
+    if (q) query = query.or(`buyer_email.ilike.%${q}%,order_id.ilike.%${q}%`);
+  }
+  if (statusFilter) query = query.eq("payment_status", statusFilter);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as OrderRow[];
 }
 
 // ─── Tab: Transaction Logs ───────────────────────────────────────────────────
@@ -1211,8 +1088,11 @@ function ErrorState({
 
 const TABS: { key: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
+  { key: "events", label: "Events", icon: Calendar },
   { key: "orders", label: "Orders", icon: ShoppingCart },
   { key: "tickets", label: "Tickets", icon: Ticket },
+  { key: "live", label: "Live", icon: Radio },
+  { key: "roles", label: "Roles", icon: Shield },
   { key: "logs", label: "Logs", icon: FileText },
   { key: "marketing", label: "Marketing", icon: Users },
 ];
@@ -1267,8 +1147,11 @@ export function AdminDashboardPage() {
 
         {/* Tab Content */}
         {activeTab === "overview" && <OverviewTab />}
+        {activeTab === "events" && <EventsTab />}
         {activeTab === "orders" && <OrdersTab />}
-        {activeTab === "tickets" && <TicketsTab />}
+        {activeTab === "tickets" && <TicketsAdminTab />}
+        {activeTab === "live" && <ValidationsLiveTab />}
+        {activeTab === "roles" && <RolesTab />}
         {activeTab === "logs" && <LogsTab />}
         {activeTab === "marketing" && <MarketingTab />}
       </div>
