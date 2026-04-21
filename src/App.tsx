@@ -86,37 +86,49 @@ const PageLoader = () => (
   </div>
 );
 
+// VITE_ADMIN_ONLY=true → solo admin/hoster pages visibles (subdominio admin.veltlix.com).
+// El resto de rutas redirigen a admin-dashboard (el guard interno envía a login si no es admin/hoster).
+const ADMIN_ONLY = import.meta.env.VITE_ADMIN_ONLY === "true";
+const ADMIN_ALLOWED_PAGES = new Set([
+  "login",
+  "admin-dashboard",
+  "hoster-validate",
+  "validate-ticket",
+]);
+
 function AppContent() {
   const { currentPage } = useRouter();
+  const effectivePage =
+    ADMIN_ONLY && !ADMIN_ALLOWED_PAGES.has(currentPage) ? "admin-dashboard" : currentPage;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      {!ADMIN_ONLY && <Header />}
 
       <Suspense fallback={<PageLoader />}>
-        {currentPage === "home" && <HomePage />}
-        {currentPage === "events" && <EventsListPage />}
-        {currentPage === "all-events" && <AllEventsPage />}
-        {currentPage === "event-detail" && <EventDetailPage />}
-        {currentPage === "checkout" && <CheckoutPage />}
-        {currentPage === "confirmation" && <ConfirmationPage />}
-        {currentPage === "payment-failed" && <PaymentFailedPage />}
-        {currentPage === "profile" && <ProfilePage />}
-        {currentPage === "login" && <LoginPage />}
-        {currentPage === "add-balance" && <AddBalancePage />}
-        {currentPage === "wallet" && <WalletPage />}
-        {currentPage === "terms" && <TermsPage />}
-        {currentPage === "privacy" && <PrivacyPage />}
-        {currentPage === "refund-policy" && <RefundPolicyPage />}
-        {currentPage === "contact" && <ContactPage />}
-        {currentPage === "validate-ticket" && <ValidateTicketPage />}
-        {currentPage === "my-tickets" && <MyTicketsPage />}
-        {currentPage === "cart" && <CartPage />}
-        {currentPage === "hoster-validate" && <HosterValidatePage />}
-        {currentPage === "admin-dashboard" && <AdminDashboardPage />}
+        {effectivePage === "home" && <HomePage />}
+        {effectivePage === "events" && <EventsListPage />}
+        {effectivePage === "all-events" && <AllEventsPage />}
+        {effectivePage === "event-detail" && <EventDetailPage />}
+        {effectivePage === "checkout" && <CheckoutPage />}
+        {effectivePage === "confirmation" && <ConfirmationPage />}
+        {effectivePage === "payment-failed" && <PaymentFailedPage />}
+        {effectivePage === "profile" && <ProfilePage />}
+        {effectivePage === "login" && <LoginPage />}
+        {effectivePage === "add-balance" && <AddBalancePage />}
+        {effectivePage === "wallet" && <WalletPage />}
+        {effectivePage === "terms" && <TermsPage />}
+        {effectivePage === "privacy" && <PrivacyPage />}
+        {effectivePage === "refund-policy" && <RefundPolicyPage />}
+        {effectivePage === "contact" && <ContactPage />}
+        {effectivePage === "validate-ticket" && <ValidateTicketPage />}
+        {effectivePage === "my-tickets" && <MyTicketsPage />}
+        {effectivePage === "cart" && <CartPage />}
+        {effectivePage === "hoster-validate" && <HosterValidatePage />}
+        {effectivePage === "admin-dashboard" && <AdminDashboardPage />}
       </Suspense>
 
-      {currentPage !== "home" && <Footer />}
+      {!ADMIN_ONLY && effectivePage !== "home" && <Footer />}
     </div>
   );
 }

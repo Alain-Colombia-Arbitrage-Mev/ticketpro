@@ -1,14 +1,23 @@
 /**
  * Shared CORS configuration for all Edge Functions
- * Restricts origin to the production frontend URL
+ *
+ * Strategy: Access-Control-Allow-Origin: * + Bearer-token auth.
+ * Rationale: both veltlix.com and admin.veltlix.com (plus any future CF Pages
+ * preview domain) hit the same edge functions. Since all privileged endpoints
+ * require a valid Supabase JWT in the Authorization header (auth is the gate),
+ * a wildcard CORS origin is safe and avoids having to touch every function
+ * when a new frontend host is added.
+ *
+ * Note: `Access-Control-Allow-Credentials: true` is NOT set, which is required
+ * when using `*`. Frontend calls must not rely on cookies — they don't; we use
+ * Bearer tokens (supabase.auth.token in localStorage, sent as Authorization).
  */
 
-const ALLOWED_ORIGIN = Deno.env.get("FRONTEND_URL") || "https://veltlix.com";
-
 export const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, x-client-info, apikey, authorization",
+  "Vary": "Origin",
 };
 
 /** CORS headers for webhook endpoints (Stripe, Cryptomus) that receive requests from external servers */
