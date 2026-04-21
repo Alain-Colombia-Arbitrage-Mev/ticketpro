@@ -1,4 +1,0 @@
-name = "ticketproadmin"
-compatibility_date = "2026-01-01"
-account_id = "1993a0eaf7f6e3e6f7fd7b3b3f377d6c"
-pages_build_output_dir = "./dist"
