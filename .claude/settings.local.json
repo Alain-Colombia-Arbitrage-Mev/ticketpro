@@ -27,7 +27,9 @@
       "Write(**/*.js)",
       "Write(**/*.ts)",
       "Write(**/*.py)",
-      "Bash(brew install:*)"
+      "Bash(brew install:*)",
+      "Bash(npx wrangler *)",
+      "Bash(export VITE_ADMIN_ONLY=true)"
     ],
     "deny": [
       "Read(./.env*)",

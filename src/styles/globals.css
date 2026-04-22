@@ -263,10 +263,13 @@ header span[role="img"] {
     -webkit-text-fill-color: initial !important;
 }
 
-/* Botones blancos con texto negro visible */
+/* Botones blancos con texto negro visible.
+   Usamos [class~=] (token exacto) en vez de [class*=] (substring) para que
+   variantes como bg-white/5, hover:bg-white/[0.04], etc. NO disparen esta regla
+   y sigan heredando su color propio. */
 button.bg-white,
 .bg-white button,
-button[class*="bg-white"],
+button[class~="bg-white"],
 button[style*="background-color: #ffffff"],
 button[style*="background-color:#ffffff"] {
     color: #000000 !important;
@@ -274,19 +277,18 @@ button[style*="background-color:#ffffff"] {
 
 button.bg-white *,
 .bg-white button *,
-button[class*="bg-white"] *,
+button[class~="bg-white"] *,
 button[style*="background-color: #ffffff"] *,
 button[style*="background-color:#ffffff"] * {
     color: #000000 !important;
 }
 
 /* Botones con fondo negro deben tener texto blanco visible */
-button[class*="bg-black"],
-button[class*="bg-black/"] {
+button[class~="bg-black"] {
     color: #ffffff !important;
 }
 
-button[class*="bg-black"] *,
+button[class~="bg-black"] *,
 button[class*="bg-black/"] * {
     color: #ffffff !important;
 }

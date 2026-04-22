@@ -25,6 +25,9 @@ export interface EventFromDB {
   category: string;
   description?: string;
   image_url: string;
+  image_slider_url?: string | null;
+  image_card_url?: string | null;
+  image_detail_url?: string | null;
   base_price: number;
   currency: string;
   featured: boolean;
@@ -44,7 +47,10 @@ export interface Event {
   date: string; // Display format: "15 de Noviembre, 2025"
   location: string;
   price: string; // Display format: "$60 USD"
-  image: string;
+  image: string;           // card variant (used in lists/grids)
+  imageSlider?: string;    // 1920x800 hero
+  imageCard?: string;      // 800x600 card
+  imageDetail?: string;    // 1200x800 event-detail
   category: string;
   featured?: boolean;
   trending?: boolean;
@@ -100,13 +106,19 @@ function formatPrice(price: number, currency: string = 'USD'): string {
  * Convierte evento de BD a formato display (compatible con mockEvents)
  */
 function convertEventFromDB(dbEvent: EventFromDB): Event {
+  const card   = dbEvent.image_card_url   || dbEvent.image_url || "";
+  const slider = dbEvent.image_slider_url || dbEvent.image_url || "";
+  const detail = dbEvent.image_detail_url || dbEvent.image_url || "";
   return {
     id: dbEvent.id,
     title: dbEvent.title,
     date: formatDateFromISO(dbEvent.date),
     location: dbEvent.location,
     price: formatPrice(dbEvent.base_price, dbEvent.currency),
-    image: dbEvent.image_url,
+    image: card,
+    imageSlider: slider,
+    imageCard: card,
+    imageDetail: detail,
     category: dbEvent.category,
     featured: dbEvent.featured,
     trending: dbEvent.trending,
@@ -136,7 +148,7 @@ export function useEvents() {
         // Race the DB query against a 4-second timeout so users see content fast
         const queryPromise = supabase
           .from('events')
-          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
+          .select('id, title, date, location, category, image_url, image_slider_url, image_card_url, image_detail_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
           .not('title', 'ilike', '%navidad%')
           .order('featured', { ascending: false })
@@ -198,7 +210,7 @@ export function useEventsByCategory(category?: string) {
 
         let query = supabase
           .from('events')
-          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
+          .select('id, title, date, location, category, image_url, image_slider_url, image_card_url, image_detail_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('is_active', true)
           .not('title', 'ilike', '%navidad%')
           .order('featured', { ascending: false })
@@ -260,7 +272,7 @@ export function useEvent(id: number) {
 
         const { data, error } = await supabase
           .from('events')
-          .select('id, title, date, location, category, image_url, base_price, currency, featured, trending, sold_out, last_tickets')
+          .select('id, title, date, location, category, image_url, image_slider_url, image_card_url, image_detail_url, base_price, currency, featured, trending, sold_out, last_tickets')
           .eq('id', id)
           .maybeSingle();
 

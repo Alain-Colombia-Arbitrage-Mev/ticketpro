@@ -10,6 +10,9 @@ export interface AdminEventRow {
   category: string;
   description: string | null;
   image_url: string | null;
+  image_slider_url: string | null;
+  image_card_url: string | null;
+  image_detail_url: string | null;
   base_price: number;
   currency: string | null;
   is_active: boolean | null;
@@ -30,6 +33,9 @@ export interface AdminEventInput {
   category: string;
   description?: string | null;
   image_url?: string | null;
+  image_slider_url?: string | null;
+  image_card_url?: string | null;
+  image_detail_url?: string | null;
   base_price: number;
   currency?: string;
   is_active?: boolean;
@@ -65,7 +71,7 @@ export function useAdminEvents(filters: EventListFilters = {}) {
       let q = supabase
         .from("events")
         .select(
-          "id, title, date, time, location, category, description, image_url, base_price, currency, is_active, featured, trending, sold_out, last_tickets, metadata, created_at, updated_at",
+          "id, title, date, time, location, category, description, image_url, image_slider_url, image_card_url, image_detail_url, base_price, currency, is_active, featured, trending, sold_out, last_tickets, metadata, created_at, updated_at",
         )
         .order("date", { ascending: false })
         .limit(500);

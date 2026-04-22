@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { X, Loader2, UserPlus, Trash2, Search, Calendar, MapPin, Tag, DollarSign, Image as ImageIcon } from "lucide-react";
+import { X, Loader2, UserPlus, Trash2, Search, Calendar, MapPin, Tag, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import {
   AdminEventRow,
@@ -12,6 +12,7 @@ import {
   useSearchHosterCandidates,
 } from "../../hooks/useAdminEvents";
 import { useAuth } from "../../hooks/useAuth";
+import { ImageUploader } from "./ImageUploader";
 
 interface Props {
   event: AdminEventRow | null; // null = create mode
@@ -29,6 +30,9 @@ function emptyForm(): AdminEventInput {
     category: "Conferencia",
     description: "",
     image_url: "",
+    image_slider_url: "",
+    image_card_url: "",
+    image_detail_url: "",
     base_price: 0,
     currency: "USD",
     is_active: true,
@@ -48,6 +52,9 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     category: e.category,
     description: e.description ?? "",
     image_url: e.image_url ?? "",
+    image_slider_url: e.image_slider_url ?? "",
+    image_card_url: e.image_card_url ?? "",
+    image_detail_url: e.image_detail_url ?? "",
     base_price: Number(e.base_price) || 0,
     currency: e.currency ?? "USD",
     is_active: e.is_active ?? true,
@@ -56,6 +63,19 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     sold_out: e.sold_out ?? false,
     last_tickets: e.last_tickets ?? false,
   };
+}
+
+// Build a stable R2 folder key from the event. Edit mode uses the numeric id;
+// create mode falls back to a slug of the title so assets are grouped even
+// before the row exists. Pure ASCII, lowercase, dash-separated.
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
 }
 
 export function EventFormModal({ event, onClose }: Props) {
@@ -71,6 +91,12 @@ export function EventFormModal({ event, onClose }: Props) {
     setErrors({});
   }, [event]);
 
+  // R2 folder key: numeric id when editing, slug of the title when creating.
+  const eventKey = useMemo(() => {
+    if (isEdit && event) return String(event.id);
+    return slugify(form.title);
+  }, [isEdit, event, form.title]);
+
   function validate(): boolean {
     const next: Record<string, string> = {};
     if (!form.title.trim()) next.title = "Requerido";
@@ -78,8 +104,6 @@ export function EventFormModal({ event, onClose }: Props) {
     if (!form.location.trim()) next.location = "Requerido";
     if (!form.category.trim()) next.category = "Requerido";
     if (form.base_price < 0) next.base_price = "No puede ser negativo";
-    if (form.image_url && !/^https?:\/\/|^\//.test(form.image_url))
-      next.image_url = "Debe ser URL http(s) o ruta /…";
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -188,13 +212,24 @@ export function EventFormModal({ event, onClose }: Props) {
               </Field>
             </div>
 
-            <Field label="URL de imagen" icon={<ImageIcon className="h-3.5 w-3.5" />} error={errors.image_url}>
-              <input
-                type="text"
-                value={form.image_url ?? ""}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                className="inp"
-                placeholder="/images/events/mi-evento.png o https://..."
+            <Field label="Imagen del evento">
+              <ImageUploader
+                eventKey={eventKey}
+                value={{
+                  slider: form.image_slider_url ?? undefined,
+                  card:   form.image_card_url ?? undefined,
+                  detail: form.image_detail_url ?? undefined,
+                }}
+                onChange={(next) =>
+                  setForm((f) => ({
+                    ...f,
+                    image_slider_url: next.slider ?? null,
+                    image_card_url:   next.card   ?? null,
+                    image_detail_url: next.detail ?? null,
+                    // Keep image_url as a legacy fallback (use card variant).
+                    image_url: next.card ?? f.image_url ?? null,
+                  }))
+                }
               />
             </Field>
 

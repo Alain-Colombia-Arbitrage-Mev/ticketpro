@@ -172,9 +172,9 @@ export function EventsTab() {
                   <tr key={e.id} className="bg-[#1a1a1a] hover:bg-[#1e1e1e]">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {e.image_url ? (
+                        {(e.image_card_url || e.image_url) ? (
                           <img
-                            src={e.image_url}
+                            src={e.image_card_url || e.image_url || ""}
                             alt=""
                             loading="lazy"
                             className="h-10 w-10 rounded object-cover bg-[#222]"

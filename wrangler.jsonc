@@ -8,5 +8,20 @@
     "binding": "ASSETS",
     // SPA fallback: any unmatched route returns index.html so React router can handle it
     "not_found_handling": "single-page-application"
+  },
+  // R2 bucket where event images are stored. Served publicly via
+  // imagenes.veltlix.com (custom domain configured on the bucket).
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "ticketpro-images"
+    }
+  ],
+  // Non-secret config. Secrets (none required for this setup — auth uses the
+  // Supabase anon flow) go via `wrangler secret put`.
+  "vars": {
+    "SUPABASE_URL": "https://hxmdzhkkuhsetqucbpia.supabase.co",
+    "PUBLIC_IMAGE_HOST": "https://imagenes.veltlix.com",
+    "ALLOWED_ORIGINS": "http://localhost:3002,http://localhost:3003,https://admin.veltlix.com,https://veltlix.com,https://www.veltlix.com"
   }
 }

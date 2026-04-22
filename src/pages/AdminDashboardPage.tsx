@@ -29,7 +29,11 @@ import {
   Calendar,
   Radio,
   Shield,
+  LogOut,
+  Menu,
+  X,
 } from "lucide-react";
+import logo from "../assets/images/logo2.svg";
 // Using plain buttons with explicit colors — shadcn Button relies on CSS vars that don't work in this dark panel
 import { supabase } from "../utils/supabase/client";
 import { useAuth } from "../hooks/useAuth";
@@ -400,16 +404,46 @@ function OverviewTab() {
         {cards.map((card) => (
           <div
             key={card.label}
-            className="rounded-xl border border-white/10 bg-[#1a1a1a] p-5"
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.06] p-5 transition-all duration-200 hover:border-white/[0.12] hover:-translate-y-0.5"
+            style={{
+              background:
+                "linear-gradient(145deg, #131316 0%, #0d0d10 100%)",
+              boxShadow:
+                "0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.6)",
+            }}
           >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-white/50">{card.label}</p>
-              <card.icon
-                className="h-5 w-5"
-                style={{ color: card.color }}
-              />
+            {/* Top accent bar */}
+            <span
+              className="absolute inset-x-0 top-0 h-[2px]"
+              style={{
+                background: `linear-gradient(90deg, transparent 0%, ${card.color} 50%, transparent 100%)`,
+                opacity: 0.7,
+              }}
+              aria-hidden="true"
+            />
+            {/* Subtle glow on hover */}
+            <span
+              className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-40"
+              style={{ backgroundColor: card.color }}
+              aria-hidden="true"
+            />
+            <div className="relative flex items-start justify-between">
+              <p className="text-xs font-medium uppercase tracking-wider text-white/45">
+                {card.label}
+              </p>
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-lg ring-1"
+                style={{
+                  backgroundColor: `${card.color}15`,
+                  boxShadow: `inset 0 0 0 1px ${card.color}25`,
+                }}
+              >
+                <card.icon className="h-[18px] w-[18px]" style={{ color: card.color }} />
+              </div>
             </div>
-            <p className="mt-2 text-2xl font-bold text-white">{card.value}</p>
+            <p className="relative mt-3 text-3xl font-bold tracking-tight text-white">
+              {card.value}
+            </p>
           </div>
         ))}
       </div>
@@ -417,7 +451,7 @@ function OverviewTab() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Bar Chart - Orders per day */}
-        <div className="lg:col-span-2 rounded-xl border border-white/10 bg-[#1a1a1a] p-5">
+        <div className="lg:col-span-2 rounded-2xl border border-white/[0.06] bg-gradient-to-br from-[#131316] to-[#0d0d10] p-5 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_8px_24px_-12px_rgba(0,0,0,0.6)]">
           <h3 className="mb-4 text-sm font-medium text-white/70">
             Orders per Day (Last 30 Days)
           </h3>
@@ -451,7 +485,7 @@ function OverviewTab() {
         </div>
 
         {/* Pie Chart - Status distribution */}
-        <div className="rounded-xl border border-white/10 bg-[#1a1a1a] p-5">
+        <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-br from-[#131316] to-[#0d0d10] p-5 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_8px_24px_-12px_rgba(0,0,0,0.6)]">
           <h3 className="mb-4 text-sm font-medium text-white/70">
             Order Status Distribution
           </h3>
@@ -1097,14 +1131,51 @@ const TABS: { key: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "marketing", label: "Marketing", icon: Users },
 ];
 
+const TAB_LABELS: Record<Tab, string> = {
+  overview: "Overview",
+  events: "Events",
+  orders: "Orders",
+  tickets: "Tickets",
+  live: "Live Validation",
+  roles: "Roles",
+  logs: "Logs",
+  marketing: "Marketing",
+};
+
+const TAB_DESCRIPTIONS: Record<Tab, string> = {
+  overview: "Revenue, orders and activity at a glance",
+  events: "Create and manage events",
+  orders: "Browse and filter all orders",
+  tickets: "Issued tickets and their status",
+  live: "Real-time ticket validations",
+  roles: "Manage admin and hoster access",
+  logs: "Stripe and payment webhook logs",
+  marketing: "Customer emails and spending",
+};
+
+type NavSection = { title: string; items: Tab[] };
+const NAV_SECTIONS: NavSection[] = [
+  { title: "General", items: ["overview"] },
+  { title: "Operations", items: ["events", "orders", "tickets", "live"] },
+  { title: "System", items: ["roles", "logs", "marketing"] },
+];
+
 export function AdminDashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const { navigate } = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Auth guard — wait for auth to finish loading before redirecting
+  // Auth guard — wait for auth to finish loading before redirecting.
+  // Unauthenticated → login (otherwise in ADMIN_ONLY mode we loop home↔admin-dashboard).
+  // Authenticated but wrong role → home.
   useEffect(() => {
-    if (!loading && (!user || (user.role !== "admin" && user.role !== "hoster"))) {
+    if (loading) return;
+    if (!user) {
+      navigate("login");
+      return;
+    }
+    if (user.role !== "admin" && user.role !== "hoster") {
       navigate("home");
     }
   }, [user, loading, navigate]);
@@ -1113,48 +1184,227 @@ export function AdminDashboardPage() {
     return <LoadingState />;
   }
 
+  const handleSelectTab = (key: Tab) => {
+    setActiveTab(key);
+    setSidebarOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } finally {
+      navigate("login");
+    }
+  };
+
+  const displayName = user.name || user.email?.split("@")[0] || "Admin";
+  const userInitial = displayName.trim().charAt(0).toUpperCase();
+
   return (
-    <main className="min-h-screen bg-[#0a0a0a] px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white sm:text-3xl">
-            Admin Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-white/50">
-            Manage orders, tickets, and analytics
-          </p>
+    <div className="flex min-h-screen bg-[#050506] text-white">
+      {/* Ambient background glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(1200px circle at 0% 0%, rgba(198,22,25,0.08), transparent 40%), radial-gradient(900px circle at 100% 100%, rgba(59,130,246,0.05), transparent 45%)",
+        }}
+      />
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/70 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-white/[0.06] transition-transform duration-200 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{
+          background:
+            "linear-gradient(180deg, #0b0b0d 0%, #08080a 60%, #050506 100%)",
+        }}
+      >
+        {/* Brand */}
+        <div className="flex h-[68px] items-center justify-between border-b border-white/[0.06] px-5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#c61619] to-[#8a0f11] shadow-lg shadow-[#c61619]/20 ring-1 ring-white/10">
+              <img src={logo} alt="" className="h-5 w-5" />
+            </div>
+            <div className="leading-tight">
+              <p className="text-sm font-bold tracking-wide text-white">
+                VELTLIX
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-white/40">
+                Admin Console
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="rounded-md p-1.5 text-white/60 hover:bg-white/10 hover:text-white lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-white/10 bg-[#111] p-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                activeTab === tab.key
-                  ? "bg-[#c61619] text-white shadow-lg shadow-[#c61619]/20"
-                  : "text-white/50 hover:bg-white/5 hover:text-white/80"
-              }`}
-              aria-label={tab.label}
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-3 py-5">
+          {NAV_SECTIONS.map((section, idx) => (
+            <div key={section.title} className={idx > 0 ? "mt-5" : ""}>
+              <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
+                {section.title}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((key) => {
+                  const tab = TABS.find((t) => t.key === key)!;
+                  const active = activeTab === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => handleSelectTab(key)}
+                      className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 cursor-pointer ${
+                        active
+                          ? "text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                          : "text-white/65 hover:text-white hover:bg-white/[0.04]"
+                      }`}
+                      style={
+                        active
+                          ? {
+                              background:
+                                "linear-gradient(90deg, rgba(198,22,25,0.18) 0%, rgba(198,22,25,0.06) 100%)",
+                            }
+                          : undefined
+                      }
+                    >
+                      {active && (
+                        <span className="absolute left-0 top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-[#e8393c] to-[#c61619] shadow-[0_0_12px_rgba(198,22,25,0.6)]" />
+                      )}
+                      <span
+                        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md transition-all duration-200 ${
+                          active
+                            ? "bg-[#c61619]/20 text-[#ff5a5d] ring-1 ring-[#c61619]/30"
+                            : "bg-white/[0.04] text-white/55 ring-1 ring-white/[0.04] group-hover:bg-white/[0.08] group-hover:text-white/85"
+                        }`}
+                      >
+                        <tab.icon className="h-[15px] w-[15px]" strokeWidth={2.25} />
+                      </span>
+                      <span className="truncate">{TAB_LABELS[key]}</span>
+                      {key === "live" && (
+                        <span className="ml-auto flex items-center gap-1">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400 opacity-60" />
+                            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          </span>
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
-        </div>
+        </nav>
 
-        {/* Tab Content */}
-        {activeTab === "overview" && <OverviewTab />}
-        {activeTab === "events" && <EventsTab />}
-        {activeTab === "orders" && <OrdersTab />}
-        {activeTab === "tickets" && <TicketsAdminTab />}
-        {activeTab === "live" && <ValidationsLiveTab />}
-        {activeTab === "roles" && <RolesTab />}
-        {activeTab === "logs" && <LogsTab />}
-        {activeTab === "marketing" && <MarketingTab />}
+        {/* User / Sign out */}
+        <div className="border-t border-white/[0.06] p-3">
+          <div className="mb-2 flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2.5 ring-1 ring-white/[0.05]">
+            <div
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ring-2 ring-[#c61619]/30"
+              style={{
+                background:
+                  "linear-gradient(135deg, #c61619 0%, #8a0f11 100%)",
+              }}
+            >
+              {userInitial}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-white">
+                {displayName}
+              </p>
+              <p className="flex items-center gap-1.5 truncate text-[11px] capitalize text-white/50">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {user.role}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-colors duration-200 hover:bg-[#c61619]/10 hover:text-[#ff5a5d]"
+          >
+            <LogOut className="h-4 w-4 flex-shrink-0" />
+            <span>Sign out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main area */}
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        {/* Topbar */}
+        <header
+          className="sticky top-0 z-20 flex h-[68px] items-center gap-4 border-b border-white/[0.06] px-4 sm:px-6 lg:px-8"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(8,8,10,0.85) 0%, rgba(5,5,6,0.85) 100%)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-0.5 flex items-center gap-1.5 text-[11px] font-medium text-white/40">
+              <span>Admin</span>
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-white/60">{TAB_LABELS[activeTab]}</span>
+            </div>
+            <h1 className="truncate text-lg font-bold tracking-tight text-white sm:text-xl">
+              {TAB_LABELS[activeTab]}
+            </h1>
+          </div>
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <div className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-1.5 text-xs text-white/60">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400 opacity-50" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              </span>
+              <span className="font-medium">All systems operational</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mx-auto max-w-7xl">
+            {activeTab === "overview" && <OverviewTab />}
+            {activeTab === "events" && <EventsTab />}
+            {activeTab === "orders" && <OrdersTab />}
+            {activeTab === "tickets" && <TicketsAdminTab />}
+            {activeTab === "live" && <ValidationsLiveTab />}
+            {activeTab === "roles" && <RolesTab />}
+            {activeTab === "logs" && <LogsTab />}
+            {activeTab === "marketing" && <MarketingTab />}
+          </div>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }

@@ -40,6 +40,7 @@
     "cmdk": "^1.1.1",
     "crypto-js": "^4.2.0",
     "embla-carousel-react": "^8.6.0",
+    "esbuild": "^0.28.0",
     "hono": "*",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
@@ -82,7 +83,9 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:admin": "vite --mode admin",
     "build": "vite build",
+    "build:admin": "vite build --mode admin",
     "preview": "vite preview",
     "type-check": "npx tsc --noEmit",
     "lint": "npx eslint .",
@@ -90,6 +93,7 @@
     "clean": "npx rimraf dist node_modules/.vite",
     "analyze": "vite build --mode analyze",
     "deploy": "npm run build && npx wrangler@latest pages deploy ./dist --project-name=ticketpro",
-    "deploy:preview": "npm run build && npx wrangler@latest pages deploy ./dist --project-name=ticketpro --branch=preview"
+    "deploy:preview": "npm run build && npx wrangler@latest pages deploy ./dist --project-name=ticketpro --branch=preview",
+    "deploy:admin": "npm run build:admin && npx wrangler@latest deploy"
   }
 }

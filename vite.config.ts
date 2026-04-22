@@ -14,7 +14,7 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
  * - Code splitting inteligente
  * - Path aliases para imports limpios
  */
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [
       react(),
       ViteImageOptimizer({
@@ -158,9 +158,12 @@ export default defineConfig({
         },
       },
     },
-    // Configuración para CommonJS y polyfills
+    // Configuración para CommonJS y polyfills.
+    // `VITE_ADMIN_ONLY` se inyecta aquí cuando `--mode admin` para que el build del
+    // subdominio admin no dependa de un archivo .env (que está en .gitignore).
     define: {
       global: 'globalThis',
+      'import.meta.env.VITE_ADMIN_ONLY': JSON.stringify(mode === 'admin' ? 'true' : (process.env.VITE_ADMIN_ONLY ?? '')),
     },
     // Silenciar warnings de SES/Lockdown que vienen de dependencias externas
     esbuild: {
@@ -170,4 +173,4 @@ export default defineConfig({
       // Remover console.log en producción
       drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
     },
-  });
+  }));
