@@ -88,6 +88,105 @@ export function useUpdateUserRole() {
   });
 }
 
+// ─── Create / upsert user with password ────────────────────────────────────
+
+export interface CreateUserInput {
+  email: string;
+  role: UserRole;
+  password?: string;
+  name?: string;
+}
+
+export interface CreateUserResult {
+  ok: true;
+  mode: "created" | "promoted" | "password-reset";
+  userId: string | null;
+  email: string;
+  role: UserRole;
+  previousRole?: UserRole;
+  /** Returned only when the Worker generated a random password. */
+  generatedPassword: string | null;
+}
+
+function usersEndpoint(): string {
+  const override = (import.meta as any).env?.VITE_USERS_ENDPOINT as string | undefined;
+  if (override) return override;
+  if (typeof window === "undefined") return "/api/users";
+  if (window.location.hostname === "localhost") {
+    return "https://admin.veltlix.com/api/users";
+  }
+  return "/api/users";
+}
+
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string): Promise<{ ok: true; deleted: string }> => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error("No active session — please log in again");
+
+      const res = await fetch(`${usersEndpoint()}/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        let msg = `Request failed (${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body?.error ?? msg;
+        } catch { /* ignore */ }
+        throw new Error(msg);
+      }
+      return (await res.json()) as { ok: true; deleted: string };
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USERS_KEY });
+      qc.invalidateQueries({ queryKey: AUDIT_KEY });
+    },
+  });
+}
+
+export function useCreateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateUserInput): Promise<CreateUserResult> => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error("No active session — please log in again");
+
+      const res = await fetch(usersEndpoint(), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+
+      if (!res.ok) {
+        let msg = `Request failed (${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body?.error ?? msg;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(msg);
+      }
+      return (await res.json()) as CreateUserResult;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: USERS_KEY });
+      qc.invalidateQueries({ queryKey: AUDIT_KEY });
+    },
+  });
+}
+
 export interface AuditFilters {
   action?: string;
   actorId?: string;

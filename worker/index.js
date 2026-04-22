@@ -12,9 +12,11 @@
 // The R2 bucket `ticketpro-images` is bound as env.IMAGES.
 
 const UPLOAD_PATH = "/api/upload";
+const USERS_PATH = "/api/users";
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB per file
 const VALID_VARIANTS = new Set(["slider", "card", "detail"]);
 const VALID_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const VALID_ROLES = new Set(["admin", "hoster", "user"]);
 
 export default {
   async fetch(request, env) {
@@ -23,6 +25,16 @@ export default {
     if (url.pathname === UPLOAD_PATH) {
       if (request.method === "DELETE") return handleDelete(request, env);
       return handleUpload(request, env);
+    }
+
+    if (url.pathname === USERS_PATH) {
+      return handleCreateUser(request, env);
+    }
+
+    // /api/users/<uuid>
+    if (url.pathname.startsWith(USERS_PATH + "/")) {
+      const userId = url.pathname.slice(USERS_PATH.length + 1);
+      return handleUserById(request, env, userId);
     }
 
     return env.ASSETS.fetch(request);
@@ -44,6 +56,16 @@ function corsHeaders(request, env) {
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };
+}
+
+// Admin-only (strict) check — reuses verifyAdmin but rejects hosters.
+async function verifyAdminStrict(request, env) {
+  const result = await verifyAdmin(request, env);
+  if (!result.ok) return result;
+  if (result.role !== "admin") {
+    return { ok: false, status: 403, error: "Only admins can perform this action" };
+  }
+  return result;
 }
 
 function json(body, init = {}, extraHeaders = {}) {
@@ -186,6 +208,325 @@ function extensionFor(mime) {
 // Removes a single object from R2. Caller must be admin/hoster. URL must belong
 // to PUBLIC_IMAGE_HOST to prevent being used as a generic R2 deleter.
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/users   { email, role, password?, name? }
+//
+// Admin-only. Creates a confirmed auth user with the given password and role,
+// or promotes an existing one. No email is sent — the admin shares the
+// credentials manually. If password is omitted we generate a secure random
+// one and return it ONCE in the response (not stored anywhere).
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function handleCreateUser(request, env) {
+  const headers = corsHeaders(request, env);
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers });
+  }
+  if (request.method !== "POST") {
+    return json({ error: "Method not allowed" }, { status: 405 }, headers);
+  }
+
+  const authResult = await verifyAdminStrict(request, env);
+  if (!authResult.ok) {
+    return json({ error: authResult.error }, { status: authResult.status }, headers);
+  }
+
+  const service = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!service) {
+    return json(
+      { error: "Worker missing SUPABASE_SERVICE_ROLE_KEY — admin must set it via `wrangler secret put`" },
+      { status: 500 },
+      headers
+    );
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: "Invalid JSON body" }, { status: 400 }, headers);
+  }
+
+  const email = String(body?.email || "").trim().toLowerCase();
+  const role = String(body?.role || "").trim();
+  const name = body?.name ? String(body.name).trim() : null;
+  let password = body?.password ? String(body.password) : "";
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return json({ error: "Invalid email" }, { status: 400 }, headers);
+  }
+  if (!VALID_ROLES.has(role)) {
+    return json({ error: "Invalid role" }, { status: 400 }, headers);
+  }
+  if (password && password.length < 8) {
+    return json({ error: "Password must be at least 8 characters" }, { status: 400 }, headers);
+  }
+
+  let generatedPassword = null;
+  if (!password) {
+    password = generatePassword(16);
+    generatedPassword = password;
+  }
+
+  // 1. Look for an existing profile with that email.
+  const existingRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}&select=id,role,name`,
+    { headers: { apikey: service, Authorization: `Bearer ${service}` } }
+  );
+  if (!existingRes.ok) {
+    return json({ error: "Profile lookup failed" }, { status: 502 }, headers);
+  }
+  const existing = (await existingRes.json())?.[0];
+
+  if (existing) {
+    const beforeRole = existing.role;
+    // Update role if needed.
+    if (beforeRole !== role) {
+      const patchRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/profiles?id=eq.${existing.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            apikey: service,
+            Authorization: `Bearer ${service}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ role, updated_at: new Date().toISOString() }),
+        }
+      );
+      if (!patchRes.ok) {
+        const detail = await patchRes.text().catch(() => "");
+        return json(
+          { error: `Role update failed: ${detail.slice(0, 200)}` },
+          { status: 502 },
+          headers
+        );
+      }
+    }
+
+    // If a password was provided (or generated), reset it via admin API.
+    if (body?.password || generatedPassword) {
+      const resetRes = await fetch(
+        `${env.SUPABASE_URL}/auth/v1/admin/users/${existing.id}`,
+        {
+          method: "PUT",
+          headers: {
+            apikey: service,
+            Authorization: `Bearer ${service}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ password }),
+        }
+      );
+      if (!resetRes.ok) {
+        const detail = await readSupabaseError(resetRes);
+        return json(
+          { error: `Password reset failed${detail ? ": " + detail : ""}` },
+          { status: 502 },
+          headers
+        );
+      }
+    }
+
+    await writeAuditLog(env, authResult.user, {
+      action: "user.upsert",
+      target_type: "user",
+      target_id: existing.id,
+      before_data: { role: beforeRole, email },
+      after_data: {
+        role,
+        email,
+        password_changed: !!(body?.password || generatedPassword),
+        via: "admin-panel",
+      },
+    });
+
+    return json(
+      {
+        ok: true,
+        mode: beforeRole === role ? "password-reset" : "promoted",
+        userId: existing.id,
+        email,
+        role,
+        previousRole: beforeRole,
+        generatedPassword,
+      },
+      { status: 200 },
+      headers
+    );
+  }
+
+  // 2. Create a fresh confirmed user with password + metadata.
+  const createRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: {
+      apikey: service,
+      Authorization: `Bearer ${service}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        default_role: role,
+        ...(name ? { name } : {}),
+      },
+    }),
+  });
+  if (!createRes.ok) {
+    const detail = await readSupabaseError(createRes);
+    return json(
+      { error: `User creation failed${detail ? ": " + detail : ""}` },
+      { status: 502 },
+      headers
+    );
+  }
+  const created = await createRes.json();
+  const userId = created?.id ?? created?.user?.id ?? null;
+
+  await writeAuditLog(env, authResult.user, {
+    action: "user.create",
+    target_type: "user",
+    target_id: userId,
+    before_data: null,
+    after_data: {
+      email,
+      role,
+      name,
+      password_generated: !!generatedPassword,
+      via: "admin-panel",
+    },
+  });
+
+  return json(
+    {
+      ok: true,
+      mode: "created",
+      userId,
+      email,
+      role,
+      generatedPassword,
+    },
+    { status: 200 },
+    headers
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE /api/users/:id   — delete an auth user (cascades to profiles).
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function handleUserById(request, env, userId) {
+  const headers = corsHeaders(request, env);
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers });
+  }
+  if (request.method !== "DELETE") {
+    return json({ error: "Method not allowed" }, { status: 405 }, headers);
+  }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    return json({ error: "Invalid user id" }, { status: 400 }, headers);
+  }
+
+  const authResult = await verifyAdminStrict(request, env);
+  if (!authResult.ok) {
+    return json({ error: authResult.error }, { status: authResult.status }, headers);
+  }
+  if (authResult.user?.id === userId) {
+    return json({ error: "Cannot delete your own account" }, { status: 400 }, headers);
+  }
+
+  const service = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!service) {
+    return json({ error: "Worker missing SUPABASE_SERVICE_ROLE_KEY" }, { status: 500 }, headers);
+  }
+
+  // Snapshot the profile for the audit log before deletion.
+  const beforeRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id,email,role,name`,
+    { headers: { apikey: service, Authorization: `Bearer ${service}` } }
+  );
+  const before = (await beforeRes.json().catch(() => []))?.[0] ?? null;
+
+  const delRes = await fetch(
+    `${env.SUPABASE_URL}/auth/v1/admin/users/${userId}`,
+    {
+      method: "DELETE",
+      headers: { apikey: service, Authorization: `Bearer ${service}` },
+    }
+  );
+  if (!delRes.ok) {
+    const detail = await readSupabaseError(delRes);
+    return json(
+      { error: `User deletion failed${detail ? ": " + detail : ""}` },
+      { status: delRes.status === 404 ? 404 : 502 },
+      headers
+    );
+  }
+
+  await writeAuditLog(env, authResult.user, {
+    action: "user.delete",
+    target_type: "user",
+    target_id: userId,
+    before_data: before,
+    after_data: null,
+  });
+
+  return json({ ok: true, deleted: userId }, { status: 200 }, headers);
+}
+
+// Cryptographically secure random password with mixed case, digits, symbols.
+function generatePassword(len) {
+  const alphabet =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&*-_";
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (let i = 0; i < len; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
+}
+
+async function readSupabaseError(res) {
+  try {
+    const b = await res.json();
+    return b?.msg || b?.error_description || b?.error || "";
+  } catch {
+    return "";
+  }
+}
+
+// Best-effort audit log. Doesn't block the response on failure.
+async function writeAuditLog(env, actor, entry) {
+  const service = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!service) return;
+  try {
+    await fetch(`${env.SUPABASE_URL}/rest/v1/admin_audit_log`, {
+      method: "POST",
+      headers: {
+        apikey: service,
+        Authorization: `Bearer ${service}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        actor_id: actor?.id ?? null,
+        actor_email: actor?.email ?? null,
+        action: entry.action,
+        target_type: entry.target_type ?? null,
+        target_id: entry.target_id ?? null,
+        before_data: entry.before_data ?? null,
+        after_data: entry.after_data ?? null,
+      }),
+    });
+  } catch {
+    // Audit log is non-critical; swallow errors.
+  }
+}
 
 async function handleDelete(request, env) {
   const headers = corsHeaders(request, env);

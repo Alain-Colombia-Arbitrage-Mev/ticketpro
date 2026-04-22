@@ -11,12 +11,18 @@ import {
   History,
   ChevronLeft,
   ChevronRight,
+  UserPlus,
+  KeyRound,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useAdminUsers,
   useUpdateUserRole,
   useAdminAuditLog,
+  useDeleteUser,
+  useCreateUser,
   AdminUserRow,
   AuditLogRow,
   UserRole,
@@ -26,6 +32,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { ExportCsvButton } from "./ExportCsvButton";
 import { CsvColumn } from "../../utils/exportCsv";
 import { supabase } from "../../utils/supabase/client";
+import { AddUserModal } from "./AddUserModal";
 
 const ROLE_META: Record<UserRole, { label: string; color: string; icon: React.ElementType }> = {
   admin: { label: "Admin", color: "#c61619", icon: Shield },
@@ -38,9 +45,13 @@ export function RolesTab() {
   const [filters, setFilters] = useState<UserFilters>({ role: "all" });
   const [searchInput, setSearchInput] = useState("");
   const [view, setView] = useState<"users" | "audit">("users");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const isAdmin = current?.role === "admin";
 
   const usersQ = useAdminUsers(filters);
   const updateRole = useUpdateUserRole();
+  const deleteUser = useDeleteUser();
+  const resetPwd = useCreateUser();
 
   function applySearch() {
     setFilters((f) => ({ ...f, search: searchInput.trim() || undefined }));
@@ -64,6 +75,58 @@ export function RolesTab() {
     }
   }
 
+  async function handleDelete(user: AdminUserRow) {
+    const target = user.name || user.email || user.id.substring(0, 8);
+    if (!confirm(
+      `¿Eliminar usuario "${target}" permanentemente?\n\nEsto borra la cuenta de auth y su profile. No se puede deshacer.`
+    )) return;
+    try {
+      await deleteUser.mutateAsync(user.id);
+      toast.success("Usuario eliminado");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error al eliminar";
+      toast.error(msg);
+    }
+  }
+
+  async function handleResetPassword(user: AdminUserRow) {
+    if (!user.email) {
+      toast.error("Usuario sin email, no se puede resetear contraseña");
+      return;
+    }
+    if (!confirm(
+      `¿Generar una nueva contraseña para ${user.email}?\n\nSe te va a mostrar una sola vez — copiala y compartila con el usuario.`
+    )) return;
+    try {
+      const res = await resetPwd.mutateAsync({
+        email: user.email,
+        role: user.role,
+        // password omitted → worker generates
+      });
+      if (res.generatedPassword) {
+        // Show in a sticky toast with the password for copying.
+        toast.success(
+          `Nueva contraseña para ${user.email}: ${res.generatedPassword}`,
+          {
+            duration: 60_000,
+            action: {
+              label: "Copiar",
+              onClick: () => {
+                navigator.clipboard.writeText(res.generatedPassword!);
+                toast.info("Copiada al portapapeles");
+              },
+            },
+          }
+        );
+      } else {
+        toast.success("Contraseña reseteada");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error al resetear contraseña";
+      toast.error(msg);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Header + view switch */}
@@ -71,24 +134,38 @@ export function RolesTab() {
         <div>
           <h2 className="text-lg font-semibold text-white">Roles y usuarios</h2>
           <p className="text-xs text-white/50">
-            Promueve, degrada o audita cambios de rol · todas las acciones quedan en audit log
+            Invitá nuevos admins/hosters, promové cuentas existentes · todo queda en audit log
           </p>
         </div>
-        <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#111] p-1">
-          <ViewTab
-            active={view === "users"}
-            label="Usuarios"
-            icon={<Users className="h-3.5 w-3.5" />}
-            onClick={() => setView("users")}
-          />
-          <ViewTab
-            active={view === "audit"}
-            label="Audit log"
-            icon={<History className="h-3.5 w-3.5" />}
-            onClick={() => setView("audit")}
-          />
+        <div className="flex items-center gap-2">
+          {isAdmin && view === "users" && (
+            <button
+              type="button"
+              onClick={() => setInviteOpen(true)}
+              className="flex items-center gap-2 rounded-lg bg-[#c61619] px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-[#c61619]/20 hover:bg-[#b01217]"
+            >
+              <UserPlus className="h-4 w-4" />
+              Añadir usuario
+            </button>
+          )}
+          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#111] p-1">
+            <ViewTab
+              active={view === "users"}
+              label="Usuarios"
+              icon={<Users className="h-3.5 w-3.5" />}
+              onClick={() => setView("users")}
+            />
+            <ViewTab
+              active={view === "audit"}
+              label="Audit log"
+              icon={<History className="h-3.5 w-3.5" />}
+              onClick={() => setView("audit")}
+            />
+          </div>
         </div>
       </div>
+
+      {inviteOpen && <AddUserModal onClose={() => setInviteOpen(false)} />}
 
       {view === "users" ? (
         <>
@@ -122,8 +199,11 @@ export function RolesTab() {
           <UsersTable
             query={usersQ}
             currentUserId={current?.id}
-            pending={updateRole.isPending}
+            pending={updateRole.isPending || deleteUser.isPending || resetPwd.isPending}
+            canManage={isAdmin}
             onChangeRole={handleChangeRole}
+            onDelete={handleDelete}
+            onResetPassword={handleResetPassword}
           />
         </>
       ) : (
@@ -163,12 +243,18 @@ function UsersTable({
   query,
   currentUserId,
   pending,
+  canManage,
   onChangeRole,
+  onDelete,
+  onResetPassword,
 }: {
   query: ReturnType<typeof useAdminUsers>;
   currentUserId?: string;
   pending: boolean;
+  canManage: boolean;
   onChangeRole: (u: AdminUserRow, r: UserRole) => void;
+  onDelete: (u: AdminUserRow) => void;
+  onResetPassword: (u: AdminUserRow) => void;
 }) {
   if (query.isLoading) {
     return (
@@ -258,7 +344,7 @@ function UsersTable({
                     {u.updated_at ? new Date(u.updated_at).toLocaleString("es-MX") : "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="inline-flex items-center gap-1">
+                    <div className="inline-flex items-center gap-1 flex-wrap justify-end">
                       {(["user", "hoster", "admin"] as UserRole[])
                         .filter((r) => r !== u.role)
                         .map((r) => {
@@ -278,6 +364,29 @@ function UsersTable({
                             </button>
                           );
                         })}
+                      {canManage && !isSelf && (
+                        <>
+                          <span className="mx-0.5 h-4 w-px bg-white/10" aria-hidden="true" />
+                          <button
+                            onClick={() => onResetPassword(u)}
+                            disabled={pending}
+                            className="flex items-center gap-1 rounded-lg border border-amber-500/20 px-2 py-1 text-xs text-amber-300/80 hover:bg-amber-500/10 hover:text-amber-200 disabled:opacity-50"
+                            title="Generar nueva contraseña"
+                          >
+                            <KeyRound className="h-3 w-3" />
+                            <span className="hidden xl:inline">Reset clave</span>
+                          </button>
+                          <button
+                            onClick={() => onDelete(u)}
+                            disabled={pending}
+                            className="flex items-center gap-1 rounded-lg border border-[#c61619]/30 px-2 py-1 text-xs text-[#ff5a5d] hover:bg-[#c61619]/10 disabled:opacity-50"
+                            title="Eliminar usuario"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            <span className="hidden xl:inline">Eliminar</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
