@@ -161,15 +161,18 @@ export default defineConfig(({ mode }) => ({
     // Configuración para CommonJS y polyfills.
     // `VITE_ADMIN_ONLY` se inyecta aquí cuando `--mode admin` para que el build del
     // subdominio admin no dependa de un archivo .env (que está en .gitignore).
-    // `VITE_SUPABASE_PROJECT_URL` también se inyecta como fallback público: es la
-    // misma URL que vive en wrangler.jsonc, no es un secreto, y sin ella el bundle
-    // hace throw en el arranque y el panel queda en pantalla negra. La anon key
-    // sigue viniendo del .env para no filtrarla al repo.
+    // `VITE_SUPABASE_PROJECT_URL` y `VITE_SUPABASE_ANON_KEY` también se inyectan
+    // como fallback. Ambos son públicos por diseño (la anon key se expone a todo
+    // cliente que carga el bundle y está protegida por RLS), así que hardcodearlos
+    // evita que el panel quede en negro cuando el build corre sin .env.
     define: {
       global: 'globalThis',
       'import.meta.env.VITE_ADMIN_ONLY': JSON.stringify(mode === 'admin' ? 'true' : (process.env.VITE_ADMIN_ONLY ?? '')),
       'import.meta.env.VITE_SUPABASE_PROJECT_URL': JSON.stringify(
         process.env.VITE_SUPABASE_PROJECT_URL ?? 'https://hxmdzhkkuhsetqucbpia.supabase.co'
+      ),
+      'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(
+        process.env.VITE_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bWR6aGtrdWhzZXRxdWNicGlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4Mzk5MjEsImV4cCI6MjA2NDQxNTkyMX0.-vUT8oRIKl4Pk7UZDOVhxxMRCictahFwAFEYc98HwFI'
       ),
     },
     // Silenciar warnings de SES/Lockdown que vienen de dependencias externas
