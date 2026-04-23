@@ -171,6 +171,9 @@ export default defineConfig(({ mode }) => ({
       'import.meta.env.VITE_SUPABASE_PROJECT_URL': JSON.stringify(
         process.env.VITE_SUPABASE_PROJECT_URL ?? 'https://hxmdzhkkuhsetqucbpia.supabase.co'
       ),
+      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(
+        process.env.VITE_SUPABASE_PROJECT_ID ?? 'hxmdzhkkuhsetqucbpia'
+      ),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(
         process.env.VITE_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bWR6aGtrdWhzZXRxdWNicGlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4Mzk5MjEsImV4cCI6MjA2NDQxNTkyMX0.-vUT8oRIKl4Pk7UZDOVhxxMRCictahFwAFEYc98HwFI'
       ),
