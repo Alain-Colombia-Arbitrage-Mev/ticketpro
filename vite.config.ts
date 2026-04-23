@@ -14,7 +14,7 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
  * - Code splitting inteligente
  * - Path aliases para imports limpios
  */
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
     plugins: [
       react(),
       ViteImageOptimizer({
@@ -159,15 +159,18 @@ export default defineConfig(({ mode }) => ({
       },
     },
     // Configuración para CommonJS y polyfills.
-    // `VITE_ADMIN_ONLY` se inyecta aquí cuando `--mode admin` para que el build del
-    // subdominio admin no dependa de un archivo .env (que está en .gitignore).
+    // NOTE: este branch (`admin`) sirve ÚNICAMENTE el panel en admin.veltlix.com.
+    // Cloudflare Workers Builds auto-despliega cada push corriendo `npm run build`
+    // (no `build:admin`), así que hay que forzar VITE_ADMIN_ONLY="true" sin
+    // depender del `--mode admin`. Sin esto, el tree-shaker remueve la rama del
+    // panel y Cloudflare termina sirviendo el sitio público bajo admin.veltlix.com.
     // `VITE_SUPABASE_PROJECT_URL` y `VITE_SUPABASE_ANON_KEY` también se inyectan
     // como fallback. Ambos son públicos por diseño (la anon key se expone a todo
     // cliente que carga el bundle y está protegida por RLS), así que hardcodearlos
     // evita que el panel quede en negro cuando el build corre sin .env.
     define: {
       global: 'globalThis',
-      'import.meta.env.VITE_ADMIN_ONLY': JSON.stringify(mode === 'admin' ? 'true' : (process.env.VITE_ADMIN_ONLY ?? '')),
+      'import.meta.env.VITE_ADMIN_ONLY': JSON.stringify('true'),
       'import.meta.env.VITE_SUPABASE_PROJECT_URL': JSON.stringify(
         process.env.VITE_SUPABASE_PROJECT_URL ?? 'https://hxmdzhkkuhsetqucbpia.supabase.co'
       ),
