@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseClient } from '../utils/supabase/client';
 
+// The "priority" event is always first in lists, always visible across category
+// filters, and always first in the home slider. Set this to whichever event
+// is currently the headline launch.
+export const PRIORITY_EVENT_ID = 23;
+
 export interface EventFromDB {
   id: number;
   title: string;
@@ -104,13 +109,21 @@ export function useEvents() {
         .limit(50);
 
       if (error) throw error;
-      return ((data ?? []) as EventFromDB[]).map(convertEventFromDB);
+      const events = ((data ?? []) as EventFromDB[]).map(convertEventFromDB);
+      return sortPriorityFirst(events);
     },
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     retry: 1,
     refetchOnWindowFocus: false,
   });
+}
+
+function sortPriorityFirst(events: Event[]): Event[] {
+  const idx = events.findIndex((e) => e.id === PRIORITY_EVENT_ID);
+  if (idx <= 0) return events;
+  const priority = events[idx];
+  return [priority, ...events.slice(0, idx), ...events.slice(idx + 1)];
 }
 
 export function useEventsByCategory(category?: string) {
@@ -126,11 +139,13 @@ export function useEventsByCategory(category?: string) {
         .order('id', { ascending: true })
         .limit(50);
 
-      if (category && category !== 'all') q = q.eq('category', category);
+      const filters = category && category !== 'all' ? `category.eq.${category},id.eq.${PRIORITY_EVENT_ID}` : null;
+      if (filters) q = q.or(filters);
 
       const { data, error } = await q;
       if (error) throw error;
-      return ((data ?? []) as EventFromDB[]).map(convertEventFromDB);
+      const events = ((data ?? []) as EventFromDB[]).map(convertEventFromDB);
+      return sortPriorityFirst(events);
     },
     staleTime: 60_000,
     gcTime: 5 * 60_000,
@@ -165,6 +180,7 @@ export function useEvent(id: number) {
 
 export function useFeaturedEvents() {
   const { data, ...rest } = useEvents();
+  // Already sorted with priority first by useEvents; just filter to featured.
   return {
     ...rest,
     data: (data ?? []).filter((e) => e.featured),
