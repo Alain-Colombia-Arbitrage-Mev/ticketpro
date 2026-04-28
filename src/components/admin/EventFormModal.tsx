@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { X, Loader2, UserPlus, Trash2, Search, Calendar, MapPin, Tag, DollarSign } from "lucide-react";
+import { X, Loader2, UserPlus, Trash2, Search, Calendar, MapPin, Tag, DollarSign, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   AdminEventRow,
@@ -34,6 +34,7 @@ function emptyForm(): AdminEventInput {
     image_card_url: "",
     image_detail_url: "",
     venue_image_url: "",
+    total_capacity: null,
     base_price: 0,
     currency: "USD",
     is_active: true,
@@ -57,6 +58,7 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     image_card_url: e.image_card_url ?? "",
     image_detail_url: e.image_detail_url ?? "",
     venue_image_url: e.venue_image_url ?? "",
+    total_capacity: e.total_capacity ?? null,
     base_price: Number(e.base_price) || 0,
     currency: e.currency ?? "USD",
     is_active: e.is_active ?? true,
@@ -213,6 +215,24 @@ export function EventFormModal({ event, onClose }: Props) {
                 />
               </Field>
             </div>
+
+            <Field label="Capacidad total (boletas a emitir)" icon={<Users className="h-3.5 w-3.5" />}>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={form.total_capacity ?? ""}
+                placeholder="Vacío = sin límite"
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  setForm({ ...form, total_capacity: v === "" ? null : Math.max(0, parseInt(v) || 0) });
+                }}
+                className="inp"
+              />
+              <p className="mt-1 text-[11px] text-white/40">
+                Número total de boletas que se pueden emitir. Dejá vacío para ilimitado.
+              </p>
+            </Field>
 
             <Field label="Imagen del evento">
               <ImageUploader

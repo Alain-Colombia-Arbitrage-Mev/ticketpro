@@ -14,6 +14,7 @@ export interface EventFromDB {
   image_card_url?: string | null;
   image_detail_url?: string | null;
   venue_image_url?: string | null;
+  total_capacity?: number | null;
   base_price: number;
   currency: string;
   featured: boolean;
@@ -39,6 +40,7 @@ export interface Event {
   imageCard?: string;
   imageDetail?: string;
   venueImage?: string | null;
+  totalCapacity?: number | null;
   category: string;
   featured?: boolean;
   trending?: boolean;
@@ -46,7 +48,7 @@ export interface Event {
   lastTickets?: boolean;
 }
 
-const EVENT_SELECT = 'id, title, date, time, location, category, description, image_url, image_slider_url, image_card_url, image_detail_url, venue_image_url, base_price, currency, featured, trending, sold_out, last_tickets';
+const EVENT_SELECT = 'id, title, date, time, location, category, description, image_url, image_slider_url, image_card_url, image_detail_url, venue_image_url, total_capacity, base_price, currency, featured, trending, sold_out, last_tickets';
 
 function formatDateFromISO(isoDate: string): string {
   const months: Record<number, string> = {
@@ -79,6 +81,7 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
     imageCard: card,
     imageDetail: detail,
     venueImage: dbEvent.venue_image_url ?? null,
+    totalCapacity: dbEvent.total_capacity ?? null,
     category: dbEvent.category,
     featured: dbEvent.featured,
     trending: dbEvent.trending,
