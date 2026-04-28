@@ -286,10 +286,14 @@ export function EventDetailPage() {
                     <p className="text-[11px] sm:text-xs md:text-sm">Av. Principal #123, Col. Centro</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 !text-white" />
-                  <span className="text-xs sm:text-sm md:text-base">Capacidad: 5,000 personas</span>
-                </div>
+                {eventData.totalCapacity != null && (
+                  <div className="flex items-center gap-2">
+                    <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 !text-white" />
+                    <span className="text-xs sm:text-sm md:text-base">
+                      Capacidad: {eventData.totalCapacity.toLocaleString("es-MX")} personas
+                    </span>
+                  </div>
+                )}
               </div>
             </Card>
 
