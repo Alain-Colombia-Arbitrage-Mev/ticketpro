@@ -14,7 +14,7 @@
 const UPLOAD_PATH = "/api/upload";
 const USERS_PATH = "/api/users";
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB per file
-const VALID_VARIANTS = new Set(["slider", "card", "detail"]);
+const VALID_VARIANTS = new Set(["slider", "card", "detail", "venue"]);
 const VALID_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 const VALID_ROLES = new Set(["admin", "hoster", "user"]);
 

@@ -7,12 +7,13 @@
 
 import { supabase } from "./supabase/client";
 
-export type ImageVariant = "slider" | "card" | "detail";
+export type ImageVariant = "slider" | "card" | "detail" | "venue";
 
 export const VARIANT_SIZES: Record<ImageVariant, { w: number; h: number }> = {
   slider: { w: 1920, h: 800 },
   card:   { w: 800,  h: 600 },
   detail: { w: 1200, h: 800 },
+  venue:  { w: 1200, h: 675 },
 };
 
 export interface UploadResult {
@@ -92,7 +93,7 @@ async function resizeToVariant(
 // Defaults to all 3 when no list is provided (back-compat).
 export async function buildVariants(
   source: File,
-  variants: ImageVariant[] = ["slider", "card", "detail"]
+  variants: ImageVariant[] = ["slider", "card", "detail", "venue"]
 ): Promise<Partial<Record<ImageVariant, Blob>>> {
   const img = await loadImage(source);
   const entries = await Promise.all(
@@ -112,7 +113,7 @@ export interface UploadOptions {
 export async function uploadEventImages({
   eventKey,
   source,
-  variants = ["slider", "card", "detail"],
+  variants = ["slider", "card", "detail", "venue"],
   onProgress,
 }: UploadOptions): Promise<UploadResult> {
   onProgress?.("resizing", 0);

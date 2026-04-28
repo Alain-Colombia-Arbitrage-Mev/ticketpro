@@ -11,6 +11,7 @@ import {
   Monitor,
   LayoutGrid,
   FileImage,
+  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +25,7 @@ export interface ImageUploaderValue {
   slider?: string;
   card?: string;
   detail?: string;
+  venue?: string;
 }
 
 interface Props {
@@ -57,6 +59,12 @@ const VARIANT_META: Record<
     icon: FileImage,
     aspect: "aspect-[3/2]",
   },
+  venue: {
+    label: "Información del lugar",
+    description: "Foto del venue en la página del evento",
+    icon: MapPin,
+    aspect: "aspect-video",
+  },
 };
 
 export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
@@ -65,11 +73,13 @@ export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
     slider: "idle",
     card: "idle",
     detail: "idle",
+    venue: "idle",
   });
   const [errors, setErrors] = useState<Record<ImageVariant, string | null>>({
     slider: null,
     card: null,
     detail: null,
+    venue: null,
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -120,6 +130,7 @@ export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
           slider: urls.slider ?? value.slider,
           card: urls.card ?? value.card,
           detail: urls.detail ?? value.detail,
+          venue: urls.venue ?? value.venue,
         });
         variants.forEach((v) => setPhase(v, "idle"));
         toast.success(
@@ -160,9 +171,12 @@ export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
     [onChange, value]
   );
 
+  // "Apply to all" only covers the 3 event-poster variants. The venue photo
+  // is conceptually different (the location, not the event poster) and must
+  // be uploaded separately through its own slot.
   const uploadToAll = (file: File) => uploadFile(file, ["slider", "card", "detail"]);
 
-  const hasAny = !!(value.slider || value.card || value.detail);
+  const hasAny = !!(value.slider || value.card || value.detail || value.venue);
 
   return (
     <div className="space-y-3">
@@ -173,9 +187,9 @@ export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
         eventKeyReady={!!eventKey}
       />
 
-      {/* Per-variant slots */}
+      {/* Per-variant slots: 3 poster variants + venue photo */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        {(Object.keys(VARIANT_META) as ImageVariant[]).map((variant) => (
+        {(["slider", "card", "detail"] as ImageVariant[]).map((variant) => (
           <VariantSlot
             key={variant}
             variant={variant}
@@ -189,6 +203,20 @@ export function ImageUploader({ eventKey, value, onChange, disabled }: Props) {
             eventKeyReady={!!eventKey}
           />
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
+        <VariantSlot
+          variant="venue"
+          url={value.venue}
+          phase={phases.venue}
+          error={errors.venue}
+          disabled={!!disabled}
+          onFile={(file) => uploadFile(file, ["venue"])}
+          onDelete={() => handleDelete("venue")}
+          onPreview={() => setPreviewUrl(value.venue || null)}
+          eventKeyReady={!!eventKey}
+        />
       </div>
 
       {hasAny && (

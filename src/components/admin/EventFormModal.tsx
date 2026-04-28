@@ -33,6 +33,7 @@ function emptyForm(): AdminEventInput {
     image_slider_url: "",
     image_card_url: "",
     image_detail_url: "",
+    venue_image_url: "",
     base_price: 0,
     currency: "USD",
     is_active: true,
@@ -55,6 +56,7 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     image_slider_url: e.image_slider_url ?? "",
     image_card_url: e.image_card_url ?? "",
     image_detail_url: e.image_detail_url ?? "",
+    venue_image_url: e.venue_image_url ?? "",
     base_price: Number(e.base_price) || 0,
     currency: e.currency ?? "USD",
     is_active: e.is_active ?? true,
@@ -219,6 +221,7 @@ export function EventFormModal({ event, onClose }: Props) {
                   slider: form.image_slider_url ?? undefined,
                   card:   form.image_card_url ?? undefined,
                   detail: form.image_detail_url ?? undefined,
+                  venue:  form.venue_image_url ?? undefined,
                 }}
                 onChange={(next) =>
                   setForm((f) => ({
@@ -226,6 +229,7 @@ export function EventFormModal({ event, onClose }: Props) {
                     image_slider_url: next.slider ?? null,
                     image_card_url:   next.card   ?? null,
                     image_detail_url: next.detail ?? null,
+                    venue_image_url:  next.venue  ?? null,
                     // Keep image_url as a legacy fallback (use card variant).
                     image_url: next.card ?? f.image_url ?? null,
                   }))
