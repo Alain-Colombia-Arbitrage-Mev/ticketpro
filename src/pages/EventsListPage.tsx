@@ -28,7 +28,7 @@ import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
 import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
-import { mockEvents, categories as mockCategories } from "../data/mockEvents";
+import { categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
 import { useEvents } from "../hooks/useEvents";
 import { EventCardSkeleton } from "../components/events/EventCardSkeleton";
