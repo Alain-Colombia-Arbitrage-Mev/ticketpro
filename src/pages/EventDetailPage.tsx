@@ -11,7 +11,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { SEOHead } from "../components/common";
 import { saveLoginReturn } from "../utils/loginReturn";
-import { useEvent } from "../hooks/useEvents";
+import { useEvent, PRIORITY_EVENT_ID } from "../hooks/useEvents";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();
@@ -71,6 +71,7 @@ export function EventDetailPage() {
   };
 
   const eventDateISO = parseDate(eventData.date);
+  const isPriorityEvent = eventId === PRIORITY_EVENT_ID;
 
   // Extraer precio del formato "$50 USD" -> "50"
   const extractPrice = (priceStr: string | undefined): string => {
@@ -172,9 +173,37 @@ export function EventDetailPage() {
           alt={eventData.title}
           className="h-full w-full object-cover"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        <div className="absolute right-4 top-4 flex gap-2 sm:right-6 sm:top-6">
+        {/* Right-side darkening so overlay text on the right is legible.
+            Priority event uses a stronger left→right gradient; other
+            events keep the subtle bottom→top gradient. */}
+        <div
+          className={`pointer-events-none absolute inset-0 ${
+            isPriorityEvent
+              ? "bg-gradient-to-l from-black/85 via-black/45 to-transparent"
+              : "bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+          }`}
+        />
+
+        {/* Priority-event overlay: title + location + price pinned right */}
+        {isPriorityEvent && (
+          <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-end px-4 sm:px-8 md:px-12 lg:px-20">
+            <div className="max-w-[60%] text-right">
+              <h1 className="text-base font-bold leading-tight text-white drop-shadow-2xl sm:text-2xl md:text-3xl lg:text-5xl">
+                {eventData.title}
+              </h1>
+              <p className="mt-1 flex items-center justify-end gap-1 text-[10px] font-medium text-white/85 drop-shadow-lg sm:mt-2 sm:gap-1.5 sm:text-sm md:text-base lg:text-lg">
+                <MapPin className="h-3 w-3 flex-shrink-0 text-yellow-400 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+                <span className="truncate">{eventData.location}</span>
+              </p>
+              <p className="mt-2 text-lg font-extrabold text-yellow-400 drop-shadow-2xl sm:mt-3 sm:text-2xl md:text-3xl lg:text-5xl">
+                {eventData.price}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="absolute right-4 top-4 z-[3] flex gap-2 sm:right-6 sm:top-6">
           <Button size="icon" variant="secondary" className="rounded-xl !bg-black/80 !text-white shadow-lg backdrop-blur-sm hover:!bg-black/90 border border-white/20">
             <Share2 className="h-4 w-4 !text-white" />
           </Button>
@@ -184,7 +213,7 @@ export function EventDetailPage() {
         </div>
 
         {eventData.featured && (
-          <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
+          <div className="absolute left-4 top-4 z-[3] sm:left-6 sm:top-6">
             <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-500 font-medium shadow-lg">
               ⭐ Destacado
             </Badge>
