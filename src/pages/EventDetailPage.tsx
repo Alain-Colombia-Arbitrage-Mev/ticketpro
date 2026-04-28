@@ -164,9 +164,9 @@ export function EventDetailPage() {
         </div>
       </div>
 
-      {/* Hero Image — uses the "Detalle del evento" variant (1200x800) when
-          available, falling back to the card variant. */}
-      <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-96 lg:h-[32rem]">
+      {/* Hero Image — banner using the "Detalle del evento" variant
+          (1700x512 ≈ 3.32:1) when available, falling back to the card. */}
+      <div className="relative w-full overflow-hidden aspect-[1700/512] min-h-[180px]">
         <ImageWithFallback
           src={eventData.imageDetail || eventData.image}
           alt={eventData.title}
