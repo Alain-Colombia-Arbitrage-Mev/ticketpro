@@ -243,15 +243,21 @@ export function EventDetailPage() {
             <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-10">
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold !text-white mb-3 sm:mb-4">{t('event.detail.description')}</h3>
               <div className="rounded-lg sm:rounded-xl border border-white/20 !bg-white/5 p-4 sm:p-5 md:p-6">
-                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed !text-white/90">
-                <p>
-                  Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores 
-                  artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
-                </p>
-                <p>
-                  No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados 
-                  del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
-                </p>
+                <div className="space-y-3 sm:space-y-4 text-sm sm:text-base leading-relaxed !text-white/90 whitespace-pre-line">
+                  {eventData.description?.trim() ? (
+                    <p>{eventData.description}</p>
+                  ) : (
+                    <>
+                      <p>
+                        Prepárate para vivir una experiencia inolvidable. Este evento reunirá a los mejores
+                        artistas y talentos para ofrecerte una noche llena de emoción y entretenimiento.
+                      </p>
+                      <p>
+                        No te pierdas esta oportunidad única de ser parte de uno de los eventos más esperados
+                        del año. Asegura tus tickets ahora y vive momentos que recordarás para siempre.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -262,9 +268,10 @@ export function EventDetailPage() {
               <div className="mb-3 sm:mb-4 aspect-video w-full overflow-hidden rounded-lg !bg-white/10">
                 <ImageWithFallback
                   src={
-                    isPriorityEvent
+                    eventData.venueImage ||
+                    (isPriorityEvent
                       ? "/images/events/salinassquare.png"
-                      : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                      : "https://images.unsplash.com/photo-1759507058895-6df3cb75902b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwdmVudWUlMjBlbXB0eXxlbnwxfHx8fDE3NjE3OTkwNjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral")
                   }
                   alt="Venue"
                   className="h-full w-full object-cover"
