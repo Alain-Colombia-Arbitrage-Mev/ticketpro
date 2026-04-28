@@ -106,7 +106,10 @@ export function useCreateEvent() {
       if (error) throw error;
       return data as AdminEventRow;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: EVENTS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: EVENTS_KEY });
+      qc.invalidateQueries({ queryKey: ["events"] });
+    },
   });
 }
 
@@ -143,7 +146,10 @@ export function useDeleteEvent() {
       const { error } = await supabase.from("events").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: EVENTS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: EVENTS_KEY });
+      qc.invalidateQueries({ queryKey: ["events"] });
+    },
   });
 }
 
@@ -165,7 +171,10 @@ export function useToggleEventFlag() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: EVENTS_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: EVENTS_KEY });
+      qc.invalidateQueries({ queryKey: ["events"] });
+    },
   });
 }
 
