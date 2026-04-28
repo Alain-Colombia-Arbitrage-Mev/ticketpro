@@ -12,7 +12,7 @@ export type ImageVariant = "slider" | "card" | "detail" | "venue";
 export const VARIANT_SIZES: Record<ImageVariant, { w: number; h: number }> = {
   slider: { w: 1920, h: 800 },
   card:   { w: 800,  h: 600 },
-  detail: { w: 1200, h: 800 },
+  detail: { w: 1700, h: 512 },
   venue:  { w: 1200, h: 675 },
 };
 

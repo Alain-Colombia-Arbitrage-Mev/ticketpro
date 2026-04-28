@@ -55,9 +55,9 @@ const VARIANT_META: Record<
   },
   detail: {
     label: "Detalle del evento",
-    description: "Imagen principal en la página del evento",
+    description: "Banner ancho en la página del evento",
     icon: FileImage,
-    aspect: "aspect-[3/2]",
+    aspect: "aspect-[1700/512]",
   },
   venue: {
     label: "Información del lugar",
