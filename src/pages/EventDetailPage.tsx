@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, ChevronRight, Ticket, ShoppingCart, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Share2, Heart, ChevronLeft, Ticket, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
@@ -27,24 +27,6 @@ export function EventDetailPage() {
 
   // Todos los hooks ANTES de cualquier return condicional
   const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1);
-  const [galleryIndex, setGalleryIndex] = React.useState(0);
-
-  // Build the hero gallery from whatever variants the admin uploaded.
-  // Order: detail (intended hero) → slider → card. Dedupe so we don't
-  // show the same image twice when fallbacks resolved to the same URL.
-  const galleryImages = React.useMemo(() => {
-    const candidates = [
-      eventData?.imageDetail,
-      eventData?.imageSlider,
-      eventData?.image,
-    ].filter((u): u is string => !!u);
-    return Array.from(new Set(candidates));
-  }, [eventData?.imageDetail, eventData?.imageSlider, eventData?.image]);
-
-  // Reset slide index when navigating between events.
-  React.useEffect(() => {
-    setGalleryIndex(0);
-  }, [eventId]);
 
   if (!eventId) {
     navigate("home");
@@ -182,83 +164,17 @@ export function EventDetailPage() {
         </div>
       </div>
 
-      {/* Hero Gallery */}
+      {/* Hero Image — uses the "Detalle del evento" variant (1200x800) when
+          available, falling back to the card variant. */}
       <div className="relative h-56 w-full overflow-hidden sm:h-80 md:h-96 lg:h-[32rem]">
-        {galleryImages.length === 0 ? (
-          <ImageWithFallback
-            src={eventData.image}
-            alt={eventData.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          galleryImages.map((src, i) => (
-            <div
-              key={src}
-              className="absolute inset-0 transition-opacity duration-500 ease-out"
-              style={{
-                opacity: i === galleryIndex ? 1 : 0,
-                zIndex: i === galleryIndex ? 1 : 0,
-                pointerEvents: i === galleryIndex ? "auto" : "none",
-              }}
-            >
-              <ImageWithFallback
-                src={src}
-                alt={`${eventData.title} — imagen ${i + 1}`}
-                className="h-full w-full object-cover"
-                loading={i === 0 ? "eager" : "lazy"}
-              />
-            </div>
-          ))
-        )}
+        <ImageWithFallback
+          src={eventData.imageDetail || eventData.image}
+          alt={eventData.title}
+          className="h-full w-full object-cover"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-        {/* Bottom darkening so overlay text/dots stay legible */}
-        <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        {/* Prev / Next arrows (only when 2+ images) */}
-        {galleryImages.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() =>
-                setGalleryIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)
-              }
-              aria-label="Imagen anterior"
-              className="absolute left-3 top-1/2 z-[3] flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80 sm:left-4 sm:h-10 sm:w-10"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setGalleryIndex((i) => (i + 1) % galleryImages.length)
-              }
-              aria-label="Imagen siguiente"
-              className="absolute right-3 top-1/2 z-[3] flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80 sm:right-4 sm:h-10 sm:w-10"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-
-            {/* Dot indicators */}
-            <div className="absolute bottom-4 left-1/2 z-[3] flex -translate-x-1/2 gap-1.5">
-              {galleryImages.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setGalleryIndex(i)}
-                  aria-label={`Ir a imagen ${i + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === galleryIndex
-                      ? "w-7 bg-white"
-                      : "w-1.5 bg-white/50 hover:bg-white/80"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Actions Overlay (share, heart) */}
-        <div className="absolute right-4 top-4 z-[3] flex gap-2 sm:right-6 sm:top-6">
+        <div className="absolute right-4 top-4 flex gap-2 sm:right-6 sm:top-6">
           <Button size="icon" variant="secondary" className="rounded-xl !bg-black/80 !text-white shadow-lg backdrop-blur-sm hover:!bg-black/90 border border-white/20">
             <Share2 className="h-4 w-4 !text-white" />
           </Button>
@@ -268,41 +184,13 @@ export function EventDetailPage() {
         </div>
 
         {eventData.featured && (
-          <div className="absolute left-4 top-4 z-[3] sm:left-6 sm:top-6">
+          <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
             <Badge className="border-0 bg-gradient-to-r from-amber-500 to-orange-500 font-medium shadow-lg">
               ⭐ Destacado
             </Badge>
           </div>
         )}
       </div>
-
-      {/* Thumbnail strip — shown only when there is more than one variant */}
-      {galleryImages.length > 1 && (
-        <div className="container mx-auto px-3 pt-3 sm:px-4 lg:px-8">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {galleryImages.map((src, i) => (
-              <button
-                key={src}
-                type="button"
-                onClick={() => setGalleryIndex(i)}
-                aria-label={`Ver imagen ${i + 1}`}
-                className={`relative flex-shrink-0 overflow-hidden rounded-md border-2 transition-all ${
-                  i === galleryIndex
-                    ? "border-white"
-                    : "border-transparent opacity-50 hover:opacity-100"
-                }`}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  className="h-14 w-20 object-cover sm:h-16 sm:w-28"
-                  loading="lazy"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 md:py-8 lg:px-8">
         <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3 lg:gap-12">
