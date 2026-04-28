@@ -388,6 +388,40 @@ async function handleCreateUser(request, env) {
   const created = await createRes.json();
   const userId = created?.id ?? created?.user?.id ?? null;
 
+  // The handle_new_user trigger creates profiles with role='user' regardless
+  // of user_metadata.default_role (intentional — see migration
+  // 20260428100000). For admin-driven creation we must explicitly set the
+  // role + name via service_role, since the caller has already been
+  // verified as admin upstream.
+  if (userId && (role !== "user" || name)) {
+    const profilePatch = {
+      ...(role && role !== "user" ? { role } : {}),
+      ...(name ? { name } : {}),
+      updated_at: new Date().toISOString(),
+    };
+    const patchRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify(profilePatch),
+      }
+    );
+    if (!patchRes.ok) {
+      const detail = await patchRes.text().catch(() => "");
+      return json(
+        { error: `Role assignment failed: ${detail.slice(0, 200)}` },
+        { status: 502 },
+        headers
+      );
+    }
+  }
+
   await writeAuditLog(env, authResult.user, {
     action: "user.create",
     target_type: "user",
