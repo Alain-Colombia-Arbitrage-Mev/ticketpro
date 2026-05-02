@@ -7,7 +7,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { CORS_HEADERS, corsResponse } from "../_shared/cors.ts";
+import { corsHeaders, corsResponse } from "../_shared/cors.ts";
 import { verifyRole } from "../_shared/auth.ts";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -44,10 +44,10 @@ interface TicketRow {
   status: string;
 }
 
-function json(status: number, body: unknown): Response {
+function json(req: Request, status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(req) },
   });
 }
 
@@ -178,34 +178,34 @@ async function fetchTickets(supabase: ReturnType<typeof createClient>, order: Or
 }
 
 serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return corsResponse();
-  if (req.method !== "POST") return json(405, { ok: false, error: "Method not allowed" });
+  if (req.method === "OPTIONS") return corsResponse(req);
+  if (req.method !== "POST") return json(req, 405, { ok: false, error: "Method not allowed" });
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !supabaseServiceKey) return json(500, { ok: false, error: "Server not configured" });
+  if (!supabaseUrl || !supabaseServiceKey) return json(req, 500, { ok: false, error: "Server not configured" });
 
   const role = await verifyRole(req, supabaseUrl, supabaseServiceKey, ["admin"]);
-  if (role.error || !role.user) return json(401, { ok: false, error: role.error ?? "Admin role required" });
+  if (role.error || !role.user) return json(req, 401, { ok: false, error: role.error ?? "Admin role required" });
 
   let body: ReissueBody;
   try {
     body = await req.json();
   } catch {
-    return json(400, { ok: false, error: "Invalid JSON body" });
+    return json(req, 400, { ok: false, error: "Invalid JSON body" });
   }
 
   const orderId = body.order_id?.trim();
   const orderUuid = body.order_uuid?.trim();
-  if (!orderId && !orderUuid) return json(400, { ok: false, error: "order_id u order_uuid requerido" });
+  if (!orderId && !orderUuid) return json(req, 400, { ok: false, error: "order_id u order_uuid requerido" });
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
     const order = await fetchOrder(supabase, { order_id: orderId, order_uuid: orderUuid });
-    if (!order) return json(404, { ok: false, error: "Orden no encontrada" });
+    if (!order) return json(req, 404, { ok: false, error: "Orden no encontrada" });
     if (!PAID_STATUSES.has(order.payment_status)) {
-      return json(409, { ok: false, error: `La orden no esta pagada (${order.payment_status})` });
+      return json(req, 409, { ok: false, error: `La orden no esta pagada (${order.payment_status})` });
     }
 
     const expandedItems = expandPurchasedItems(order.items);
@@ -227,7 +227,7 @@ serve(async (req: Request) => {
     }
 
     const tickets = [...existingTickets, ...createdTickets];
-    if (tickets.length === 0) return json(409, { ok: false, error: "La orden no tiene items ni boletas para enviar" });
+    if (tickets.length === 0) return json(req, 409, { ok: false, error: "La orden no tiene items ni boletas para enviar" });
 
     for (const ticket of tickets) {
       const qrCode = `${frontendUrl}/validate-ticket?ticketId=${ticket.id}&code=${ticket.ticket_code}`;
@@ -275,7 +275,7 @@ serve(async (req: Request) => {
       user_agent: req.headers.get("user-agent"),
     });
 
-    return json(200, {
+    return json(req, 200, {
       ok: true,
       order_id: order.order_id,
       email: order.buyer_email,
@@ -286,7 +286,7 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     console.error("reissue-order-tickets error:", error);
-    return json(500, {
+    return json(req, 500, {
       ok: false,
       error: error instanceof Error ? error.message : "Unexpected server error",
     });
