@@ -7,7 +7,7 @@ export function corsHeaders(_req?: Request) {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-api-version, accept, accept-profile, content-profile, prefer",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, x-application-name, apikey, content-type, x-supabase-api-version, accept, accept-profile, content-profile, prefer",
   };
 }
 
