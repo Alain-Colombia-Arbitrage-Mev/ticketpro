@@ -20,6 +20,7 @@ interface ReceiptRequest {
 interface Ticket {
   id: string;
   ticket_code: string;
+  qr_code?: string;
   event_name: string;
   event_date: string;
   event_time?: string;
@@ -105,12 +106,7 @@ serve(async (req) => {
     const ticketsHtml = tickets
       .map(
         (ticket: Ticket, index: number) => {
-          const qrData = JSON.stringify({
-            ticketId: ticket.id,
-            code: ticket.ticket_code,
-            pin: ticket.pin,
-            event: ticket.event_name,
-          });
+          const qrData = ticket.qr_code || `${Deno.env.get('FRONTEND_URL') || 'https://veltlix.com'}/validate-ticket?ticketId=${ticket.id}&code=${ticket.ticket_code}`;
           const qrCodeUrl = generateQRCodeUrl(qrData);
           
           return `
