@@ -32,9 +32,7 @@ import {
   LogOut,
   Menu,
   X,
-  Mail,
 } from "lucide-react";
-import { toast } from "sonner";
 import logo from "../assets/images/logo2.svg";
 // Using plain buttons with explicit colors — shadcn Button relies on CSS vars that don't work in this dark panel
 import { supabase } from "../utils/supabase/client";
@@ -46,7 +44,6 @@ import { ValidationsLiveTab } from "../components/admin/ValidationsLiveTab";
 import { RolesTab } from "../components/admin/RolesTab";
 import { ExportCsvButton } from "../components/admin/ExportCsvButton";
 import { CsvColumn } from "../utils/exportCsv";
-import { useReissueOrderTickets } from "../hooks/useReissueOrderTickets";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -544,8 +541,6 @@ function OrdersTab() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [reissuingOrderId, setReissuingOrderId] = useState<string | null>(null);
-  const reissueOrder = useReissueOrderTickets();
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -586,26 +581,6 @@ function OrdersTab() {
   useEffect(() => {
     setPage(1);
   }, [search, statusFilter]);
-
-  async function handleReissue(order: OrderRow) {
-    const label = order.order_id || order.id;
-    const confirmed = window.confirm(
-      `Reemitir/reconciliar boletas y enviar email al cliente para la orden ${label}?`,
-    );
-    if (!confirmed) return;
-
-    try {
-      setReissuingOrderId(order.id);
-      const res = await reissueOrder.mutateAsync({ order_uuid: order.id });
-      toast.success(
-        `Email enviado a ${res.email}. ${res.sent_count} boleta${res.sent_count !== 1 ? "s" : ""} enviada${res.sent_count !== 1 ? "s" : ""}.`,
-      );
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudieron reenviar las boletas");
-    } finally {
-      setReissuingOrderId(null);
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -666,16 +641,13 @@ function OrdersTab() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-white/50 uppercase tracking-wider hidden lg:table-cell">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-white/50 uppercase tracking-wider">
-                    Acciones
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {orders.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="px-4 py-12 text-center text-white/40"
                     >
                       No orders found
@@ -704,24 +676,6 @@ function OrdersTab() {
                       </td>
                       <td className="px-4 py-3 text-white/50 text-xs hidden lg:table-cell">
                         {formatDate(order.created_at)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleReissue(order)}
-                          disabled={
-                            reissueOrder.isPending ||
-                            !["paid", "completed"].includes(order.payment_status)
-                          }
-                          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/10 bg-[#111] px-2.5 text-xs font-medium text-white/70 hover:border-[#c61619]/40 hover:bg-[#c61619]/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-                          title="Reemitir boletas faltantes y reenviar email al cliente"
-                        >
-                          {reissuingOrderId === order.id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Mail className="h-3.5 w-3.5" />
-                          )}
-                          Reenviar
-                        </button>
                       </td>
                     </tr>
                   ))

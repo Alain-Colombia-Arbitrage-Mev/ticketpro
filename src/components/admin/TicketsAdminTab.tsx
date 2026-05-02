@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   Loader2,
@@ -9,7 +9,9 @@ import {
   Ticket as TicketIcon,
   Gift,
   Eye,
+  Mail,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   useAdminTickets,
   useTicketStatusBreakdown,
@@ -24,6 +26,7 @@ import { ExportCsvButton } from "./ExportCsvButton";
 import { useAuth } from "../../hooks/useAuth";
 import { supabase } from "../../utils/supabase/client";
 import { CsvColumn } from "../../utils/exportCsv";
+import { useResendSelectedTickets } from "../../hooks/useResendSelectedTickets";
 
 const STATUSES = [
   "active",
@@ -53,6 +56,9 @@ export function TicketsAdminTab() {
   const [page, setPage] = useState(1);
   const [detailId, setDetailId] = useState<string | null>(null);
   const [showCompModal, setShowCompModal] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
+  const resendTickets = useResendSelectedTickets();
 
   const eventsQ = useAdminEvents({ status: "all" });
   const breakdownQ = useTicketStatusBreakdown(filters.eventId ?? null);
@@ -64,6 +70,14 @@ export function TicketsAdminTab() {
   }, [eventsQ.data]);
 
   const totalPages = Math.max(1, Math.ceil((ticketsQ.data?.total ?? 0) / TICKETS_PAGE_SIZE));
+  const rows = ticketsQ.data?.rows ?? [];
+  const pageIds = rows.map((r) => r.id);
+  const selectedOnPage = pageIds.filter((id) => selectedIds.has(id));
+  const allPageSelected = pageIds.length > 0 && selectedOnPage.length === pageIds.length;
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [filters, page]);
 
   function updateFilter<K extends keyof AdminTicketsFilters>(k: K, v: AdminTicketsFilters[K]) {
     setFilters((f) => ({ ...f, [k]: v }));
@@ -74,6 +88,49 @@ export function TicketsAdminTab() {
     updateFilter("search", searchInput.trim() || undefined);
   }
 
+  function toggleTicket(id: string) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function togglePage() {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (allPageSelected) pageIds.forEach((id) => next.delete(id));
+      else pageIds.forEach((id) => next.add(id));
+      return next;
+    });
+  }
+
+  async function handleResend(ticketIds: string[]) {
+    if (ticketIds.length === 0) return;
+    const confirmed = window.confirm(
+      `Reenviar ${ticketIds.length} boleta${ticketIds.length !== 1 ? "s" : ""} a sus comprador${ticketIds.length !== 1 ? "es" : ""}?`,
+    );
+    if (!confirmed) return;
+
+    try {
+      setSendingIds(new Set(ticketIds));
+      const res = await resendTickets.mutateAsync({ ticket_ids: ticketIds });
+      toast.success(
+        `${res.sent_count} boleta${res.sent_count !== 1 ? "s" : ""} enviada${res.sent_count !== 1 ? "s" : ""} a ${res.recipient_count} destinatario${res.recipient_count !== 1 ? "s" : ""}`,
+      );
+      setSelectedIds((current) => {
+        const next = new Set(current);
+        ticketIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudieron reenviar las boletas");
+    } finally {
+      setSendingIds(new Set());
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -82,6 +139,16 @@ export function TicketsAdminTab() {
           <p className="text-xs text-white/50">Busca, filtra por evento/estado y abre el detalle con ciclo de vida</p>
         </div>
         <div className="flex items-center gap-2">
+          {isAdmin && selectedIds.size > 0 && (
+            <button
+              onClick={() => handleResend([...selectedIds])}
+              disabled={resendTickets.isPending}
+              className="flex items-center gap-2 rounded-lg bg-[#c61619] px-3 py-2 text-xs font-semibold text-white hover:bg-[#b01217] disabled:opacity-50"
+            >
+              {resendTickets.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+              Reenviar {selectedIds.size}
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={() => setShowCompModal(true)}
@@ -194,6 +261,17 @@ export function TicketsAdminTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-[#151515] text-left text-xs uppercase tracking-wider text-white/40">
+                  {isAdmin && (
+                    <th className="w-10 px-4 py-3 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={allPageSelected}
+                        onChange={togglePage}
+                        aria-label="Seleccionar boletas de esta pagina"
+                        className="h-4 w-4 rounded border-white/20 bg-[#111] accent-[#c61619]"
+                      />
+                    </th>
+                  )}
                   <th className="px-4 py-3 font-medium">Código</th>
                   <th className="px-4 py-3 font-medium">Evento</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">Comprador</th>
@@ -204,8 +282,19 @@ export function TicketsAdminTab() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {ticketsQ.data!.rows.map((r) => (
+                {rows.map((r) => (
                   <tr key={r.id} className="bg-[#1a1a1a] hover:bg-[#1e1e1e]">
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(r.id)}
+                          onChange={() => toggleTicket(r.id)}
+                          aria-label={`Seleccionar boleta ${r.ticket_code}`}
+                          className="h-4 w-4 rounded border-white/20 bg-[#111] accent-[#c61619]"
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-3">
                       <div className="font-mono text-xs text-white/80">{r.ticket_code}</div>
                       {r.is_comp && (
@@ -229,12 +318,25 @@ export function TicketsAdminTab() {
                       {formatShort(r.created_at)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => setDetailId(r.id)}
-                        className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-white/60 hover:bg-white/10 hover:text-white"
-                      >
-                        <Eye className="h-3.5 w-3.5" /> Detalle
-                      </button>
+                      <div className="inline-flex items-center justify-end gap-1">
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleResend([r.id])}
+                            disabled={resendTickets.isPending}
+                            className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-50"
+                            title="Reenviar esta boleta al comprador"
+                          >
+                            {sendingIds.has(r.id) ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+                            Reenviar
+                          </button>
+                        )}
+                        <button
+                          onClick={() => setDetailId(r.id)}
+                          className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs text-white/60 hover:bg-white/10 hover:text-white"
+                        >
+                          <Eye className="h-3.5 w-3.5" /> Detalle
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
