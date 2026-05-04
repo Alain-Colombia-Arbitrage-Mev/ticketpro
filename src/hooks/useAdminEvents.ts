@@ -48,6 +48,7 @@ export interface AdminEventInput {
   trending?: boolean;
   sold_out?: boolean;
   last_tickets?: boolean;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface EventHosterRow {

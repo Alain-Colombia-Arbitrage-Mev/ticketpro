@@ -3,9 +3,21 @@ import { ChevronLeft, ChevronRight, Calendar, MapPin, DollarSign } from 'lucide-
 import { useRouter } from '../../hooks/useRouter';
 import { useFeaturedEvents, type Event } from '../../hooks/useEvents';
 
+interface PromoSlide {
+  event: Event;
+  image: string;
+}
+
 export function PromoSlider() {
   const { data: featuredEvents = [], isLoading } = useFeaturedEvents();
-  const slides: Event[] = featuredEvents;
+  const slides: PromoSlide[] = featuredEvents.flatMap((event) => {
+    const images = [
+      event.imageSlider || event.imageDetail || event.image,
+      ...(event.imageSliderImages ?? []),
+    ].filter((image, index, all): image is string => !!image && all.indexOf(image) === index);
+
+    return images.map((image) => ({ event, image }));
+  });
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [previousSlide, setPreviousSlide] = useState<number | null>(null);
@@ -61,8 +73,8 @@ export function PromoSlider() {
     goTo(index);
   };
 
-  const handleViewEvent = (slide: Event) => {
-    navigate('event-detail', { id: slide.id });
+  const handleViewEvent = (slide: PromoSlide) => {
+    navigate('event-detail', { id: slide.event.id });
   };
 
   return (
@@ -71,10 +83,9 @@ export function PromoSlider() {
       {slides.map((slide, i) => {
         const isActive = i === currentSlide;
         const isLeaving = i === previousSlide;
-        const heroImage = slide.imageSlider || slide.imageDetail || slide.image;
         return (
           <div
-            key={slide.id}
+            key={`${slide.event.id}-${slide.image}-${i}`}
             className="absolute inset-0"
             style={{
               opacity: isActive ? 1 : isLeaving ? 0 : 0,
@@ -84,8 +95,8 @@ export function PromoSlider() {
             }}
           >
             <img
-              src={heroImage}
-              alt={slide.title}
+              src={slide.image}
+              alt={slide.event.title}
               className="w-full h-full object-cover object-center"
               loading={i === 0 ? 'eager' : 'lazy'}
             />
@@ -101,26 +112,26 @@ export function PromoSlider() {
             className="max-w-[280px] min-[375px]:max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl animate-[fadeSlideIn_600ms_ease-out_both]"
           >
             <h2 className="text-base min-[375px]:text-lg sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-1.5 min-[375px]:mb-2 sm:mb-3 leading-tight drop-shadow-2xl">
-              {current.title}
+              {current.event.title}
             </h2>
 
             <div className="space-y-1 min-[375px]:space-y-1.5 sm:space-y-2 md:space-y-2.5 mb-2.5 min-[375px]:mb-3 sm:mb-4 md:mb-5">
               <div className="flex items-center gap-1.5 min-[375px]:gap-2 sm:gap-2.5 md:gap-3 text-white">
                 <Calendar className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-yellow-400 flex-shrink-0" />
                 <span className="text-[10px] min-[375px]:text-xs sm:text-sm md:text-base font-medium drop-shadow-md leading-tight">
-                  {current.date}
+                  {current.event.date}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 min-[375px]:gap-2 sm:gap-2.5 md:gap-3 text-white">
                 <MapPin className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-yellow-400 flex-shrink-0" />
                 <span className="text-[10px] min-[375px]:text-xs sm:text-sm md:text-base font-medium drop-shadow-md leading-tight">
-                  {current.location}
+                  {current.event.location}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 min-[375px]:gap-2 sm:gap-2.5 md:gap-3 text-white">
                 <DollarSign className="h-3 w-3 min-[375px]:h-3.5 min-[375px]:w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-yellow-400 flex-shrink-0" />
                 <span className="text-base min-[375px]:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-yellow-400 drop-shadow-lg">
-                  {current.price}
+                  {current.event.price}
                 </span>
               </div>
             </div>

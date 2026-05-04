@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSupabaseClient } from '../utils/supabase/client';
+import { sanitizePostgrestSearchTerm } from '../utils/postgrest';
 
 // The "priority" event is always first in lists, always visible across category
 // filters, and always first in the home slider. Set this to whichever event
@@ -44,6 +45,7 @@ export interface Event {
   imageSlider?: string;
   imageCard?: string;
   imageDetail?: string;
+  imageSliderImages?: string[];
   venueImage?: string | null;
   totalCapacity?: number | null;
   category: string;
@@ -53,7 +55,7 @@ export interface Event {
   lastTickets?: boolean;
 }
 
-const EVENT_SELECT = 'id, title, date, time, location, category, description, image_url, image_slider_url, image_card_url, image_detail_url, venue_image_url, total_capacity, base_price, currency, featured, trending, sold_out, last_tickets';
+const EVENT_SELECT = 'id, title, date, time, location, category, description, image_url, image_slider_url, image_card_url, image_detail_url, venue_image_url, total_capacity, base_price, currency, featured, trending, sold_out, last_tickets, metadata';
 
 function formatDateFromISO(isoDate: string): string {
   const months: Record<number, string> = {
@@ -73,6 +75,9 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
   const card   = dbEvent.image_card_url   || dbEvent.image_url || "";
   const slider = dbEvent.image_slider_url || dbEvent.image_url || "";
   const detail = dbEvent.image_detail_url || dbEvent.image_url || "";
+  const sliderImages = Array.isArray(dbEvent.metadata?.slider_images)
+    ? dbEvent.metadata.slider_images.filter((url: unknown): url is string => typeof url === 'string' && !!url.trim())
+    : [];
   return {
     id: dbEvent.id,
     title: dbEvent.title,
@@ -85,6 +90,7 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
     imageSlider: slider,
     imageCard: card,
     imageDetail: detail,
+    imageSliderImages: sliderImages,
     venueImage: dbEvent.venue_image_url ?? null,
     totalCapacity: dbEvent.total_capacity ?? null,
     category: dbEvent.category,
@@ -139,7 +145,8 @@ export function useEventsByCategory(category?: string) {
         .order('id', { ascending: true })
         .limit(50);
 
-      const filters = category && category !== 'all' ? `category.eq.${category},id.eq.${PRIORITY_EVENT_ID}` : null;
+      const safeCategory = category && category !== 'all' ? sanitizePostgrestSearchTerm(category) : '';
+      const filters = safeCategory ? `category.eq.${safeCategory},id.eq.${PRIORITY_EVENT_ID}` : null;
       if (filters) q = q.or(filters);
 
       const { data, error } = await q;
@@ -180,10 +187,10 @@ export function useEvent(id: number) {
 
 export function useFeaturedEvents() {
   const { data, ...rest } = useEvents();
-  // Already sorted with priority first by useEvents; just filter to featured.
+  // Slider is intentionally limited to the current headline event.
   return {
     ...rest,
-    data: (data ?? []).filter((e) => e.featured),
+    data: (data ?? []).filter((e) => e.id === PRIORITY_EVENT_ID),
   };
 }
 

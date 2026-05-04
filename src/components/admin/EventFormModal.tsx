@@ -13,6 +13,7 @@ import {
 } from "../../hooks/useAdminEvents";
 import { useAuth } from "../../hooks/useAuth";
 import { ImageUploader } from "./ImageUploader";
+import { deleteEventImage, uploadEventImages } from "../../utils/imageUpload";
 
 interface Props {
   event: AdminEventRow | null; // null = create mode
@@ -42,7 +43,13 @@ function emptyForm(): AdminEventInput {
     trending: false,
     sold_out: false,
     last_tickets: false,
+    metadata: { slider_images: [] },
   };
+}
+
+function getSliderImages(metadata: Record<string, unknown> | null | undefined): string[] {
+  const value = metadata?.slider_images;
+  return Array.isArray(value) ? value.filter((url): url is string => typeof url === "string" && !!url.trim()) : [];
 }
 
 function eventToForm(e: AdminEventRow): AdminEventInput {
@@ -66,6 +73,7 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     trending: e.trending ?? false,
     sold_out: e.sold_out ?? false,
     last_tickets: e.last_tickets ?? false,
+    metadata: { ...(e.metadata ?? {}), slider_images: getSliderImages(e.metadata) },
   };
 }
 
@@ -257,6 +265,18 @@ export function EventFormModal({ event, onClose }: Props) {
               />
             </Field>
 
+            <SliderImagesManager
+              eventKey={eventKey}
+              images={getSliderImages(form.metadata)}
+              disabled={saving}
+              onChange={(images) =>
+                setForm((f) => ({
+                  ...f,
+                  metadata: { ...(f.metadata ?? {}), slider_images: images },
+                }))
+              }
+            />
+
             <Field label="Descripción">
               <textarea
                 value={form.description ?? ""}
@@ -313,6 +333,112 @@ export function EventFormModal({ event, onClose }: Props) {
           .inp::placeholder { color: rgba(255,255,255,0.3); }
         `}</style>
       </div>
+    </div>
+  );
+}
+
+function SliderImagesManager({
+  eventKey,
+  images,
+  disabled,
+  onChange,
+}: {
+  eventKey: string;
+  images: string[];
+  disabled: boolean;
+  onChange: (images: string[]) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFiles(files: FileList | null) {
+    if (!files?.length) return;
+    if (!eventKey) {
+      toast.error("Escribí el título del evento primero");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const { urls } = await uploadEventImages({
+          eventKey,
+          source: file,
+          variants: ["slider"],
+        });
+        if (urls.slider) uploaded.push(urls.slider);
+      }
+
+      if (uploaded.length > 0) {
+        onChange([...images, ...uploaded]);
+        toast.success(`${uploaded.length} imagen${uploaded.length !== 1 ? "es" : ""} agregada${uploaded.length !== 1 ? "s" : ""} al slider`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al subir imágenes del slider");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function removeImage(url: string) {
+    if (!confirm("¿Eliminar esta imagen del slider?")) return;
+    onChange(images.filter((image) => image !== url));
+    deleteEventImage(url).catch(() => { /* best effort */ });
+  }
+
+  function moveImage(index: number, direction: -1 | 1) {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= images.length) return;
+    const next = [...images];
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    onChange(next);
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-white/10 bg-[#111] p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h4 className="text-sm font-semibold text-white">Imágenes adicionales del slider</h4>
+          <p className="text-xs text-white/45">Estas imágenes rotan dentro del slider público del evento. El orden se respeta.</p>
+        </div>
+        <label className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-white/10 bg-[#1a1a1a] px-3 py-2 text-xs font-semibold text-white/70 hover:bg-[#222] hover:text-white">
+          {uploading ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+          Agregar imágenes
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            disabled={disabled || uploading}
+            onChange={(e) => {
+              handleFiles(e.target.files);
+              e.currentTarget.value = "";
+            }}
+            className="hidden"
+          />
+        </label>
+      </div>
+
+      {images.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-white/10 px-4 py-6 text-center text-xs text-white/40">
+          No hay imágenes adicionales. Se usará la imagen principal del slider.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {images.map((url, index) => (
+            <div key={`${url}-${index}`} className="overflow-hidden rounded-lg border border-white/10 bg-[#1a1a1a]">
+              <img src={url} alt={`Slider ${index + 1}`} className="aspect-[2.4/1] w-full object-cover" />
+              <div className="flex items-center justify-between gap-2 px-3 py-2 text-xs">
+                <span className="text-white/50">#{index + 1}</span>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0} className="rounded px-2 py-1 text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-30">↑</button>
+                  <button type="button" onClick={() => moveImage(index, 1)} disabled={index === images.length - 1} className="rounded px-2 py-1 text-white/60 hover:bg-white/10 hover:text-white disabled:opacity-30">↓</button>
+                  <button type="button" onClick={() => removeImage(url)} className="rounded px-2 py-1 text-[#ff5a5d] hover:bg-[#c61619]/10">Eliminar</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
