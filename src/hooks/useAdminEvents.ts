@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../utils/supabase/client";
+import { sanitizePostgrestSearchTerm } from "../utils/postgrest";
 
 export interface AdminEventRow {
   id: number;
@@ -81,8 +82,8 @@ export function useAdminEvents(filters: EventListFilters = {}) {
         .limit(500);
 
       if (filters.search?.trim()) {
-        const s = filters.search.replace(/[,()]/g, "").trim();
-        q = q.or(`title.ilike.%${s}%,location.ilike.%${s}%,category.ilike.%${s}%`);
+        const s = sanitizePostgrestSearchTerm(filters.search);
+        if (s) q = q.or(`title.ilike.%${s}%,location.ilike.%${s}%,category.ilike.%${s}%`);
       }
       if (filters.category) q = q.eq("category", filters.category);
       if (filters.status === "active") q = q.eq("is_active", true);
@@ -259,7 +260,8 @@ export function useSearchHosterCandidates(search: string) {
     queryKey: ["admin", "hoster_candidates", search],
     enabled: search.trim().length >= 2,
     queryFn: async () => {
-      const s = search.replace(/[,()]/g, "").trim();
+      const s = sanitizePostgrestSearchTerm(search);
+      if (!s) return [];
       const { data, error } = await supabase
         .from("profiles")
         .select("id, email, name, role")

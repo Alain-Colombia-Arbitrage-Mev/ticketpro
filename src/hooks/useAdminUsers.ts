@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "../utils/supabase/client";
+import { sanitizePostgrestSearchTerm } from "../utils/postgrest";
 
 export type UserRole = "user" | "hoster" | "admin";
 
@@ -44,8 +45,8 @@ export function useAdminUsers(filters: UserFilters) {
         .limit(200);
 
       if (filters.search?.trim()) {
-        const s = filters.search.replace(/[,()]/g, "").trim();
-        q = q.or(`email.ilike.%${s}%,name.ilike.%${s}%`);
+        const s = sanitizePostgrestSearchTerm(filters.search);
+        if (s) q = q.or(`email.ilike.%${s}%,name.ilike.%${s}%`);
       }
       if (filters.role && filters.role !== "all") {
         q = q.eq("role", filters.role);

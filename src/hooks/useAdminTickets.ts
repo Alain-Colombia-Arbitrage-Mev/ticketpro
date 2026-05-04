@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../utils/supabase/client";
+import { sanitizePostgrestSearchTerm } from "../utils/postgrest";
 
 export type TicketStatus =
   | "active"
@@ -67,8 +68,8 @@ export function useAdminTickets(filters: AdminTicketsFilters, page: number) {
         .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       if (filters.search?.trim()) {
-        const s = filters.search.replace(/[,()]/g, "").trim();
-        q = q.or(`ticket_code.ilike.%${s}%,buyer_email.ilike.%${s}%,buyer_full_name.ilike.%${s}%`);
+        const s = sanitizePostgrestSearchTerm(filters.search);
+        if (s) q = q.or(`ticket_code.ilike.%${s}%,buyer_email.ilike.%${s}%,buyer_full_name.ilike.%${s}%`);
       }
       if (filters.eventId) q = q.eq("event_id", filters.eventId);
       if (filters.status) q = q.eq("status", filters.status);

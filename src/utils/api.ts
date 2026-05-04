@@ -420,12 +420,26 @@ class ApiClient {
         return { tickets: [] };
       }
 
-      // Obtener tickets del usuario por buyer_id O buyer_email
-      const { data, error } = await supabase
+      // Fetch separately to avoid building a raw PostgREST OR expression with email input.
+      const byId = await supabase
         .from('tickets')
         .select('*')
-        .or(`buyer_id.eq.${session.user.id},buyer_email.eq.${session.user.email}`)
+        .eq('buyer_id', session.user.id)
         .order('created_at', { ascending: false });
+
+      const byEmail = await supabase
+        .from('tickets')
+        .select('*')
+        .eq('buyer_email', session.user.email)
+        .order('created_at', { ascending: false });
+
+      const error = byId.error || byEmail.error;
+      const byTicketId = new Map<string, Ticket>();
+      ((byId.data || []) as Ticket[]).forEach((ticket) => byTicketId.set(ticket.id, ticket));
+      ((byEmail.data || []) as Ticket[]).forEach((ticket) => byTicketId.set(ticket.id, ticket));
+      const data = Array.from(byTicketId.values()).sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
 
       if (error) {
         console.error('Error fetching tickets:', error);

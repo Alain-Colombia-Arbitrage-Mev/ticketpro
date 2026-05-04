@@ -44,6 +44,7 @@ import { ValidationsLiveTab } from "../components/admin/ValidationsLiveTab";
 import { RolesTab } from "../components/admin/RolesTab";
 import { ExportCsvButton } from "../components/admin/ExportCsvButton";
 import { CsvColumn } from "../utils/exportCsv";
+import { sanitizePostgrestSearchTerm } from "../utils/postgrest";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -161,10 +162,6 @@ function formatShortDate(iso: string) {
   });
 }
 
-// Sanitize search input for PostgREST .or() filters (commas/parens break syntax)
-function sanitizeSearch(input: string): string {
-  return input.replace(/[,()]/g, "").trim();
-}
 
 function formatCurrency(amount: number) {
   return `$${amount.toLocaleString("en-US", {
@@ -555,7 +552,7 @@ function OrdersTab() {
         .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       if (search.trim()) {
-        const q = sanitizeSearch(search);
+        const q = sanitizePostgrestSearchTerm(search);
         if (q) query = query.or(`buyer_email.ilike.%${q}%,order_id.ilike.%${q}%`);
       }
       if (statusFilter) {
@@ -711,7 +708,7 @@ async function fetchAllOrders(search: string, statusFilter: string): Promise<Ord
     .order("created_at", { ascending: false })
     .limit(10_000);
   if (search.trim()) {
-    const q = sanitizeSearch(search);
+    const q = sanitizePostgrestSearchTerm(search);
     if (q) query = query.or(`buyer_email.ilike.%${q}%,order_id.ilike.%${q}%`);
   }
   if (statusFilter) query = query.eq("payment_status", statusFilter);
