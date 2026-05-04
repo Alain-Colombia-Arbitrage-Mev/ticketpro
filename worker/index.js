@@ -51,7 +51,7 @@ function corsHeaders(request, env) {
   const allowThis = allowed.includes(origin) ? origin : allowed[0] || "*";
   return {
     "Access-Control-Allow-Origin": allowThis,
-    "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "POST, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Authorization, Content-Type",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
@@ -451,6 +451,7 @@ async function handleCreateUser(request, env) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PATCH /api/users/:id    — reset an auth user's password.
 // DELETE /api/users/:id   — delete an auth user (cascades to profiles).
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -459,6 +460,9 @@ async function handleUserById(request, env, userId) {
 
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers });
+  }
+  if (request.method === "PATCH") {
+    return handleResetUserPassword(request, env, userId, headers);
   }
   if (request.method !== "DELETE") {
     return json({ error: "Method not allowed" }, { status: 405 }, headers);
@@ -512,6 +516,91 @@ async function handleUserById(request, env, userId) {
   });
 
   return json({ ok: true, deleted: userId }, { status: 200 }, headers);
+}
+
+async function handleResetUserPassword(request, env, userId, headers) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    return json({ error: "Invalid user id" }, { status: 400 }, headers);
+  }
+
+  const authResult = await verifyAdminStrict(request, env);
+  if (!authResult.ok) {
+    return json({ error: authResult.error }, { status: authResult.status }, headers);
+  }
+  if (authResult.user?.id === userId) {
+    return json({ error: "Cannot reset your own password from this action" }, { status: 400 }, headers);
+  }
+
+  const service = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!service) {
+    return json({ error: "Worker missing SUPABASE_SERVICE_ROLE_KEY" }, { status: 500 }, headers);
+  }
+
+  let body = {};
+  try {
+    body = await request.json();
+  } catch {
+    body = {};
+  }
+
+  let password = body?.password ? String(body.password) : "";
+  let generatedPassword = null;
+  if (password && password.length < 8) {
+    return json({ error: "Password must be at least 8 characters" }, { status: 400 }, headers);
+  }
+  if (!password) {
+    password = generatePassword(16);
+    generatedPassword = password;
+  }
+
+  const beforeRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=id,email,role,name`,
+    { headers: { apikey: service, Authorization: `Bearer ${service}` } }
+  );
+  const before = beforeRes.ok ? (await beforeRes.json().catch(() => []))?.[0] ?? null : null;
+
+  const resetRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method: "PUT",
+    headers: {
+      apikey: service,
+      Authorization: `Bearer ${service}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  if (!resetRes.ok) {
+    const detail = await readSupabaseError(resetRes);
+    return json(
+      { error: `Password reset failed${detail ? ": " + detail : ""}` },
+      { status: resetRes.status === 404 ? 404 : 502 },
+      headers
+    );
+  }
+
+  await writeAuditLog(env, authResult.user, {
+    action: "user.password_reset",
+    target_type: "user",
+    target_id: userId,
+    before_data: before,
+    after_data: {
+      email: before?.email ?? null,
+      password_generated: !!generatedPassword,
+      via: "admin-panel",
+    },
+  });
+
+  return json(
+    {
+      ok: true,
+      mode: "password-reset",
+      userId,
+      email: before?.email ?? null,
+      generatedPassword,
+    },
+    { status: 200 },
+    headers
+  );
 }
 
 // Cryptographically secure random password with mixed case, digits, symbols.

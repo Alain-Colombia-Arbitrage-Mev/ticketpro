@@ -187,6 +187,40 @@ export function useCreateUser() {
   });
 }
 
+export function useResetUserPassword() {
+  return useMutation({
+    mutationFn: async (userId: string): Promise<Pick<CreateUserResult, "ok" | "mode" | "userId" | "email" | "generatedPassword">> => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error("No active session — please log in again");
+
+      const res = await fetch(`${usersEndpoint()}/${userId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!res.ok) {
+        let msg = `Request failed (${res.status})`;
+        try {
+          const body = await res.json();
+          msg = body?.error ?? msg;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(msg);
+      }
+
+      return (await res.json()) as Pick<CreateUserResult, "ok" | "mode" | "userId" | "email" | "generatedPassword">;
+    },
+  });
+}
+
 export interface AuditFilters {
   action?: string;
   actorId?: string;

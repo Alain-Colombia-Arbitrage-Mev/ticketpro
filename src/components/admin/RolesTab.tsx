@@ -23,6 +23,7 @@ import {
   useAdminAuditLog,
   useDeleteUser,
   useCreateUser,
+  useResetUserPassword,
   AdminUserRow,
   AuditLogRow,
   UserRole,
@@ -51,7 +52,7 @@ export function RolesTab() {
   const usersQ = useAdminUsers(filters);
   const updateRole = useUpdateUserRole();
   const deleteUser = useDeleteUser();
-  const resetPwd = useCreateUser();
+  const resetPwd = useResetUserPassword();
 
   function applySearch() {
     setFilters((f) => ({ ...f, search: searchInput.trim() || undefined }));
@@ -98,11 +99,7 @@ export function RolesTab() {
       `¿Generar una nueva contraseña para ${user.email}?\n\nSe te va a mostrar una sola vez — copiala y compartila con el usuario.`
     )) return;
     try {
-      const res = await resetPwd.mutateAsync({
-        email: user.email,
-        role: user.role,
-        // password omitted → worker generates
-      });
+      const res = await resetPwd.mutateAsync(user.id);
       if (res.generatedPassword) {
         // Show in a sticky toast with the password for copying.
         toast.success(
