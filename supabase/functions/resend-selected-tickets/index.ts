@@ -61,7 +61,13 @@ function ticketQrData(ticket: TicketRow): string {
 
 function formatDate(value: string | null): string {
   if (!value) return "-";
-  return new Date(value).toLocaleDateString("es-ES", {
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const date = dateOnly
+    ? new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 12))
+    : new Date(value);
+
+  return date.toLocaleDateString("es-ES", {
+    timeZone: dateOnly ? "UTC" : undefined,
     weekday: "long",
     year: "numeric",
     month: "long",

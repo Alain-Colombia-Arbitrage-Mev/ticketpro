@@ -11,6 +11,21 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
+function formatEventDate(value: string): string {
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const date = dateOnly
+    ? new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 12))
+    : new Date(value);
+
+  return date.toLocaleDateString('es-ES', {
+    timeZone: dateOnly ? 'UTC' : undefined,
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 interface ReceiptRequest {
   orderId: string;
   customerEmail: string;
@@ -150,7 +165,7 @@ serve(async (req) => {
                   <strong style="color: #495057; font-size: 14px;">📅 Fecha:</strong>
                 </td>
                 <td style="padding: 10px 0; border-bottom: 2px solid #e9ecef; text-align: right;">
-                  <span style="font-size: 14px; color: #212529;">${new Date(ticket.event_date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                  <span style="font-size: 14px; color: #212529;">${formatEventDate(ticket.event_date)}</span>
                 </td>
               </tr>
               ${ticket.event_time ? `
@@ -404,7 +419,7 @@ TICKET #${idx + 1}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   📝 Código: ${t.ticket_code}
   🎭 Evento: ${t.event_name}
-  📅 Fecha: ${new Date(t.event_date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+  📅 Fecha: ${formatEventDate(t.event_date)}
   ${t.event_time ? `⏰ Hora: ${t.event_time}` : ''}
   ${t.event_location ? `📍 Ubicación: ${t.event_location}` : ''}
   ${t.ticket_class ? `🎟️ Clase: ${t.ticket_class}` : ''}
