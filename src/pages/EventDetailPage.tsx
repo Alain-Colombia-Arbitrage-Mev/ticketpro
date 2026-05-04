@@ -27,6 +27,27 @@ export function EventDetailPage() {
 
   // Todos los hooks ANTES de cualquier return condicional
   const [selectedTicketType, setSelectedTicketType] = React.useState<number | null>(1);
+  const [heroSlide, setHeroSlide] = React.useState(0);
+
+  const heroImages = React.useMemo(() => {
+    if (!eventData) return [];
+    return [
+      eventData.imageDetail || eventData.image,
+      ...(eventData.imageSliderImages ?? []),
+    ].filter((image, index, all): image is string => !!image && all.indexOf(image) === index);
+  }, [eventData]);
+
+  React.useEffect(() => {
+    setHeroSlide(0);
+  }, [eventData?.id]);
+
+  React.useEffect(() => {
+    if (heroImages.length <= 1) return;
+    const id = window.setInterval(() => {
+      setHeroSlide((current) => (current + 1) % heroImages.length);
+    }, 5500);
+    return () => window.clearInterval(id);
+  }, [heroImages.length]);
 
   if (!eventId) {
     navigate("home");
@@ -136,7 +157,7 @@ export function EventDetailPage() {
           title: `${eventData.title} - vetlix.com`,
           description: `Compra boletos para ${eventData.title}. ${eventData.date} en ${eventData.location}. ${eventData.category}. Precio desde ${eventData.price}. No te lo pierdas, compra tus tickets ahora.`,
           keywords: `${eventData.title}, ${eventData.category}, eventos ${eventData.location}, boletos ${eventData.location}, ${eventData.date}`,
-          image: eventData.image,
+          image: heroImages[0] || eventData.image,
           url: typeof window !== 'undefined' ? `${window.location.origin}#event-detail?id=${eventId}` : undefined,
           type: "event",
           event: {
@@ -168,11 +189,15 @@ export function EventDetailPage() {
       {/* Hero Image — banner using the "Detalle del evento" variant
           (1700x512 ≈ 3.32:1) when available, falling back to the card. */}
       <div className="relative w-full overflow-hidden aspect-[1700/512] min-h-[180px]">
-        <ImageWithFallback
-          src={eventData.imageDetail || eventData.image}
-          alt={eventData.title}
-          className="h-full w-full object-cover"
-        />
+        {heroImages.map((image, index) => (
+          <ImageWithFallback
+            key={`${image}-${index}`}
+            src={image}
+            alt={eventData.title}
+            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
+            style={{ opacity: index === heroSlide ? 1 : 0 }}
+          />
+        ))}
 
         {/* Right-side darkening so overlay text on the right is legible.
             Priority event uses a stronger left→right gradient; other
@@ -218,6 +243,38 @@ export function EventDetailPage() {
               ⭐ Destacado
             </Badge>
           </div>
+        )}
+
+        {heroImages.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => setHeroSlide((current) => (current - 1 + heroImages.length) % heroImages.length)}
+              className="absolute left-3 top-1/2 z-[4] -translate-y-1/2 rounded-full border border-white/20 bg-black/50 p-2 text-white backdrop-blur-md transition hover:bg-black/70 sm:left-5 sm:p-3"
+              aria-label="Imagen anterior"
+            >
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setHeroSlide((current) => (current + 1) % heroImages.length)}
+              className="absolute right-3 top-1/2 z-[4] -translate-y-1/2 rounded-full border border-white/20 bg-black/50 p-2 text-white backdrop-blur-md transition hover:bg-black/70 sm:right-5 sm:p-3"
+              aria-label="Imagen siguiente"
+            >
+              <ChevronLeft className="h-4 w-4 rotate-180 sm:h-5 sm:w-5" />
+            </button>
+            <div className="absolute bottom-4 left-1/2 z-[4] flex -translate-x-1/2 gap-2">
+              {heroImages.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setHeroSlide(index)}
+                  className={`h-2 rounded-full transition-all ${index === heroSlide ? "w-8 bg-white" : "w-2 bg-white/45 hover:bg-white/70"}`}
+                  aria-label={`Ver imagen ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 

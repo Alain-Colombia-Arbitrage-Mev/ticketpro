@@ -4,6 +4,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import { SEOHead } from "../components/common";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
+import { PromoSlider } from "../components/events/PromoSlider";
 import { Shield } from "lucide-react";
 
 export function HomePage() {
@@ -127,6 +128,13 @@ export function HomePage() {
                 Ver mas
               </Button>
             </div>
+          </div>
+        </section>
+
+        {/* ============ EVENTO PRINCIPAL / SLIDER ============ */}
+        <section className="relative w-full bg-black px-3 py-10 sm:px-6 md:px-10 lg:px-14">
+          <div className="mx-auto max-w-[1500px]">
+            <PromoSlider />
           </div>
         </section>
 
