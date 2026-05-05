@@ -15,7 +15,6 @@ import { PromoSlider } from "../components/events/PromoSlider";
 import { EventCardSkeleton } from "../components/events/EventCardSkeleton";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
-import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { useEvents, PRIORITY_EVENT_ID } from "../hooks/useEvents";
 import { categories as mockCategories } from "../data/mockEvents";
@@ -26,7 +25,6 @@ const ITEMS_PER_PAGE = 12;
 export function AllEventsPage() {
   const { navigate, pageData } = useRouter();
   const { t } = useLanguage();
-  const { user } = useAuth();
   const { addItem } = useCartStore();
   
   // Obtener eventos de BD (con fallback a mockEvents)
@@ -101,11 +99,6 @@ export function AllEventsPage() {
   };
 
   const handleAddToCart = (event: any) => {
-    if (!user) {
-      navigate("login");
-      return;
-    }
-
     const ticketPrice = parseInt(event.price.replace(/[^0-9]/g, "") || "800");
     
     addItem({

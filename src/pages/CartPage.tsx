@@ -13,7 +13,6 @@ import { useCartStore } from "../stores/cartStore";
 import { useCheckoutStore } from "../stores/checkoutStore";
 import { ImageWithFallback } from "../components/media";
 import { formatCurrency } from "../utils/currency";
-import { saveLoginReturn } from "../utils/loginReturn";
 import { toast } from "sonner";
 
 export function CartPage() {
@@ -91,12 +90,6 @@ export function CartPage() {
   ];
 
   const handleCheckout = () => {
-    if (!user) {
-      saveLoginReturn("cart");
-      navigate("login");
-      return;
-    }
-
     if (items.length === 0) {
       return;
     }
@@ -128,26 +121,6 @@ export function CartPage() {
 
   // ❌ ELIMINADA: La dirección solo se edita en CheckoutPage con el formulario completo
   // que guarda directamente en Supabase
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Card className="p-8 !bg-black border-white/20 max-w-md w-full">
-          <div className="text-center">
-            <ShoppingCart className="h-16 w-16 !text-white/40 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold !text-white mb-2">{t('cart.login_required')}</h2>
-            <p className="!text-white/70 mb-6">{t('cart.login_required_desc')}</p>
-            <Button
-              className="bg-[#c61619] hover:bg-[#a01316] text-white"
-              onClick={() => { saveLoginReturn("cart"); navigate("login"); }}
-            >
-              {t('nav.login')}
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-black pb-12">

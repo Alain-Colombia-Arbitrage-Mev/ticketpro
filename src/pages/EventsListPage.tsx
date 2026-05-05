@@ -26,7 +26,6 @@ import {
 } from "../components/ui/select";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
-import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { categories as mockCategories } from "../data/mockEvents";
 import { SEOHead } from "../components/common";
@@ -40,7 +39,6 @@ import logohome from "../assets/images/logohome.svg";
 export function EventsListPage() {
   const { pageData, navigate } = useRouter();
   const { t } = useLanguage();
-  const { user } = useAuth();
   const { addItem } = useCartStore();
   const { data: events = [], isLoading, error } = useEvents();
 
@@ -99,11 +97,6 @@ export function EventsListPage() {
   };
 
   const handleAddToCart = (event: any) => {
-    if (!user) {
-      navigate("login");
-      return;
-    }
-
     const ticketPrice = parseInt(event.price.replace(/[^0-9]/g, "") || "800");
 
     addItem({

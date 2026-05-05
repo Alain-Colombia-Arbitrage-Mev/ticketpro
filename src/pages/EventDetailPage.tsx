@@ -7,16 +7,13 @@ import { Separator } from "../components/ui/separator";
 import { ImageWithFallback } from "../components/media";
 import { useRouter } from "../hooks/useRouter";
 import { useLanguage } from "../hooks/useLanguage";
-import { useAuth } from "../hooks/useAuth";
 import { useCartStore } from "../stores/cartStore";
 import { SEOHead } from "../components/common";
-import { saveLoginReturn } from "../utils/loginReturn";
 import { useEvent, PRIORITY_EVENT_ID } from "../hooks/useEvents";
 
 export function EventDetailPage() {
   const { navigate, pageData } = useRouter();
   const { t } = useLanguage();
-  const { user } = useAuth();
   const { addItem } = useCartStore();
 
   // Solo necesitamos el ID de la URL
@@ -120,12 +117,6 @@ export function EventDetailPage() {
   };
 
   const handleAddToCart = () => {
-    if (!user) {
-      saveLoginReturn("event-detail", { id: eventId });
-      navigate("login");
-      return;
-    }
-
     const selectedTicket = ticketTypes.find(t => t.id === selectedTicketType);
     if (selectedTicket) {
       const ticketPrice = parseInt(selectedTicket.price.replace(/[^0-9]/g, ""));
