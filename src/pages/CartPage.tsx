@@ -14,6 +14,7 @@ import { useCheckoutStore } from "../stores/checkoutStore";
 import { ImageWithFallback } from "../components/media";
 import { formatCurrency } from "../utils/currency";
 import { toast } from "sonner";
+import { formatDateOnly } from "../utils/dateOnly";
 
 export function CartPage() {
   const { navigate } = useRouter();
@@ -207,7 +208,7 @@ export function CartPage() {
                           {item.eventDate && (
                             <div className="flex items-center gap-0.5 sm:gap-1 bg-white/5 px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 rounded">
                               <Calendar className="h-2.5 w-2.5 min-[375px]:h-3 min-[375px]:w-3 sm:h-4 sm:w-4 !text-white/60 flex-shrink-0" />
-                              <span className="text-[10px] min-[375px]:text-xs sm:text-sm whitespace-nowrap">{new Date(item.eventDate).toLocaleDateString('es-MX', {
+                              <span className="text-[10px] min-[375px]:text-xs sm:text-sm whitespace-nowrap">{formatDateOnly(item.eventDate, 'es-MX', {
                                 month: 'short',
                                 day: 'numeric'
                               })}</span>
