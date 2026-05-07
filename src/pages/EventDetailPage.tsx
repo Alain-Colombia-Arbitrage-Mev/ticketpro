@@ -90,6 +90,8 @@ export function EventDetailPage() {
 
   const eventDateISO = parseDate(eventData.date);
   const isPriorityEvent = eventId === PRIORITY_EVENT_ID;
+  const useContainHero = eventData.imageFit === "contain";
+  const showHeroOverlay = eventData.sliderOverlayEnabled !== false;
 
   // Extraer precio del formato "$50 USD" -> "50"
   const extractPrice = (priceStr: string | undefined): string => {
@@ -181,28 +183,36 @@ export function EventDetailPage() {
           (1700x512 ≈ 3.32:1) when available, falling back to the card. */}
       <div className="relative w-full overflow-hidden aspect-[1700/512] min-h-[180px]">
         {heroImages.map((image, index) => (
-          <ImageWithFallback
-            key={`${image}-${index}`}
-            src={image}
-            alt={eventData.title}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-            style={{ opacity: index === heroSlide ? 1 : 0 }}
-          />
+          <div key={`${image}-${index}`} className="absolute inset-0 transition-opacity duration-700" style={{ opacity: index === heroSlide ? 1 : 0 }}>
+            {useContainHero && (
+              <ImageWithFallback
+                src={image}
+                alt=""
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-55"
+                aria-hidden="true"
+              />
+            )}
+            <ImageWithFallback
+              src={image}
+              alt={eventData.title}
+              className={`relative z-[1] h-full w-full ${useContainHero ? "object-contain" : "object-cover"}`}
+            />
+          </div>
         ))}
 
         {/* Right-side darkening so overlay text on the right is legible.
             Priority event uses a stronger left→right gradient; other
             events keep the subtle bottom→top gradient. */}
-        <div
+        {showHeroOverlay && <div
           className={`pointer-events-none absolute inset-0 ${
             isPriorityEvent
               ? "bg-gradient-to-l from-black/85 via-black/45 to-transparent"
               : "bg-gradient-to-t from-black/80 via-black/20 to-transparent"
           }`}
-        />
+        />}
 
         {/* Priority-event overlay: title + location + price pinned right */}
-        {isPriorityEvent && (
+        {isPriorityEvent && showHeroOverlay && (
           <div className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-end px-4 sm:px-8 md:px-12 lg:px-20">
             <div className="max-w-[60%] text-right">
               <h1 className="text-base font-bold leading-tight text-white drop-shadow-2xl sm:text-2xl md:text-3xl lg:text-5xl">

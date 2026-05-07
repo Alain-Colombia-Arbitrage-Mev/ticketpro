@@ -750,11 +750,14 @@ export function EventsListPage() {
                   >
                     {/* Imagen del evento */}
                     <div className="h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] rounded-t-[10px] sm:rounded-t-[13px] overflow-hidden relative">
+                      {event.imageFit === "contain" && (
+                        <img src={event.image} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-50" aria-hidden="true" />
+                      )}
                       <img
                         src={event.image}
                         alt={event.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        className={`relative z-[1] w-full h-full transition-transform duration-300 hover:scale-105 ${event.imageFit === "contain" ? "object-contain" : "object-cover"}`}
                       />
 
                       {/* Overlay SOLD OUT */}
@@ -923,11 +926,14 @@ export function EventsListPage() {
                   >
                     {/* Imagen del evento */}
                     <div className="h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] relative overflow-hidden">
+                      {event.imageFit === "contain" && (
+                        <img src={event.image} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-50" aria-hidden="true" />
+                      )}
                       <img
                         src={event.image}
                         alt={event.title}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        className={`relative z-[1] w-full h-full transition-transform duration-300 hover:scale-105 ${event.imageFit === "contain" ? "object-contain" : "object-cover"}`}
                       />
 
                       {/* Overlay SOLD OUT */}

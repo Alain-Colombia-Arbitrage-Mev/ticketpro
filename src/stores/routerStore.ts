@@ -58,6 +58,13 @@ export const useRouterStore = create<RouterState>((set) => ({
     // This handles direct navigation or shared links without the hash prefix
     const convertPathToHash = () => {
       const pathname = window.location.pathname;
+      const cleanPath = pathname.replace(/\/+$/, '');
+
+      if (cleanPath === '/eventos/evento-corporativo-23') {
+        set({ currentPage: 'event-detail', pageData: { id: 23, slug: 'evento-corporativo-23' } });
+        return true;
+      }
+
       // Remove leading slash to get the page name
       const pathPage = pathname.replace(/^\//, '').split('?')[0] as Page;
 
@@ -102,10 +109,10 @@ export const useRouterStore = create<RouterState>((set) => ({
     };
 
     // On initial load: convert path-based URL to hash if needed
-    convertPathToHash();
+    const convertedPath = convertPathToHash();
 
     // Parse initial hash on load
-    handleHashChange();
+    if (!convertedPath) handleHashChange();
 
     window.addEventListener('hashchange', handleHashChange);
     window.addEventListener('popstate', handleHashChange);

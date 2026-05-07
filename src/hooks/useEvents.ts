@@ -46,6 +46,8 @@ export interface Event {
   imageCard?: string;
   imageDetail?: string;
   imageSliderImages?: string[];
+  imageFit?: 'cover' | 'contain';
+  sliderOverlayEnabled?: boolean;
   venueImage?: string | null;
   totalCapacity?: number | null;
   category: string;
@@ -78,6 +80,8 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
   const sliderImages = Array.isArray(dbEvent.metadata?.slider_images)
     ? dbEvent.metadata.slider_images.filter((url: unknown): url is string => typeof url === 'string' && !!url.trim())
     : [];
+  const imageFit = dbEvent.metadata?.slider_fit === 'contain' ? 'contain' : 'cover';
+  const sliderOverlayEnabled = dbEvent.metadata?.slider_overlay_enabled !== false;
   return {
     id: dbEvent.id,
     title: dbEvent.title,
@@ -91,6 +95,8 @@ function convertEventFromDB(dbEvent: EventFromDB): Event {
     imageCard: card,
     imageDetail: detail,
     imageSliderImages: sliderImages,
+    imageFit,
+    sliderOverlayEnabled,
     venueImage: dbEvent.venue_image_url ?? null,
     totalCapacity: dbEvent.total_capacity ?? null,
     category: dbEvent.category,

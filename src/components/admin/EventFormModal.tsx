@@ -43,13 +43,21 @@ function emptyForm(): AdminEventInput {
     trending: false,
     sold_out: false,
     last_tickets: false,
-    metadata: { slider_images: [] },
+    metadata: { slider_images: [], slider_overlay_enabled: true, slider_fit: "cover" },
   };
 }
 
 function getSliderImages(metadata: Record<string, unknown> | null | undefined): string[] {
   const value = metadata?.slider_images;
   return Array.isArray(value) ? value.filter((url): url is string => typeof url === "string" && !!url.trim()) : [];
+}
+
+function getSliderOverlayEnabled(metadata: Record<string, unknown> | null | undefined): boolean {
+  return metadata?.slider_overlay_enabled !== false;
+}
+
+function getSliderFit(metadata: Record<string, unknown> | null | undefined): "cover" | "contain" {
+  return metadata?.slider_fit === "contain" ? "contain" : "cover";
 }
 
 function eventToForm(e: AdminEventRow): AdminEventInput {
@@ -73,7 +81,12 @@ function eventToForm(e: AdminEventRow): AdminEventInput {
     trending: e.trending ?? false,
     sold_out: e.sold_out ?? false,
     last_tickets: e.last_tickets ?? false,
-    metadata: { ...(e.metadata ?? {}), slider_images: getSliderImages(e.metadata) },
+    metadata: {
+      ...(e.metadata ?? {}),
+      slider_images: getSliderImages(e.metadata),
+      slider_overlay_enabled: getSliderOverlayEnabled(e.metadata),
+      slider_fit: getSliderFit(e.metadata),
+    },
   };
 }
 
@@ -265,6 +278,17 @@ export function EventFormModal({ event, onClose }: Props) {
               />
             </Field>
 
+            <SliderDisplayOptions
+              overlayEnabled={getSliderOverlayEnabled(form.metadata)}
+              fit={getSliderFit(form.metadata)}
+              onChange={(patch) =>
+                setForm((f) => ({
+                  ...f,
+                  metadata: { ...(f.metadata ?? {}), ...patch },
+                }))
+              }
+            />
+
             <SliderImagesManager
               eventKey={eventKey}
               images={getSliderImages(form.metadata)}
@@ -333,6 +357,41 @@ export function EventFormModal({ event, onClose }: Props) {
           .inp::placeholder { color: rgba(255,255,255,0.3); }
         `}</style>
       </div>
+    </div>
+  );
+}
+
+function SliderDisplayOptions({
+  overlayEnabled,
+  fit,
+  onChange,
+}: {
+  overlayEnabled: boolean;
+  fit: "cover" | "contain";
+  onChange: (patch: Record<string, unknown>) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-3 rounded-xl border border-white/10 bg-[#111] p-4 sm:grid-cols-2">
+      <FlagToggle
+        label="Texto sobre slider"
+        value={overlayEnabled}
+        onChange={(value) => onChange({ slider_overlay_enabled: value })}
+      />
+      <button
+        type="button"
+        onClick={() => onChange({ slider_fit: fit === "cover" ? "contain" : "cover" })}
+        className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${
+          fit === "contain"
+            ? "border-[#c61619]/50 bg-[#c61619]/10 text-white"
+            : "border-white/10 bg-[#1a1a1a] text-white/60 hover:text-white"
+        }`}
+      >
+        <span>Mostrar imagen completa</span>
+        <span className="text-xs">{fit === "contain" ? "Sí" : "No"}</span>
+      </button>
+      <p className="text-[11px] text-white/40 sm:col-span-2">
+        Desactiva el texto si el flyer ya contiene la información. Usa imagen completa para evitar recortes en flyers con texto.
+      </p>
     </div>
   );
 }

@@ -56,6 +56,8 @@ export function PromoSlider() {
 
   const current = slides[currentSlide];
   if (!current) return null;
+  const useContain = current.event.imageFit === 'contain';
+  const showOverlay = current.event.sliderOverlayEnabled !== false;
 
   const nextSlide = () => {
     setIsAutoPlaying(false);
@@ -94,18 +96,26 @@ export function PromoSlider() {
               pointerEvents: isActive ? 'auto' : 'none',
             }}
           >
+            {useContain && (
+              <img
+                src={slide.image}
+                alt=""
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-55"
+                aria-hidden="true"
+              />
+            )}
             <img
               src={slide.image}
               alt={slide.event.title}
-              className="w-full h-full object-cover object-center"
+              className={`relative z-[1] w-full h-full object-center ${useContain ? 'object-contain' : 'object-cover'}`}
               loading={i === 0 ? 'eager' : 'lazy'}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/30" />
+            {showOverlay && <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/85 via-black/55 to-black/30" />}
           </div>
         );
       })}
 
-      <div className="absolute inset-0 z-10 flex items-center">
+      {showOverlay && <div className="absolute inset-0 z-10 flex items-center">
         <div className="w-full px-3 min-[375px]:px-4 sm:px-6 md:px-8 lg:px-12">
           <div
             key={currentSlide}
@@ -144,7 +154,7 @@ export function PromoSlider() {
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {slides.length > 1 && (
         <>
