@@ -359,6 +359,74 @@ async function handleCreateUser(request, env) {
     );
   }
 
+  // Profile may be missing even when the auth user exists (trigger/RLS drift or
+  // older accounts). Recover that case instead of trying to create Auth again.
+  const existingAuthUser = await findAuthUserByEmail(env, service, email);
+  if (existingAuthUser?.id) {
+    const upsertRes = await upsertProfile(env, service, {
+      id: existingAuthUser.id,
+      email,
+      name: name || existingAuthUser.user_metadata?.name || existingAuthUser.email?.split("@")[0] || null,
+      role,
+    });
+    if (!upsertRes.ok) {
+      const detail = await upsertRes.text().catch(() => "");
+      return json(
+        { error: `Profile recovery failed: ${detail.slice(0, 200)}` },
+        { status: 502 },
+        headers
+      );
+    }
+
+    const resetRes = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/admin/users/${existingAuthUser.id}`,
+      {
+        method: "PUT",
+        headers: {
+          apikey: service,
+          Authorization: `Bearer ${service}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      }
+    );
+    if (!resetRes.ok) {
+      const detail = await readSupabaseError(resetRes);
+      return json(
+        { error: `Password reset failed${detail ? ": " + detail : ""}` },
+        { status: 502 },
+        headers
+      );
+    }
+
+    await writeAuditLog(env, authResult.user, {
+      action: "user.recover_profile",
+      target_type: "user",
+      target_id: existingAuthUser.id,
+      before_data: { email, profile_missing: true },
+      after_data: {
+        role,
+        email,
+        name: name || null,
+        password_changed: true,
+        via: "admin-panel",
+      },
+    });
+
+    return json(
+      {
+        ok: true,
+        mode: role === "user" ? "password-reset" : "promoted",
+        userId: existingAuthUser.id,
+        email,
+        role,
+        generatedPassword,
+      },
+      { status: 200 },
+      headers
+    );
+  }
+
   // 2. Create a fresh confirmed user with password + metadata.
   const createRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
     method: "POST",
@@ -621,6 +689,51 @@ async function readSupabaseError(res) {
   } catch {
     return "";
   }
+}
+
+async function findAuthUserByEmail(env, service, email) {
+  const normalized = email.toLowerCase();
+  const perPage = 1000;
+
+  for (let page = 1; page <= 10; page++) {
+    const res = await fetch(
+      `${env.SUPABASE_URL}/auth/v1/admin/users?page=${page}&per_page=${perPage}`,
+      { headers: { apikey: service, Authorization: `Bearer ${service}` } }
+    );
+    if (!res.ok) return null;
+
+    const payload = await res.json().catch(() => null);
+    const users = Array.isArray(payload?.users)
+      ? payload.users
+      : Array.isArray(payload)
+        ? payload
+        : [];
+
+    const found = users.find((user) => String(user?.email || "").toLowerCase() === normalized);
+    if (found) return found;
+    if (users.length < perPage) return null;
+  }
+
+  return null;
+}
+
+function upsertProfile(env, service, profile) {
+  return fetch(`${env.SUPABASE_URL}/rest/v1/profiles?on_conflict=id`, {
+    method: "POST",
+    headers: {
+      apikey: service,
+      Authorization: `Bearer ${service}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({
+      id: profile.id,
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
+      updated_at: new Date().toISOString(),
+    }),
+  });
 }
 
 // Best-effort audit log. Doesn't block the response on failure.
