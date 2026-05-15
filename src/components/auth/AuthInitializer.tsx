@@ -22,38 +22,22 @@ export function AuthInitializer() {
 
       const fallbackTimer = window.setTimeout(() => {
         finishLoading();
-      }, 3500);
+      }, 1200);
 
       // Helper: build a basic User from a Supabase session + optional profile row
-      const buildUserFromSession = async (session: any): Promise<void> => {
+      const buildUserFromSession = (session: any): void => {
         if (!session?.user || !isMounted) return;
 
-        const { User } = await import('../../utils/api');
-
-        let profileData: any = null;
-        try {
-          const { data } = await supabase
-            .from('profiles')
-            .select('address, city, state, zip_code, country, name, role')
-            .eq('id', session.user.id)
-            .maybeSingle();
-          profileData = data;
-        } catch {
-          // silent
-        }
-
         const metadataRole = session.user.user_metadata?.role;
-        const validRole = profileData?.role || ((metadataRole === 'hoster' || metadataRole === 'admin') ? metadataRole : 'user');
+        const persistedRole = useAuthStore.getState().user?.id === session.user.id
+          ? useAuthStore.getState().user?.role
+          : undefined;
+        const validRole = persistedRole || ((metadataRole === 'hoster' || metadataRole === 'admin') ? metadataRole : 'user');
 
-        const basicUser: User = {
+        const basicUser = {
           id: session.user.id,
           email: session.user.email || '',
-          name: profileData?.name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
-          address: profileData?.address || undefined,
-          city: profileData?.city || undefined,
-          state: profileData?.state || undefined,
-          zipCode: profileData?.zip_code || undefined,
-          country: profileData?.country || undefined,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuario',
           balance: 0,
           createdAt: session.user.created_at || new Date().toISOString(),
           role: validRole,
@@ -79,12 +63,10 @@ export function AuthInitializer() {
                 // silent
               }
             } else if (event === 'INITIAL_SESSION') {
-              // First load: try backend profile, fallback to session data
-              try {
-                await refreshUser();
-              } catch {
-                await buildUserFromSession(session);
-              }
+              // First load must render fast. Build from the Supabase session and
+              // refresh the richer profile in the background.
+              buildUserFromSession(session);
+              refreshUser().catch(() => {});
             } else {
               // SIGNED_IN: signIn() already set the user; refresh in background
               refreshUser().catch(() => {});
