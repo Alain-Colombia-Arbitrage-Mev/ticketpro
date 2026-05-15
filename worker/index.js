@@ -693,9 +693,9 @@ async function readSupabaseError(res) {
 
 async function findAuthUserByEmail(env, service, email) {
   const normalized = email.toLowerCase();
-  const perPage = 1000;
+  const perPage = 200;
 
-  for (let page = 1; page <= 10; page++) {
+  for (let page = 1; page <= 5; page++) {
     const res = await fetch(
       `${env.SUPABASE_URL}/auth/v1/admin/users?page=${page}&per_page=${perPage}`,
       { headers: { apikey: service, Authorization: `Bearer ${service}` } }

@@ -12,6 +12,17 @@ export function AuthInitializer() {
 
     useEffect(() => {
       let isMounted = true;
+      let initialized = false;
+
+      const finishLoading = () => {
+        if (!isMounted || initialized) return;
+        initialized = true;
+        setLoading(false);
+      };
+
+      const fallbackTimer = window.setTimeout(() => {
+        finishLoading();
+      }, 3500);
 
       // Helper: build a basic User from a Supabase session + optional profile row
       const buildUserFromSession = async (session: any): Promise<void> => {
@@ -84,13 +95,14 @@ export function AuthInitializer() {
           setUser(null);
         }
 
-        if (isMounted) setLoading(false);
+        finishLoading();
       }
     );
 
     // Cleanup: desuscribirse cuando el componente se desmonte
     return () => {
       isMounted = false;
+      window.clearTimeout(fallbackTimer);
       subscription.unsubscribe();
     };
   }, [refreshUser, setUser, setLoading]);
